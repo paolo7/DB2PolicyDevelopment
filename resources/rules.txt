@@ -1,0 +1,104 @@
+*************** KNOWN PREDICATES
+*************** These are the definitions of the predicates that we want to consider
+
+START PREDICATE 
+SIGNATURE     room(?x)
+LABEL         room ?x
+RDF           ?x rdf:type example:Room .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     employee(?x)
+LABEL         employee ?x
+RDF           ?x rdf:type example:Employee .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     observation(?x)
+LABEL         observation ?x
+RDF           ?x rdf:type sosa:Observation .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     sensor(?x)
+LABEL         sensor ?x
+RDF           ?x rdf:type sosa:Sensor .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     observableProperty(?x)
+LABEL         property ?x
+RDF           ?x rdf:type sosa:ObservableProperty .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     featureOfInterest(?x)
+LABEL         feature ?x
+RDF           ?x rdf:type sosa:FeatureOfInterest .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     madeObservation(?x,?y)
+LABEL         ?x made observation ?y
+RDF           ?x sosa:madeObservation ?y .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     measurementOfObservation(?x,?y)
+LABEL         the result of observation ?x is ?y
+RDF           ?x sosa:hasSimpleResult ?y .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     timeOfObservation(?x,?y)
+LABEL         observation ?x was made at time ?y
+RDF           ?x sosa:resultTime ?y . 
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     featureOfObservation(?x,?y)
+LABEL         observation ?x was made on ?y
+RDF           ?x sosa:hasFeatureOfInterest ?y . 
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     propertyOfObservation(?x,?y)
+LABEL         observation ?x measured ?y
+RDF           ?x sosa:observedProperty ?y . 
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     hasClass(?x,?y)
+LABEL         ?y ?x 
+RDF           ?x rdf:type ?y . 
+END PREDICATE
+
+*************** RULES
+*************** These are rules that we want to apply
+
+START RULE observation(?x) AND observableProperty(?y) <-- propertyOfObservation(?x,?y)
+END RULE
+
+START RULE observation(?x) AND featureOfInterest(?y) <-- featureOfObservation(?x,?y)
+END RULE 
+
+START RULE observation(?x) <-- timeOfObservation(?x,?y)
+END RULE
+
+START RULE observation(?x) <-- measurementOfObservation(?x,?y)
+END RULE
+
+START RULE observation(?x) AND sensor(?y) <-- madeObservation(?y,?x)
+END RULE
+
+START RULE [?v0]of[?v1](?v4,?v2) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0) AND featureOfObservation(?v3,?v4) AND hasClass(?v4,?v1)
+LABEL      ?v0 of ?v1 ?v4 is ?v2 
+END RULE
+
+*************** AVAILABLE PREDICATES
+*************** These are the predicates that we assume are available from the start, i.e. the predicates that we can infer from a database
+
+START AVAILABLE   featureOfObservation(?x,?y)
+START AVAILABLE   measurementOfObservation(?x,?y)
+START AVAILABLE   propertyOfObservation(?x,example:CO2concentration)
+START AVAILABLE   room(?x)

@@ -1,0 +1,34 @@
+package logic;
+
+import java.util.Objects;
+
+public abstract class ResourceAbstr implements Resource {
+
+	@Override
+    public boolean equals(Object o) {
+  
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Resource)) {
+            return false;
+        }
+        Resource p = (Resource) o;
+        return this.getLexicalValue().equals(p.getLexicalValue());
+    }
+	
+	@Override
+	public String toString() {
+		return this.getLexicalValue();
+	}
+	
+	@Override
+	public int hashCode() {
+		String lv = this.getLexicalValue();
+		final int prime = 31;
+		int result = 7;
+		result = prime * result + ((lv == null) ? 0 : lv.hashCode());
+		return result;
+	}
+	
+}

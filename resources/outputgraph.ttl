@@ -1,0 +1,16 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sosa="http://www.w3.org/ns/sosa/"
+    xmlns:example="http://example.com/"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:ssn="http://www.w3.org/ns/ssn/">
+  <example:Room rdf:about="http://w3id.org/prohow#BNODEPROXY1518539153126">
+    <rdf:type rdf:resource="http://www.w3.org/ns/sosa/Observation"/>
+    <sosa:hasSimpleResult rdf:resource="http://w3id.org/prohow#BNODEPROXY1518539153126"/>
+    <sosa:hasFeatureOfInterest rdf:resource="http://w3id.org/prohow#BNODEPROXY1518539153126"/>
+    <sosa:observedProperty>
+      <sosa:ObservableProperty rdf:about="http://example.com/CO2concentration"/>
+    </sosa:observedProperty>
+    <rdf:type rdf:resource="http://www.w3.org/ns/sosa/FeatureOfInterest"/>
+  </example:Room>
+</rdf:RDF>
