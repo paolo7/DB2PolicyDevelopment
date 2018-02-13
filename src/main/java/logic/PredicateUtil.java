@@ -14,7 +14,7 @@ public class PredicateUtil {
 	public static Predicate get(String predicateName, int varNum, Set<Predicate> predicates) {
 		Predicate predicate = null;
 		for(Predicate p : predicates) {
-			if(p.getName().equals(predicateName) && p.getVarnum() == varNum) {
+			if(p.getName().toLowerCase().equals(predicateName.toLowerCase()) && p.getVarnum() == varNum) {
 				if(predicate == null)
 					predicate = p;
 				else
@@ -37,7 +37,7 @@ public class PredicateUtil {
 	public static boolean containsOne(String predicateName, int varNum, Set<Predicate> predicates) {
 		Predicate predicate = null;
 		for(Predicate p : predicates) {
-			if(p.getName().equals(predicateName) && p.getVarnum() == varNum) {
+			if(p.getName().toLowerCase().equals(predicateName.toLowerCase()) && p.getVarnum() == varNum) {
 				if(predicate == null)
 					predicate = p;
 				else

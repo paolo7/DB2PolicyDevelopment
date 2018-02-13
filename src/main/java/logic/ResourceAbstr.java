@@ -14,7 +14,7 @@ public abstract class ResourceAbstr implements Resource {
             return false;
         }
         Resource p = (Resource) o;
-        return this.getLexicalValue().equals(p.getLexicalValue());
+        return this.getLexicalValue().toLowerCase().equals(p.getLexicalValue().toLowerCase());
     }
 	
 	@Override
@@ -24,7 +24,7 @@ public abstract class ResourceAbstr implements Resource {
 	
 	@Override
 	public int hashCode() {
-		String lv = this.getLexicalValue();
+		String lv = this.getLexicalValue().toLowerCase();
 		final int prime = 31;
 		int result = 7;
 		result = prime * result + ((lv == null) ? 0 : lv.hashCode());

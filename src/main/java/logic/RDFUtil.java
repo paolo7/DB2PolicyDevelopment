@@ -13,10 +13,13 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.shared.PrefixMapping;
 
 public class RDFUtil {
 	
 	public static String bnodeProxy = "http://w3id.org/prohow#BNODEPROXY"+new java.util.Date().getTime();
+	
+	public static PrefixMapping prefixes = PrefixMapping.Factory.create();
 	
 	public static Model generateModel(Set<PredicateInstantiation> predicates, Map<String,String> prefixes) {
 		
@@ -57,6 +60,10 @@ public class RDFUtil {
 			e.printStackTrace();
 		}
 		return model;
+	}
+	
+	public static String expandPrefix(String URI) {
+		return prefixes.expandPrefix(URI);
 	}
 	
 	public static String resolveLabelOfURI(String URI) {

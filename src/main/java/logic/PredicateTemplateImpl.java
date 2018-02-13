@@ -85,6 +85,13 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 				newBindings[i] = bindings[i];
 			}
 		}
+		int order = 0;
+		for(int i = 0; i < newBindings.length; i++) {
+			if(newBindings[i].isVar()) {
+				newBindings[i] = new BindingImpl(order);
+				order++;
+			}
+		}
 		return new PredicateInstantiationImpl(predicate, newBindings); 
 	}
 

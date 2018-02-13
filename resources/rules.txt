@@ -13,6 +13,8 @@ LABEL         employee ?x
 RDF           ?x rdf:type example:Employee .
 END PREDICATE
 
+*** Standard SSN predicates
+
 START PREDICATE 
 SIGNATURE     observation(?x)
 LABEL         observation ?x
@@ -73,9 +75,21 @@ LABEL         ?y ?x
 RDF           ?x rdf:type ?y . 
 END PREDICATE
 
+START PREDICATE 
+SIGNATURE     subClass(?x,?y)
+LABEL         a ?y is a ?x 
+RDF           ?x rdfs:subClassOf ?y . 
+END PREDICATE
+
 *************** RULES
 *************** These are rules that we want to apply
 
+
+*** subclass inference
+START RULE hasClass(?x,?z) <-- hasClass(?x,?y) AND subClass(?y,?z)
+END RULE
+
+*** domain and range rules
 START RULE observation(?x) AND observableProperty(?y) <-- propertyOfObservation(?x,?y)
 END RULE
 
@@ -91,9 +105,18 @@ END RULE
 START RULE observation(?x) AND sensor(?y) <-- madeObservation(?y,?x)
 END RULE
 
+*** elevating the property-feature-measurment triple
+
 START RULE [?v0]of[?v1](?v4,?v2) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0) AND featureOfObservation(?v3,?v4) AND hasClass(?v4,?v1)
 LABEL      ?v0 of ?v1 ?v4 is ?v2 
 END RULE
+
+*** elevating the class name
+
+START RULE [?y](?x) <-- hasClass(?x,?y)
+LABEL      ?y ?x
+END RULE
+
 
 *************** AVAILABLE PREDICATES
 *************** These are the predicates that we assume are available from the start, i.e. the predicates that we can infer from a database
@@ -102,3 +125,4 @@ START AVAILABLE   featureOfObservation(?x,?y)
 START AVAILABLE   measurementOfObservation(?x,?y)
 START AVAILABLE   propertyOfObservation(?x,example:CO2concentration)
 START AVAILABLE   room(?x)
+START AVAILABLE   subClass(example:Room,example:Place)

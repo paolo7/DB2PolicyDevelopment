@@ -85,9 +85,29 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 			//System.out.println(r);
 			//System.out.println(SPARQLquery);
 			}
-		boolean oneNewPredicate = false;
+		newPredicates.removeAll(existingPredicates);
+		if(newPredicates.size() == 0) return newPredicates;
+		Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
+		newKnownPredicates.addAll(existingPredicates);
+		newKnownPredicates.addAll(newPredicates);
+		newPredicates.addAll(expand(newKnownPredicates));
+		
+		/*boolean oneNewPredicate = false;
 		// update the list of known predicates
 		for(PredicateInstantiation pi: newPredicates) {
+			///DEBUG
+			for(PredicateInstantiation pi2: existingPredicates) {
+				if(pi.equals(pi2) &&  (pi.hashCode() != pi2.hashCode())) {
+					Predicate p = pi2.getPredicate();
+					Predicate p2 = pi.getPredicate();
+					int hash1 = p.hashCode();
+					int hash2 = p2.hashCode();
+					p.getRDFtranslation().iterator().next().equals(p2.getRDFtranslation().iterator().next());
+					boolean a = p.equals(pi.getPredicate());
+					String aa = ""+23+hash1;
+				}
+			}
+			//DEBUG
 			oneNewPredicate = oneNewPredicate || knownPredicates.add(pi.getPredicate());
 			oneNewPredicate = oneNewPredicate || !existingPredicates.contains(pi);
 		}
@@ -95,8 +115,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 			Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
 			newKnownPredicates.addAll(existingPredicates);
 			newKnownPredicates.addAll(newPredicates);
+			newPredicates.removeAll(existingPredicates);
 			newPredicates.addAll(expand(newKnownPredicates));
-		} 
+		} */
 		return newPredicates;
 	}
 

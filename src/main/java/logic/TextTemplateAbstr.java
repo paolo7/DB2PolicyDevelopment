@@ -18,7 +18,7 @@ public abstract class TextTemplateAbstr implements TextTemplate{
         if(this.isVar()) {
         	if(this.getVar() == p.getVar()) return true;
         } else {
-        	if(this.getText().equals(p.getText())) return true;
+        	if(this.getText().toLowerCase().equals(p.getText().toLowerCase())) return true;
         }
         return false;
     }
@@ -32,7 +32,7 @@ public abstract class TextTemplateAbstr implements TextTemplate{
 	@Override
 	public int hashCode() {
 		String text = null;
-		if(this.isText()) text = this.getText();
+		if(this.isText()) text = this.getText().toLowerCase();
 		int var = -1;
 		if(this.isVar()) var = this.getVar();
 		

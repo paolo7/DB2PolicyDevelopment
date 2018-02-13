@@ -17,6 +17,8 @@ public class FileParserTest {
 		prefixes.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		prefixes.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
 		
+		RDFUtil.prefixes.setNsPrefixes(prefixes);
+		
 		Set<Predicate> predicates = new HashSet<Predicate>();
 		Set<Rule> rules = new HashSet<Rule>();
 		Set<PredicateInstantiation> existingPredicates = new HashSet<PredicateInstantiation>();

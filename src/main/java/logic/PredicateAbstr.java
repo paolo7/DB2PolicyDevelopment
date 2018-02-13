@@ -30,7 +30,7 @@ public abstract class PredicateAbstr implements Predicate{
         		return false;
         }
          
-        return this.getName().equals(p.getName()) && this.getVarnum() == p.getVarnum();
+        return this.getName().toLowerCase().equals(p.getName().toLowerCase()) && this.getVarnum() == p.getVarnum();
     }
 	
 	@Override
@@ -62,7 +62,7 @@ public abstract class PredicateAbstr implements Predicate{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 7;
-		result = prime * result + ((this.getName() == null) ? 0 : this.getName().hashCode());
+		result = prime * result + ((this.getName() == null) ? 0 : this.getName().toLowerCase().hashCode());
 		result = prime * result + ((this.getTextLabel() == null) ? 0 : this.getTextLabel().hashCode());
 		result = prime * result + ((this.getRDFtranslation() == null) ? 0 : this.getRDFtranslation().hashCode());
 		result = prime * result + this.getVarnum();
