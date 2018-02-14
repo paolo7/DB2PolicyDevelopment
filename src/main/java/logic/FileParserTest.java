@@ -10,12 +10,12 @@ public class FileParserTest {
 
 	public static void main(String[] args) throws IOException {
 		
-		Map<String,String> prefixes = new HashMap<String,String>();
-		prefixes.put("example", "http://example.com/");
+		Map<String,String> prefixes = FileParser.parsePrefixes(System.getProperty("user.dir") + "/resources/prefixes.txt");
+		/*prefixes.put("example", "http://example.com/");
 		prefixes.put("sosa", "http://www.w3.org/ns/sosa/");
 		prefixes.put("ssn", "http://www.w3.org/ns/ssn/");
 		prefixes.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-		prefixes.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+		prefixes.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");*/
 		
 		RDFUtil.prefixes.setNsPrefixes(prefixes);
 		

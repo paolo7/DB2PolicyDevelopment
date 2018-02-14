@@ -79,7 +79,11 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 				// if the predicate template variables are not constant, check what they are bound to with this new binding
 				RDFNode newBinding = bindingsMap.get("v"+bindings[i].getVar());
 				if(newBinding != null && !newBinding.isAnon()) {
-					newBindings[i] = new BindingImpl(new ResourceURI(newBinding.asResource().getURI()));
+					if(newBinding.isLiteral()) {
+						newBindings[i] = new BindingImpl(new ResourceLiteral(newBinding.asLiteral().getLexicalForm()));
+					} else {
+						newBindings[i] = new BindingImpl(new ResourceURI(newBinding.asResource().getURI()));
+					}
 				} else newBindings[i] = bindings[i];
 			} else {
 				newBindings[i] = bindings[i];

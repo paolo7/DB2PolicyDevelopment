@@ -19,6 +19,7 @@ public abstract class ResourceAbstr implements Resource {
 	
 	@Override
 	public String toString() {
+		if(this.isLiteral()) return "\""+this.getLexicalValue()+"\"";
 		return this.getLexicalValue();
 	}
 	

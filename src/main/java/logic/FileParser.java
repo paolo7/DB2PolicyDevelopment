@@ -2,6 +2,7 @@ package logic;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public class FileParser {
 		
 		while ((line = bufferedReader.readLine()) != null) {
 			if(line.startsWith("END PREDICATE")) {
-				if(name != null && translationToRDF != null && textLabel != null && varnum > 0) {
+				if(name != null && translationToRDF != null && textLabel != null && varnum >= 0) {
 					predicates.add(new PredicateImpl(name, varnum, translationToRDF, textLabel));
 				} else if(strictChecking){
 					throw new RuntimeException("WARNING: end predicate statement reached, but a full predicate could not be created. To suppress this warning turn off flag strictChecking");
@@ -157,6 +158,7 @@ public class FileParser {
 
 	    List<Binding> bindingList = new LinkedList<Binding>();
 	    for(String t : variableTokens) {
+	    	t = t.trim();
 	    	if(t.startsWith("?")) {
 	    		t = t.replaceFirst("\\?","").trim();
 	    		if(! varNameMap.containsKey(t)) {					
@@ -164,7 +166,11 @@ public class FileParser {
 	    		}
 	    		bindingList.add(new BindingImpl(varNameMap.get(t)));
 	    	} else {
-	    		bindingList.add(new BindingImpl(new ResourceURI(t)));
+	    		if(t.startsWith("\"") && t.endsWith("\""))
+	    			bindingList.add(new BindingImpl(new ResourceLiteral(t.substring(1, t.length()-1))));
+				else
+					bindingList.add(new BindingImpl(new ResourceURI(t)));
+	    		//bindingList.add(new BindingImpl(new ResourceURI(t)));
 	    	}
 	    }
 	    Binding[] binding = new Binding[bindingList.size()];
@@ -189,6 +195,7 @@ public class FileParser {
 	    List<TextTemplate> tt = new LinkedList<TextTemplate>();
 	    
 	    for(String t: predicateTokens) {
+	    	t = t.trim();
 	    	if(t.startsWith("?")) {
 				t = t.replaceFirst("\\?", "");
 				if(! varNameMap.containsKey(t)) {					
@@ -220,11 +227,13 @@ public class FileParser {
 		Matcher m = Pattern.compile("\\(([^)]+)\\)").matcher(text);
 		Map<String,Integer> varNameMap = new HashMap<String,Integer>();
 		String variables = null;
+		String[] variableTokens = new String[0];
 	    if(m.find()) {
 	    	variables = m.group(1);    
+	    	variableTokens = variables.split(",");
 	    }
-	    String[] variableTokens = variables.split(",");
 	    for(String t : variableTokens) {
+	    	t = t.trim();
 	    	String varname = t.replaceFirst("\\?","").trim();
 	    	varNameMap.put(varname, new Integer(varNameMap.size()));
 	    }
@@ -237,6 +246,7 @@ public class FileParser {
 		List<TextTemplate> label = new LinkedList<TextTemplate>();
 		String[] tokens = text.split(" ");
 		for(String t: tokens) {
+			t = t.trim();
 			if(t.startsWith("?")) {
 				t = t.replaceFirst("\\?", "");
 				label.add(new TextTemplateImpl(varnamemap.get(t)));
@@ -258,6 +268,7 @@ public class FileParser {
 				Binding predicate = null;
 				Binding object = null;
 				for(String t: tokens) {
+					t = t.trim();
 					Binding newBinding = null;
 					if(t.startsWith("?")) {
 						t = t.replaceFirst("\\?", "");
@@ -267,7 +278,10 @@ public class FileParser {
 						newBinding = new BindingImpl(varnamemap.get(t));
 					}
 					else {
-						newBinding = new BindingImpl(new ResourceURI(t));
+						if(t.startsWith("\"") && t.endsWith("\""))
+							newBinding = new BindingImpl(new ResourceLiteral(t.substring(1, t.length()-1)));
+						else
+							newBinding = new BindingImpl(new ResourceURI(t));
 					}
 					if(subject == null) {
 						subject = newBinding;
@@ -285,5 +299,22 @@ public class FileParser {
 			}
 		}
 		return RDFconversion;
+	}
+	
+	public static Map<String,String> parsePrefixes(String filepath) throws IOException{
+		Map<String,String> map = new HashMap<String,String>();
+		File file = new File(filepath);
+		FileReader fileReader = new FileReader(file);
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		String line;
+		
+		while ((line = bufferedReader.readLine()) != null) {
+			if(line.length() > 0) {
+				String[] parts = line.split(" ");
+				if(parts.length != 2) throw new RuntimeException("ERROR: prefixes file malformed, each line should be either empty, or contain 2 space separated strings");
+				map.put(parts[0], parts[1]);
+			}
+		}
+		return map;
 	}
 }

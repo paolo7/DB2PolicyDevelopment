@@ -65,7 +65,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 					String var =  i.next();
 					RDFNode value = binding.get(var);
 					if(value.isResource() && value.isAnon()) value = null;
-					if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.bnodeProxy))
+					else if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.bnodeProxy))
 						value = null;
 					bindingsMap.put(var, value);
 				}
@@ -79,11 +79,10 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 						thesame = pi.equals(pi2);
 					}
 				}
-				//Resource subj = (Resource) binding.get("Subject");
-			    //System.out.println("Subject: "+subj.getURI());
+				
+
 			}
-			//System.out.println(r);
-			//System.out.println(SPARQLquery);
+
 			}
 		newPredicates.removeAll(existingPredicates);
 		if(newPredicates.size() == 0) return newPredicates;
@@ -91,33 +90,6 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		newKnownPredicates.addAll(existingPredicates);
 		newKnownPredicates.addAll(newPredicates);
 		newPredicates.addAll(expand(newKnownPredicates));
-		
-		/*boolean oneNewPredicate = false;
-		// update the list of known predicates
-		for(PredicateInstantiation pi: newPredicates) {
-			///DEBUG
-			for(PredicateInstantiation pi2: existingPredicates) {
-				if(pi.equals(pi2) &&  (pi.hashCode() != pi2.hashCode())) {
-					Predicate p = pi2.getPredicate();
-					Predicate p2 = pi.getPredicate();
-					int hash1 = p.hashCode();
-					int hash2 = p2.hashCode();
-					p.getRDFtranslation().iterator().next().equals(p2.getRDFtranslation().iterator().next());
-					boolean a = p.equals(pi.getPredicate());
-					String aa = ""+23+hash1;
-				}
-			}
-			//DEBUG
-			oneNewPredicate = oneNewPredicate || knownPredicates.add(pi.getPredicate());
-			oneNewPredicate = oneNewPredicate || !existingPredicates.contains(pi);
-		}
-		if(oneNewPredicate) {
-			Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
-			newKnownPredicates.addAll(existingPredicates);
-			newKnownPredicates.addAll(newPredicates);
-			newPredicates.removeAll(existingPredicates);
-			newPredicates.addAll(expand(newKnownPredicates));
-		} */
 		return newPredicates;
 	}
 

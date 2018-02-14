@@ -1,21 +1,29 @@
-<rdf:RDF
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:sosa="http://www.w3.org/ns/sosa/"
-    xmlns:example="http://example.com/"
-    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:ssn="http://www.w3.org/ns/ssn/">
-  <sosa:Observation rdf:about="http://w3id.org/prohow#BNODEPROXY1518545068089">
-    <rdf:type rdf:resource="http://example.com/Place"/>
-    <rdf:type>
-      <rdf:Description rdf:about="http://example.com/Room">
-        <rdfs:subClassOf rdf:resource="http://example.com/Place"/>
-      </rdf:Description>
-    </rdf:type>
-    <sosa:hasFeatureOfInterest rdf:resource="http://w3id.org/prohow#BNODEPROXY1518545068089"/>
-    <sosa:hasSimpleResult rdf:resource="http://w3id.org/prohow#BNODEPROXY1518545068089"/>
-    <sosa:observedProperty>
-      <sosa:ObservableProperty rdf:about="http://example.com/CO2concentration"/>
-    </sosa:observedProperty>
-    <rdf:type rdf:resource="http://www.w3.org/ns/sosa/FeatureOfInterest"/>
-  </sosa:Observation>
-</rdf:RDF>
+@prefix geo:   <http://www.opengis.net/spec/geosparql/1> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix geof:  <http://www.opengis.net/def/function/geosparql/> .
+@prefix gml:   <http://www.opengis.net/ont/gml#> .
+@prefix w3cGeo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ogc:   <http://www.opengis.net/> .
+@prefix geon:  <http://www.geonames.org/ontology#> .
+@prefix sosa:  <http://www.w3.org/ns/sosa/> .
+@prefix ssn:   <http://www.w3.org/ns/ssn/> .
+@prefix example: <http://example.com/> .
+
+example:CO2concentration
+        a                   sosa:ObservableProperty ;
+        example:maxAllowed  "0.33" .
+
+example:Room  rdfs:subClassOf  example:Place .
+
+<http://w3id.org/prohow#BNODEPROXY1518632426779>
+        a                          example:Room , example:Human , example:Place , sosa:Observation , sosa:FeatureOfInterest , example:Employee ;
+        example:gt                 <http://w3id.org/prohow#BNODEPROXY1518632426779> ;
+        ogc:hasGeometry            <http://w3id.org/prohow#BNODEPROXY1518632426779> ;
+        ogc:within                 <http://w3id.org/prohow#BNODEPROXY1518632426779> ;
+        sosa:hasFeatureOfInterest  <http://w3id.org/prohow#BNODEPROXY1518632426779> ;
+        sosa:hasSimpleResult       <http://w3id.org/prohow#BNODEPROXY1518632426779> ;
+        sosa:observedProperty      example:CO2concentration .
+
+example:Employee  rdfs:subClassOf  example:Human .

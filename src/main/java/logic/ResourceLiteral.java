@@ -13,21 +13,15 @@ public class ResourceLiteral extends ResourceAbstr {
 		return literalValue;
 	}
 
-/*	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ResourceLiteral other = (ResourceLiteral) obj;
-		if (literalValue == null) {
-			if (other.literalValue != null)
-				return false;
-		} else if (!literalValue.equals(other.literalValue))
-			return false;
+	@Override
+	public boolean isLiteral() {
 		return true;
-	}*/
+	}
+
+	@Override
+	public boolean isURI() {
+		return false;
+	}
+
 
 }

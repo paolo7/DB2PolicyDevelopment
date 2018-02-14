@@ -23,7 +23,7 @@ public class PredicateImpl extends PredicateAbstr {
 			throw new RuntimeException("ERROR: trying to instantiate a predicate with empty RDF translation");	
 		if(translationToRDF.size() == 0)
 			throw new RuntimeException("ERROR: trying to instantiate a predicate with empty textual label");	
-		if(varnum < 1) 
+		if(varnum < 0) 
 			throw new RuntimeException("ERROR: trying to instantiate a predicate with less than one variable");
 		this.name = name;
 		this.varnum = varnum;

@@ -15,22 +15,15 @@ public class ResourceURI extends ResourceAbstr {
 		else return URI;
 	}
 
+	@Override
+	public boolean isLiteral() {
+		return false;
+	}
 
-/*	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ResourceURI other = (ResourceURI) obj;
-		if (URI == null) {
-			if (other.URI != null)
-				return false;
-		} else if (!URI.equals(other.URI))
-			return false;
+	@Override
+	public boolean isURI() {
 		return true;
-	}*/
+	}
+
 
 }

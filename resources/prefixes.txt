@@ -1,0 +1,20 @@
+example http://example.com/
+
+
+
+geo http://www.opengis.net/spec/geosparql/1
+ogc http://www.opengis.net/
+geof http://www.opengis.net/def/function/geosparql/
+
+geon http://www.geonames.org/ontology#
+w3cGeo http://www.w3.org/2003/01/geo/wgs84_pos#
+gml http://www.opengis.net/ont/gml#
+
+
+
+owl http://www.w3.org/2002/07/owl#
+
+sosa http://www.w3.org/ns/sosa/
+ssn http://www.w3.org/ns/ssn/
+rdf http://www.w3.org/1999/02/22-rdf-syntax-ns#
+rdfs http://www.w3.org/2000/01/rdf-schema#

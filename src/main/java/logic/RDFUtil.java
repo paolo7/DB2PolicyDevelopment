@@ -29,6 +29,7 @@ public class RDFUtil {
 		}
 		
 		Property bnode = ResourceFactory.createProperty(bnodeProxy);
+		Resource realBnode = ResourceFactory.createResource();
 		
 		for(PredicateInstantiation psi: predicates) {
 			for(ConversionTriple ct: psi.getPredicate().getRDFtranslation()) {
@@ -39,14 +40,29 @@ public class RDFUtil {
 				
 				if(ct.getSubject().isConstant()) subject = ResourceFactory.createResource(model.expandPrefix(ct.getSubject().getConstant().getLexicalValue()));
 				if(ct.getPredicate().isConstant()) predicate = ResourceFactory.createProperty(model.expandPrefix(ct.getPredicate().getConstant().getLexicalValue()));
-				if(ct.getObject().isConstant()) object = ResourceFactory.createResource(model.expandPrefix(ct.getObject().getConstant().getLexicalValue()));
+				if(ct.getObject().isConstant()) {
+					if(ct.getObject().getConstant().isURI())
+						object = ResourceFactory.createResource(model.expandPrefix(ct.getObject().getConstant().getLexicalValue()));
+					else 
+						object = ResourceFactory.createPlainLiteral(ct.getObject().getConstant().getLexicalValue());
+				}
 				
-				if(ct.getSubject().isVar() && ct.getSubject().getVar() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar()).isConstant())
+				if(ct.getSubject().isVar() && ct.getSubject().getVar() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar()).isConstant()) {
+					if(!psi.getBinding(ct.getSubject().getVar()).getConstant().isURI())
+						throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
 					subject = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getSubject().getVar()).getConstant().getLexicalValue()));
-				if(ct.getPredicate().isVar() && ct.getPredicate().getVar() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar()).isConstant())
+				}
+				if(ct.getPredicate().isVar() && ct.getPredicate().getVar() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar()).isConstant()) {
+					if(!psi.getBinding(ct.getPredicate().getVar()).getConstant().isURI())
+						throw new RuntimeException("ERROR: the predicate of a triple cannot be a literal");
 					predicate = ResourceFactory.createProperty(model.expandPrefix(psi.getBinding(ct.getPredicate().getVar()).getConstant().getLexicalValue()));
-				if(ct.getObject().isVar() && ct.getObject().getVar() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar()).isConstant())
-					object = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue()));
+				}
+				if(ct.getObject().isVar() && ct.getObject().getVar() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar()).isConstant()) {
+					if(psi.getBinding(ct.getObject().getVar()).getConstant().isURI())
+						object = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue()));
+					else
+						object = ResourceFactory.createPlainLiteral(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue());
+				}
 				
 				Statement s = ResourceFactory.createStatement(subject, predicate, object);
 				model.add(s);
@@ -54,7 +70,7 @@ public class RDFUtil {
 		}
 		
 		try {
-			model.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraph.ttl")),"RDF/XML");
+			model.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraph.ttl")),"Turtle");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

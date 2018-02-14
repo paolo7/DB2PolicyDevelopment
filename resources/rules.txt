@@ -13,6 +13,56 @@ LABEL         employee ?x
 RDF           ?x rdf:type example:Employee .
 END PREDICATE
 
+START PREDICATE 
+SIGNATURE     human(?x)
+LABEL         human ?x
+RDF           ?x rdf:type example:Human .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     maxAllowedNearHumans(?x,?y)
+LABEL         ?x should never exceed ?y when humans are nearby
+RDF           ?x example:maxAllowed ?y .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     minAllowedNearHumans(?x,?y)
+LABEL         ?x should never be less than ?y when humans are nearby
+RDF           ?x example:minAllowed ?y .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     dangerSituation()
+LABEL         there is a danger
+RDF           example:SituationFlag example:hasFlag example:Danger .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     gt(?x,?y)
+LABEL         ?x > ?y
+RDF           ?x example:gt ?y .
+END PREDICATE
+
+*** Geographical predicates
+
+START PREDICATE 
+SIGNATURE     location(?x)
+LABEL         location ?x
+RDF           ?x rdf:type ogc:Geometry .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     hasLocation(?x,?y)
+LABEL         ?x is at ?y
+RDF           ?x ogc:hasGeometry ?y .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     inside(?x,?y)
+LABEL         ?x is inside ?y
+RDF           ?x ogc:within ?y .
+END PREDICATE
+
 *** Standard SSN predicates
 
 START PREDICATE 
@@ -107,7 +157,7 @@ END RULE
 
 *** elevating the property-feature-measurment triple
 
-START RULE [?v0]of[?v1](?v4,?v2) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0) AND featureOfObservation(?v3,?v4) AND hasClass(?v4,?v1)
+START RULE [?v0]Of[?v1](?v4,?v2) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0) AND featureOfObservation(?v3,?v4) AND hasClass(?v4,?v1)
 LABEL      ?v0 of ?v1 ?v4 is ?v2 
 END RULE
 
@@ -115,6 +165,18 @@ END RULE
 
 START RULE [?y](?x) <-- hasClass(?x,?y)
 LABEL      ?y ?x
+END RULE
+
+*** placement of entities inside other entities
+
+START RULE [?xC]In[?yC](?x,?y) <-- hasClass(?x,?xC) AND hasClass(?y,?yC) AND hasLocation(?x,?xL) AND hasLocation(?y,?yL) AND inside(?xL,?yL)
+LABEL      ?xC ?x is in ?yC ?y
+END RULE
+
+*** max allowed near humans
+
+START RULE [?v0CO2]Danger(?v2, ?limit,   ?xHuman,?v4RoomClass,?v4Room) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0CO2) AND featureOfObservation(?v3,?v4Room) AND hasLocation(?v4Room,?xLroom) AND maxAllowedNearHumans(?v0CO2,?limit) AND hasLocation(?xHuman,?xLhuman) AND inside(?xLhuman,?xLroom) AND hasClass(?xHuman,example:Human) AND hasClass(?v4Room, ?v4RoomClass) AND gt(?v2,?limit)
+LABEL      DANGER! Near human ?xHuman in ?v4RoomClass ?v4Room the value of ?v0CO2 has been detected to be ?v2 , above the limit of ?limit
 END RULE
 
 
@@ -125,4 +187,11 @@ START AVAILABLE   featureOfObservation(?x,?y)
 START AVAILABLE   measurementOfObservation(?x,?y)
 START AVAILABLE   propertyOfObservation(?x,example:CO2concentration)
 START AVAILABLE   room(?x)
+START AVAILABLE   gt(?x,?y)
+START AVAILABLE   employee(?x)
+START AVAILABLE   subClass(example:Employee,example:Human)
 START AVAILABLE   subClass(example:Room,example:Place)
+START AVAILABLE   hasLocation(?x,?y)
+START AVAILABLE   inside(?x,?y)
+START AVAILABLE   maxAllowedNearHumans(example:CO2concentration, "0.33")
+
