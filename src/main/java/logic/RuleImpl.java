@@ -57,36 +57,5 @@ public class RuleImpl extends RuleAbstr{
 		return newpredicates;
 	}
 
-
-
-/*	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		RuleImpl other = (RuleImpl) obj;
-		if (antecedent == null) {
-			if (other.antecedent != null)
-				return false;
-		} else if (!antecedent.equals(other.antecedent))
-			return false;
-		if (consequent == null) {
-			if (other.consequent != null)
-				return false;
-		} else if (!consequent.equals(other.consequent))
-			return false;
-		if (createsNewPredicate != other.createsNewPredicate)
-			return false;
-		if (label == null) {
-			if (other.label != null)
-				return false;
-		} else if (!label.equals(other.label))
-			return false;
-		return true;
-	}*/
-
 	
 }

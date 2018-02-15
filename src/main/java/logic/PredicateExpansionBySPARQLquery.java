@@ -44,6 +44,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 
 	@Override
 	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates) {
+		return expand(existingPredicates,true);
+	}
+	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates, boolean varExpansion) {
 		if(debugPrint) System.out.println("*************** Expansion Iteration");
 		if(debugPrint) System.out.println("***************   Num. of predicates "+knownPredicates.size()+"");
 		if(debugPrint) System.out.println("***************   Num. of existing predicates "+existingPredicates.size()+"");
@@ -52,7 +55,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		Set<PredicateInstantiation> newPredicates = new HashSet<PredicateInstantiation>();
 		Model m = RDFUtil.generateModel(existingPredicates,RDFprefixes);
 		for(Rule r: rules) {
-			String SPARQLquery = RDFUtil.getSPARQLprefixes(m)+r.getAntecedentSPARQL();
+			String SPARQLquery;
+			if(!varExpansion) SPARQLquery = RDFUtil.getSPARQLprefixes(m)+r.getAntecedentSPARQL();
+			else SPARQLquery = RDFUtil.getSPARQLprefixes(m)+r.getExpandedAntecedentSPARQL();
 			Query query = QueryFactory.create(SPARQLquery) ;
 			QueryExecution qe = QueryExecutionFactory.create(query, m);
 		    ResultSet rs = qe.execSelect();
@@ -61,7 +66,53 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    	//if(debugPrint) System.out.println("APPLYING RULE "+r);
 				QuerySolution binding = rs.nextSolution();
 				Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
-				for(Iterator<String> i = binding.varNames(); i.hasNext();) {
+				boolean validBinding = true;
+				if(varExpansion) {
+					for(Iterator<String> i = binding.varNames(); i.hasNext();) {
+						// First get the value of the expanded variable
+						String var = i.next();
+						RDFNode value = binding.get(var);
+						// Then de-expand the variable to get the actual variable name
+						var =  var.replace("i", "");
+						if(value.isResource() && value.isAnon()) value = null;
+						else if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.bnodeProxy))
+							value = null;
+						if(bindingsMap.containsKey(var)) {
+							// if the same binding is mapped to more than one resource, 
+							// we need to check if they are compatible, and if they are
+							// we need to take the intersection of their bindings
+							RDFNode previousValue = bindingsMap.get(var);
+							
+							if(previousValue == null && value == null) {
+								// if they are both bound to any entity, then they are the
+								// same and there is nothing to do here
+							} else if(previousValue == null && value != null) {
+								// if the previous value was any entity, and the new value
+								// to a constant, then we must restrict the binding to this
+								// constant only 
+								bindingsMap.put(var, value);
+							} else if(previousValue != null && value == null) {
+								// if the previous value was a constrant, and the new value
+								// can be any entity, then we keep the previous stricter
+								// binding to the constant
+							} else if(previousValue.equals(value) ) {
+								// if they are both bound to the same constant, then they
+								// are the same and there is nothing to do here
+							} else if(!previousValue.equals(value) ) {
+								// if they are both bound to a constant, but not the same
+								// one, then this is not a legal binding as we can't 
+								// force these two constants to being equal
+								validBinding = false;
+							} else {
+								throw new RuntimeException("ERROR: internal problem during var epansion, this line should never be reached");
+							}
+							
+						} else {							
+							bindingsMap.put(var, value);
+						}
+					}
+				}
+				else for(Iterator<String> i = binding.varNames(); i.hasNext();) {
 					String var =  i.next();
 					RDFNode value = binding.get(var);
 					if(value.isResource() && value.isAnon()) value = null;
@@ -69,8 +120,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 						value = null;
 					bindingsMap.put(var, value);
 				}
-				newPredicates.addAll(r.applyRule(bindingsMap, knownPredicates));
-				for(PredicateInstantiation pi: newPredicates) {
+				if(validBinding)
+					newPredicates.addAll(r.applyRule(bindingsMap, knownPredicates));
+				/*for(PredicateInstantiation pi: newPredicates) {
 					for(PredicateInstantiation pi2: newPredicates) {
 						boolean thesame = pi.equals(pi2);
 						int hash = pi.hashCode();
@@ -78,9 +130,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 						boolean sameHash = hash == hash2;
 						thesame = pi.equals(pi2);
 					}
-				}
-				
-
+				}*/
 			}
 
 			}

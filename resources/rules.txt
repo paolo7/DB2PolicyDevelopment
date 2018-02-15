@@ -38,7 +38,7 @@ RDF           example:SituationFlag example:hasFlag example:Danger .
 END PREDICATE
 
 START PREDICATE 
-SIGNATURE     gt(?x,?y)
+SIGNATURE     >(?x,?y)
 LABEL         ?x > ?y
 RDF           ?x example:gt ?y .
 END PREDICATE
@@ -175,7 +175,7 @@ END RULE
 
 *** max allowed near humans
 
-START RULE [?v0CO2]Danger(?v2, ?limit,   ?xHuman,?v4RoomClass,?v4Room) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0CO2) AND featureOfObservation(?v3,?v4Room) AND hasLocation(?v4Room,?xLroom) AND maxAllowedNearHumans(?v0CO2,?limit) AND hasLocation(?xHuman,?xLhuman) AND inside(?xLhuman,?xLroom) AND hasClass(?xHuman,example:Human) AND hasClass(?v4Room, ?v4RoomClass) AND gt(?v2,?limit)
+START RULE [?v0CO2]Danger(?v2, ?limit,   ?xHuman,?v4RoomClass,?v4Room) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0CO2) AND featureOfObservation(?v3,?v4Room) AND hasLocation(?v4Room,?xLroom) AND maxAllowedNearHumans(?v0CO2,?limit) AND hasLocation(?xHuman,?xLhuman) AND inside(?xLhuman,?xLroom) AND hasClass(?xHuman,example:Human) AND hasClass(?v4Room, ?v4RoomClass) AND >(?v2,?limit)
 LABEL      DANGER! Near human ?xHuman in ?v4RoomClass ?v4Room the value of ?v0CO2 has been detected to be ?v2 , above the limit of ?limit
 END RULE
 
@@ -187,7 +187,7 @@ START AVAILABLE   featureOfObservation(?x,?y)
 START AVAILABLE   measurementOfObservation(?x,?y)
 START AVAILABLE   propertyOfObservation(?x,example:CO2concentration)
 START AVAILABLE   room(?x)
-START AVAILABLE   gt(?x,?y)
+START AVAILABLE   >(?x,?y)
 START AVAILABLE   employee(?x)
 START AVAILABLE   subClass(example:Employee,example:Human)
 START AVAILABLE   subClass(example:Room,example:Place)

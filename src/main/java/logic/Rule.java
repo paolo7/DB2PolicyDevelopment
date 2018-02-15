@@ -13,5 +13,6 @@ public interface Rule {
 	public boolean createsNewPredicate();
 	public List<TextTemplate> getLabel();
 	public String getAntecedentSPARQL();
+	public String getExpandedAntecedentSPARQL();
 	public Set<PredicateInstantiation> applyRule(Map<String,RDFNode> bindingsMap, Set<Predicate> predicates);
 }

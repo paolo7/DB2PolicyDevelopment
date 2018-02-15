@@ -12,18 +12,20 @@
 @prefix example: <http://example.com/> .
 
 example:CO2concentration
-        a                   sosa:ObservableProperty ;
-        example:maxAllowed  "0.33" .
+        a                   example:Room , sosa:ObservableProperty , example:Place , example:Human , sosa:Observation , example:Employee , sosa:FeatureOfInterest ;
+        example:maxAllowed  "0.33" ;
+        ogc:hasGeometry     <http://w3id.org/prohow#BNODEPROXY1518718245000> .
+
+<http://w3id.org/prohow#BNODEPROXY1518718245000>
+        a                          sosa:FeatureOfInterest , example:Employee , example:Room , example:Human , example:Place , sosa:Observation ;
+        example:gt                 "0.33" ;
+        example:gt                 <http://w3id.org/prohow#BNODEPROXY1518718245000> ;
+        ogc:hasGeometry            <http://w3id.org/prohow#BNODEPROXY1518718245000> ;
+        ogc:within                 <http://w3id.org/prohow#BNODEPROXY1518718245000> ;
+        sosa:hasFeatureOfInterest  <http://w3id.org/prohow#BNODEPROXY1518718245000> , example:CO2concentration ;
+        sosa:hasSimpleResult       <http://w3id.org/prohow#BNODEPROXY1518718245000> ;
+        sosa:observedProperty      example:CO2concentration .
 
 example:Room  rdfs:subClassOf  example:Place .
-
-<http://w3id.org/prohow#BNODEPROXY1518632426779>
-        a                          example:Room , example:Human , example:Place , sosa:Observation , sosa:FeatureOfInterest , example:Employee ;
-        example:gt                 <http://w3id.org/prohow#BNODEPROXY1518632426779> ;
-        ogc:hasGeometry            <http://w3id.org/prohow#BNODEPROXY1518632426779> ;
-        ogc:within                 <http://w3id.org/prohow#BNODEPROXY1518632426779> ;
-        sosa:hasFeatureOfInterest  <http://w3id.org/prohow#BNODEPROXY1518632426779> ;
-        sosa:hasSimpleResult       <http://w3id.org/prohow#BNODEPROXY1518632426779> ;
-        sosa:observedProperty      example:CO2concentration .
 
 example:Employee  rdfs:subClassOf  example:Human .

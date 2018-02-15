@@ -1,6 +1,7 @@
 package logic;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 
 public abstract class PredicateInstantiationAbstr implements PredicateInstantiation {
@@ -10,6 +11,15 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 		String snippet = "";
 		for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
 			snippet += ct.toSPARQL(this.getBindings())+" .\n";
+		}
+		return snippet;
+	}
+	
+	@Override
+	public String toSPARQL(Map<Integer,Integer> varsExpansion) {
+		String snippet = "";
+		for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
+			snippet += ct.toSPARQL(this.getBindings(), varsExpansion)+" .\n";
 		}
 		return snippet;
 	}
