@@ -1,8 +1,10 @@
 package logic;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public abstract class PredicateInstantiationAbstr implements PredicateInstantiation {
 
@@ -20,6 +22,24 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 		String snippet = "";
 		for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
 			snippet += ct.toSPARQL(this.getBindings(), varsExpansion)+" .\n";
+		}
+		return snippet;
+	}
+	
+	@Override
+	public Set<Integer> getNoLitVariables(){
+		Set<Integer> noLitVars = new HashSet<Integer>();
+		for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
+			noLitVars.addAll(ct.getNoLitVariables(this.getBindings()));
+		}
+		return noLitVars;
+	}
+	
+	@Override
+	public String toGPPGSPARQL() {
+		String snippet = "";
+		for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
+			snippet += ct.toGPPGSPARQL(this.getBindings())+" \n";
 		}
 		return snippet;
 	}

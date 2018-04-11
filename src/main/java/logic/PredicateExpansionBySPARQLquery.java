@@ -42,19 +42,17 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		return expandedPredicates;
 	}
 
-	@Override
-	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates) {
-		return expand(existingPredicates,true);
-	}
-	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates, boolean varExpansion) {
+	
+	public Set<PredicateInstantiation> OLDexpand(Set<PredicateInstantiation> existingPredicates, boolean varExpansion) {
 		if(debugPrint) System.out.println("*************** Expansion Iteration");
-		if(debugPrint) System.out.println("***************   Num. of predicates "+knownPredicates.size()+"");
-		if(debugPrint) System.out.println("***************   Num. of existing predicates "+existingPredicates.size()+"");
+		if(debugPrint) System.out.println("***************   Num. of known predicates "+knownPredicates.size()+"");
 		if(debugPrint) System.out.println("***************   Num. of rules "+rules.size()+"\n");
+		if(debugPrint) System.out.println("***************   Num. of available predicates "+existingPredicates.size()+"");
 		
 		Set<PredicateInstantiation> newPredicates = new HashSet<PredicateInstantiation>();
 		Model m = RDFUtil.generateModel(existingPredicates,RDFprefixes);
 		for(Rule r: rules) {
+			// Perform a Graph-Pattern evaluation over a Pattern-Constrained Graph (GPPG)
 			String SPARQLquery;
 			if(!varExpansion) SPARQLquery = RDFUtil.getSPARQLprefixes(m)+r.getAntecedentSPARQL();
 			else SPARQLquery = RDFUtil.getSPARQLprefixes(m)+r.getExpandedAntecedentSPARQL();
@@ -120,8 +118,82 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 						value = null;
 					bindingsMap.put(var, value);
 				}
-				if(validBinding)
+				if(validBinding) {					
 					newPredicates.addAll(r.applyRule(bindingsMap, knownPredicates));
+					for(PredicateInstantiation p : r.applyRule(bindingsMap, knownPredicates)) {
+						if(p.getPredicate().getName().equals("hasClass")) {
+							System.out.println(p);
+							System.out.println("");
+						}
+					}
+				}
+				/*for(PredicateInstantiation pi: newPredicates) {
+					for(PredicateInstantiation pi2: newPredicates) {
+						boolean thesame = pi.equals(pi2);
+						int hash = pi.hashCode();
+						int hash2 = pi2.hashCode();
+						boolean sameHash = hash == hash2;
+						thesame = pi.equals(pi2);
+					}
+				}*/
+			}
+
+			}
+		newPredicates.removeAll(existingPredicates);
+		if(newPredicates.size() == 0) return newPredicates;
+		Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
+		newKnownPredicates.addAll(existingPredicates);
+		newKnownPredicates.addAll(newPredicates);
+		newPredicates.addAll(expand(newKnownPredicates));
+		return newPredicates;
+	}
+	
+	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates) {
+		if(debugPrint) System.out.println("*************** Expansion Iteration");
+		if(debugPrint) System.out.println("***************   Num. of known predicates "+knownPredicates.size()+"");
+		if(debugPrint) System.out.println("***************   Num. of rules "+rules.size()+"\n");
+		if(debugPrint) System.out.println("***************   Num. of available predicates "+existingPredicates.size()+"");
+		
+		Set<PredicateInstantiation> newPredicates = new HashSet<PredicateInstantiation>();
+		// compute sandbox model for the Graph-Pattern evaluation over a Pattern-Constrained Graph (GPPG) 
+		Model sandboxModel = RDFUtil.generateGPPGSandboxModel(existingPredicates,RDFprefixes);
+		for(Rule r: rules) {
+			// Perform GPPG
+			// Compute query expansion
+			String SPARQLquery = RDFUtil.getSPARQLprefixes(sandboxModel)+r.getGPPGAntecedentSPARQL();
+			Set<Integer> varsNoLit = r.getNoLitVariables();
+			// Evaluate query over the sandbox graph
+			Query query = QueryFactory.create(SPARQLquery) ;
+			QueryExecution qe = QueryExecutionFactory.create(query, sandboxModel);
+		    ResultSet rs = qe.execSelect();
+		    while (rs.hasNext())
+			{
+				QuerySolution binding = rs.nextSolution();
+				Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
+				// Perform delta filtering
+				boolean validBinding = true;
+				for(Iterator<String> i = binding.varNames(); i.hasNext();) {
+					String var =  i.next();
+					RDFNode value = binding.get(var);
+					if(value.isResource() && value.isAnon()) value = null;
+					if(value.isLiteral()) {
+						// remove assignments from variables to literals if such variables are used in subj or pred position in the antecedent
+						if(varsNoLit.contains(new Integer(var)))
+							validBinding = false;
+					}
+					else if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI))
+						value = null;
+					bindingsMap.put(var, value);
+				}
+				if(validBinding) {					
+					newPredicates.addAll(r.applyRule(bindingsMap, knownPredicates));
+					/*for(PredicateInstantiation p : r.applyRule(bindingsMap, knownPredicates)) {
+						if(p.getPredicate().getName().equals("hasClass")) {
+							System.out.println(p);
+							System.out.println("");
+						}
+					}*/
+				}
 				/*for(PredicateInstantiation pi: newPredicates) {
 					for(PredicateInstantiation pi2: newPredicates) {
 						boolean thesame = pi.equals(pi2);

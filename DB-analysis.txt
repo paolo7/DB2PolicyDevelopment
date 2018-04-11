@@ -1,0 +1,22 @@
+Employee(?x)
+ - Entity ?x is a Employee
+SQL: Find if ?x is a Employee >> select 1 from dual where exists ( select entityID from employee where entityID = ?x); 
+SQL: Find all ?x such that Employee(?x) >> SELECT entityID FROM employee
+Room(?x)
+ - Entity ?x is a Room
+SQL: Find if ?x is a Room >> select 1 from dual where exists ( select entityID from room where entityID = ?x); 
+SQL: Find all ?x such that Room(?x) >> SELECT entityID FROM room
+LocationOfFeature(?x,l)
+ - Property Location of feature ?x is ?l
+LocationOfRoom(?x,l) IFF Room(?x) AND LocationOfFeature(?x,l)
+ - Property Location of Room ?x is ?l
+LocationOfFeature(?x,?y)
+ - Property Location of feature ?x is ?y
+SQL: Discover the value of property Location for feature ?x >> SELECT simpleResult FROM location WHERE featureOfInterest = ?x
+LocationAtLocation(?x,?l)
+ - At location ?l property Location was measured to be ?x
+CO2-concentrationOfFeature(?x,?y)
+ - Property CO2-concentration of feature ?x is ?y
+SQL: Discover the value of property CO2-concentration for feature ?x >> SELECT simpleResult FROM CO2concentration WHERE featureOfInterest = ?x
+CO2-concentrationAtLocation(?x,?l)
+ - At location ?l property CO2-concentration was measured to be ?x

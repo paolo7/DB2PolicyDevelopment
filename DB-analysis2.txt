@@ -1,0 +1,29 @@
+?x0 rdf:type <http://obsp.com/Employee> . 
+
+?x1 rdf:type <http://obsp.com/Room> . 
+
+?x2 <http://obsp.com/Location> ?l . 
+
+?x3 <http://obsp.com/Location> ?l . 
+?x3 rdf:type <http://obsp.com/Room> . 
+
+?x4 rdf:type <http://www.w3.org/ns/sosa/Observation> . 
+?x4 <http://www.w3.org/ns/sosa/hasSimpleResult> ?y4 . 
+?x4 <http://www.w3.org/ns/sosa/hasFeatureOfInterest> <http://obsp.com/Location> . 
+
+
+?x5 rdf:type <http://www.w3.org/ns/sosa/Observation> . 
+?x5 <http://www.w3.org/ns/sosa/hasSimpleResult> ?y5 . 
+?x5 <http://obsp.com/Location> ?l . 
+
+
+?x6 rdf:type <http://www.w3.org/ns/sosa/Observation> . 
+?x6 <http://www.w3.org/ns/sosa/hasSimpleResult> ?y6 . 
+?x6 <http://www.w3.org/ns/sosa/hasFeatureOfInterest> <http://obsp.com/CO2concentration> . 
+
+
+?x7 rdf:type <http://www.w3.org/ns/sosa/Observation> . 
+?x7 <http://www.w3.org/ns/sosa/hasSimpleResult> ?y7 . 
+?x7 <http://obsp.com/Location> ?l . 
+
+

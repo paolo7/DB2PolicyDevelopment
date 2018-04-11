@@ -1,5 +1,6 @@
 package logic;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,5 +18,7 @@ public interface PredicateInstantiation {
 	public Binding getBinding(int index);
 	public String toSPARQL();
 	public String toSPARQL(Map<Integer,Integer> varsExpansion);
+	public String toGPPGSPARQL();
 	public Set<ConversionTriple> applyBinding(Map<String, RDFNode> bindingsMap, Binding[] newSignatureBindings);
+	public Set<Integer> getNoLitVariables();
 }

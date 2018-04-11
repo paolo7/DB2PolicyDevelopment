@@ -12,7 +12,11 @@ public interface Rule {
 	public Set<PredicateTemplate> getConsequent();
 	public boolean createsNewPredicate();
 	public List<TextTemplate> getLabel();
+	//to remove?
 	public String getAntecedentSPARQL();
+	//to remove
 	public String getExpandedAntecedentSPARQL();
+	public String getGPPGAntecedentSPARQL();
 	public Set<PredicateInstantiation> applyRule(Map<String,RDFNode> bindingsMap, Set<Predicate> predicates);
+	public Set<Integer> getNoLitVariables();
 }

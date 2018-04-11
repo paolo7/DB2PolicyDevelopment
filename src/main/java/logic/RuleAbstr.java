@@ -41,6 +41,24 @@ public abstract class RuleAbstr implements Rule{
 	}
 	
 	@Override
+	public Set<Integer> getNoLitVariables(){
+		Set<Integer> noLitVars = new HashSet<Integer>();
+		for(PredicateInstantiation ep : this.getAntecedent()) {
+			noLitVars.addAll(ep.getNoLitVariables());
+		}
+		return noLitVars;
+	}
+	
+	@Override
+	public String getGPPGAntecedentSPARQL() {
+		String SPARQL = "SELECT * WHERE {\n";
+		for(PredicateInstantiation ep : this.getAntecedent()) {
+			SPARQL += ep.toGPPGSPARQL();
+		}
+		return SPARQL + "}";
+	}
+	
+	@Override
 	public String getExpandedAntecedentSPARQL() {
 		
 		
