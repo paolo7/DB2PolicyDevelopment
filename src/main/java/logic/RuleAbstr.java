@@ -12,7 +12,7 @@ public abstract class RuleAbstr implements Rule{
 
 	@Override
 	public String getAntecedentSPARQL() {
-		String SPARQL = "SELECT ";
+		String SPARQL = "SELECT DISTINCT ";
 		
 		// get the SELECT variables
 		
@@ -51,7 +51,7 @@ public abstract class RuleAbstr implements Rule{
 	
 	@Override
 	public String getGPPGAntecedentSPARQL() {
-		String SPARQL = "SELECT * WHERE {\n";
+		String SPARQL = "SELECT DISTINCT * WHERE {\n";
 		for(PredicateInstantiation ep : this.getAntecedent()) {
 			SPARQL += ep.toGPPGSPARQL();
 		}
@@ -59,9 +59,7 @@ public abstract class RuleAbstr implements Rule{
 	}
 	
 	@Override
-	public String getExpandedAntecedentSPARQL() {
-		
-		
+	public String getExpandedAntecedentSPARQL() {	
 		// get the SELECT variables
 		Set<Integer> selectVars = new HashSet<Integer>();
 		Map<Integer,Integer> varsExpansion = new HashMap<Integer,Integer>();

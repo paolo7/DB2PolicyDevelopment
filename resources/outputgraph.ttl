@@ -12,11 +12,46 @@
 @prefix ssn:   <http://www.w3.org/ns/ssn/> .
 @prefix example: <http://example.com/> .
 
-example:MineElevator  a       sosa:FeatureOfInterest ;
-        example:hasRiskLevel  example:High .
+sosa:observedProperty
+        rdfs:domain  sosa:Observation ;
+        rdfs:range   sosa:ObservableProperty .
 
-<http://w3id.org/prohow/GPPG#LAMBDA1523464120483>
-        a                          sosa:ObservableProperty , sosa:Observation ;
-        sosa:hasFeatureOfInterest  example:MineElevator ;
-        sosa:hasSimpleResult       <http://w3id.org/prohow/GPPG#LAMBDA1523464120483> ;
-        sosa:observedProperty      <http://w3id.org/prohow/GPPG#LAMBDA1523464120483> .
+sosa:hasFeatureOfInterest
+        rdfs:domain  sosa:Observation ;
+        rdfs:range   sosa:FeatureOfInterest .
+
+sosa:FeatureOfInterest
+        owl:disjointWith  sosa:Observation , sosa:ObservableProperty .
+
+example:CO2concentration
+        a                   sosa:ObservableProperty ;
+        example:maxAllowed  "0.33" ;
+        ogc:hasGeometry     <http://w3id.org/prohow/GPPG#LAMBDA1523809136125> .
+
+sosa:Observation  owl:disjointWith  example:Human , example:Place .
+
+sosa:madeObservation  rdfs:domain  sosa:Sensor ;
+        rdfs:range   sosa:Observation .
+
+example:Room  rdfs:subClassOf  example:Place .
+
+<http://w3id.org/prohow/GPPG#LAMBDA1523809136125>
+        a                          example:Place , example:Employee , example:Room , sosa:Observation , example:Human ;
+        example:gt                 "0.33" ;
+        example:gt                 <http://w3id.org/prohow/GPPG#LAMBDA1523809136125> ;
+        ogc:hasGeometry            <http://w3id.org/prohow/GPPG#LAMBDA1523809136125> ;
+        ogc:within                 <http://w3id.org/prohow/GPPG#LAMBDA1523809136125> ;
+        sosa:hasFeatureOfInterest  <http://w3id.org/prohow/GPPG#LAMBDA1523809136125> ;
+        sosa:hasSimpleResult       <http://w3id.org/prohow/GPPG#LAMBDA1523809136125> ;
+        sosa:observedProperty      example:CO2concentration .
+
+example:Employee  rdfs:subClassOf  example:Human .
+
+example:Human  owl:disjointWith  example:Place .
+
+sosa:resultTime  rdfs:domain  sosa:Observation .
+
+sosa:ObservableProperty
+        owl:disjointWith  sosa:Observation , example:Human , example:Place .
+
+sosa:hasSimpleResult  rdfs:domain  sosa:Observation .
