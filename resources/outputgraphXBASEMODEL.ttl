@@ -12,58 +12,212 @@
 @prefix ssn:   <http://www.w3.org/ns/ssn/> .
 @prefix example: <http://example.com/> .
 
-[ a       example:Place ] .
-
-sosa:hasSimpleResult  rdfs:domain  sosa:Observation .
-
-sosa:resultTime  rdfs:domain  sosa:Observation .
-
-[ sosa:observedProperty  example:CO2concentration ] .
-
-[ sosa:hasFeatureOfInterest  []  ] .
-
-[ sosa:observedProperty  example:CO2concentration ] .
-
 [ example:gt  []  ] .
 
-[ a       example:Employee ] .
-
-sosa:madeObservation  rdfs:domain  sosa:Sensor ;
-        rdfs:range   sosa:Observation .
-
-[ a       example:Room ] .
-
-[ a       example:Employee ] .
-
-[ a       example:Room ] .
-
-[ a       example:Room ] .
-
-[ sosa:hasSimpleResult  []  ] .
-
-sosa:FeatureOfInterest
-        owl:disjointWith  sosa:Observation , sosa:ObservableProperty .
+[ a       example:Place ] .
 
 sosa:observedProperty
         rdfs:domain  sosa:Observation ;
         rdfs:range   sosa:ObservableProperty .
 
-ogc:within  rdfs:range  example:Place .
+[ sosa:observedProperty  example:CO2concentration ] .
 
-[ a       example:Employee ] .
+[ a       example:Place ] .
 
-example:Human  owl:disjointWith  example:Place .
+[ a       example:Place ] .
 
-sosa:ObservableProperty
-        owl:disjointWith  sosa:Observation , example:Human , example:Place .
+[ example:gt  "0.33" ] .
+
+[ a       example:Room ] .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ a       example:Place ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:within  []  ] .
+
+[ sosa:hasFeatureOfInterest  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ sosa:hasSimpleResult  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ a       example:Place ] .
+
+[ a       example:Place ] .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ a       example:Human ] .
+
+[ a       example:Place ] .
+
+[ sosa:hasSimpleResult  []  ] .
+
+[ a       example:Place ] .
+
+[ a       example:Human ] .
 
 [ a       sosa:Observation ] .
 
-example:Employee  rdfs:subClassOf  example:Human .
+[ ogc:hasGeometry  []  ] .
 
-sosa:Observation  owl:disjointWith  example:Human , example:Place .
+[ a       example:Place ] .
+
+[ a       example:Human ] .
+
+[ a       example:Employee ] .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:within  []  ] .
+
+[ a       example:Room ] .
+
+[ sosa:hasFeatureOfInterest  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ a       example:Room ] .
+
+[ a       example:Place ] .
+
+ogc:within  rdfs:range  example:Place .
+
+[ a       example:Room ] .
+
+example:Human  owl:disjointWith  example:Place .
+
+[ a       example:Place ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ a       example:Room ] .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:within  []  ] .
+
+[ a       example:Employee ] .
+
+[ a       example:Human ] .
+
+[ a       example:Room ] .
+
+example:CO2concentration
+        a                   sosa:ObservableProperty ;
+        example:maxAllowed  "0.33" ;
+        ogc:hasGeometry     []  ;
+        ogc:hasGeometry     []  .
+
+[ a       example:Room ] .
+
+[ ogc:within  []  ] .
+
+[ a       example:Place ] .
+
+sosa:hasFeatureOfInterest
+        rdfs:domain  sosa:Observation ;
+        rdfs:range   sosa:FeatureOfInterest .
+
+[ ogc:hasGeometry  []  ] .
+
+[ sosa:hasFeatureOfInterest  []  ] .
+
+[ ogc:hasGeometry  []  ] .
 
 example:Room  rdfs:subClassOf  example:Place .
+
+[ a       example:Room ] .
+
+[ a       example:Human ] .
+
+[ a       example:Employee ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ a       example:Place ] .
+
+[ a       example:Employee ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ a       example:Employee ] .
+
+sosa:hasSimpleResult  rdfs:domain  sosa:Observation .
+
+[ a       example:Employee ] .
+
+[ a       example:Place ] .
+
+[ a       example:Human ] .
+
+sosa:madeObservation  rdfs:domain  sosa:Sensor ;
+        rdfs:range   sosa:Observation .
+
+[ a       sosa:Observation ] .
+
+[ ogc:hasGeometry  []  ] .
+
+sosa:resultTime  rdfs:domain  sosa:Observation .
+
+[ a       example:Place ] .
+
+[ a       example:Room ] .
+
+[ sosa:hasSimpleResult  []  ] .
+
+[ a       example:Human ] .
+
+[ sosa:hasFeatureOfInterest  []  ] .
+
+[ ogc:within  []  ] .
+
+[ ogc:within  []  ] .
+
+[ example:gt  "0.33" ] .
+
+[ a       example:Place ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ a       example:Room ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ sosa:hasSimpleResult  []  ] .
+
+[ a       sosa:Observation ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ example:gt  "0.33" ] .
+
+[ ogc:within  []  ] .
 
 [ sosa:hasSimpleResult  []  ] .
 
@@ -71,20 +225,90 @@ example:Room  rdfs:subClassOf  example:Place .
 
 [ a       example:Room ] .
 
-[ a       example:Employee ] .
+[ ogc:within  []  ] .
 
-[ ogc:hasGeometry  []  ] .
+[ a       example:Room ] .
 
-sosa:hasFeatureOfInterest
-        rdfs:domain  sosa:Observation ;
-        rdfs:range   sosa:FeatureOfInterest .
+[ ogc:within  []  ] .
 
-example:CO2concentration
-        a                   sosa:ObservableProperty ;
-        example:maxAllowed  "0.33" .
+[ a       example:Place ] .
 
-[ sosa:observedProperty  example:CO2concentration ] .
+[ example:gt  "0.33" ] .
+
+example:Employee  rdfs:subClassOf  example:Human .
+
+[ sosa:hasFeatureOfInterest  []  ] .
 
 [ ogc:within  []  ] .
 
 [ a       sosa:Observation ] .
+
+[ ogc:within  []  ] .
+
+sosa:Observation  owl:disjointWith  example:Human , example:Place .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ a       sosa:Observation ] .
+
+[ a       example:Employee ] .
+
+[ a       example:Place ] .
+
+[ a       example:Human ] .
+
+sosa:FeatureOfInterest
+        owl:disjointWith  sosa:Observation , sosa:ObservableProperty .
+
+[ a       example:Place ] .
+
+[ ogc:within  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ a       example:Place ] .
+
+[ a       example:Place ] .
+
+[ ogc:within  []  ] .
+
+[ a       example:Employee ] .
+
+[ ogc:within  []  ] .
+
+[ ogc:within  []  ] .
+
+[ a       example:Place ] .
+
+sosa:ObservableProperty
+        owl:disjointWith  sosa:Observation , example:Human , example:Place .
+
+[ sosa:hasSimpleResult  []  ] .
+
+[ a       example:Place ] .
+
+[ a       example:Human ] .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ a       example:Room ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:within  []  ] .
+
+[ a       example:Room ] .
+
+[ ogc:within  []  ] .
+
+[ a       example:Place ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ ogc:hasGeometry  []  ] .

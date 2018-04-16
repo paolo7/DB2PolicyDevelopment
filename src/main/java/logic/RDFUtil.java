@@ -26,7 +26,7 @@ public class RDFUtil {
 	
 	public static PrefixMapping prefixes = PrefixMapping.Factory.create();
 	
-	private static void generateRuleInstantiationModelHelper(Model model, PredicateInstantiation psi, ConversionTriple ct, Map<String,RDFNode> bindingsMap, Integer i) {
+	private static void generateRuleInstantiationModelHelper(Model model, PredicateInstantiation psi, ConversionTriple ct, Map<String,RDFNode> bindingsMap, Integer i, int varsInLabelOffeset) {
 		Resource subject = null;
 		Property predicate = null;
 		RDFNode object = null;
@@ -58,7 +58,7 @@ public class RDFUtil {
 		}
 		// if element is variable mapped to variable	
 		if(ct.getSubject().isVar() && ct.getSubject().getVar() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar()).isVar()) {
-			RDFNode element = bindingsMap.get("v"+psi.getBinding(ct.getSubject().getVar()).getVar());
+			RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getSubject().getVar()).getVar());
 			if(element != null && !element.isURIResource())
 				throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
 			if(element == null || element.asResource().getURI().equals(LAMBDAURI))
@@ -67,7 +67,7 @@ public class RDFUtil {
 				subject = element.asResource();
 		}
 		if(ct.getPredicate().isVar() && ct.getPredicate().getVar() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar()).isVar()) {
-			RDFNode element = bindingsMap.get("v"+psi.getBinding(ct.getPredicate().getVar()).getVar());
+			RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getPredicate().getVar()).getVar());
 			if(element != null && !element.isURIResource())
 				throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
 			if(element == null || element.asResource().getURI().equals(LAMBDAURI))
@@ -77,7 +77,7 @@ public class RDFUtil {
 			i++;
 		}
 		if(ct.getObject().isVar() && ct.getObject().getVar() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar()).isVar()) {
-			RDFNode element = bindingsMap.get("v"+psi.getBinding(ct.getObject().getVar()).getVar());
+			RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getObject().getVar()).getVar());
 			if(element == null || element.isURIResource() && element.asResource().getURI().equals(LAMBDAURI))
 				object = ResourceFactory.createResource(LAMBDAURI+psi.getBinding(ct.getObject().getVar()));
 			else 
@@ -110,13 +110,19 @@ public class RDFUtil {
 		for(String s: prefixes.keySet()) {
 			model.setNsPrefix(s,prefixes.get(s));
 		}
+		int varsInLabelOffeset = 0;
+		if(r.getConsequent().size() == 1) {
+			for(TextTemplate tt : r.getConsequent().iterator().next().getName()) {
+				if (tt.isVar()) varsInLabelOffeset++;
+			}
+		}
 		
 		for(PredicateInstantiation psi : r.getAntecedent()) {
 			Set<ConversionTriple> translationPlusConsequences = new HashSet<ConversionTriple>();
 			translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
 			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
 			for(ConversionTriple ct: translationPlusConsequences) {
-				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
+				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i, varsInLabelOffeset);	
 			}
 		}
 		for(PredicateInstantiation psi : inferrablePredicates) {
@@ -124,7 +130,7 @@ public class RDFUtil {
 			translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
 			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
 			for(ConversionTriple ct: translationPlusConsequences) {
-				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
+				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i, varsInLabelOffeset);	
 			}
 		}
 		try {

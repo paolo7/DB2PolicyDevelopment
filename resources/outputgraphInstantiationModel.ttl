@@ -12,19 +12,20 @@
 @prefix ssn:   <http://www.w3.org/ns/ssn/> .
 @prefix example: <http://example.com/> .
 
-[ sosa:hasSimpleResult  example:Human ] .
+<http://w3id.org/prohow/GPPG#LAMBDA1523896529769?v4>
+        ogc:within  <http://w3id.org/prohow/GPPG#LAMBDA1523896529769?v5> .
 
 example:CO2concentration
-        a       example:Human .
+        a                example:Human , example:Place ;
+        ogc:hasGeometry  []  ;
+        ogc:hasGeometry  []  .
 
-[ sosa:hasFeatureOfInterest  example:CO2concentration ] .
+<http://w3id.org/prohow/GPPG#LAMBDA1523896529769?v2>
+        a                <http://w3id.org/prohow/GPPG#LAMBDA1523896529769?v0> ;
+        ogc:hasGeometry  <http://w3id.org/prohow/GPPG#LAMBDA1523896529769?v4> .
 
-<http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v4>
-        sosa:hasFeatureOfInterest  <http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v2> ;
-        sosa:hasSimpleResult       <http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v3> ;
-        sosa:observedProperty      example:CO2concentration .
+[ ogc:within  []  ] .
 
-[ sosa:observedProperty  example:CO2concentration ] .
-
-<http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v2>
-        a       example:Human .
+<http://w3id.org/prohow/GPPG#LAMBDA1523896529769?v3>
+        a                example:Place , <http://w3id.org/prohow/GPPG#LAMBDA1523896529769?v1> ;
+        ogc:hasGeometry  <http://w3id.org/prohow/GPPG#LAMBDA1523896529769?v5> .
