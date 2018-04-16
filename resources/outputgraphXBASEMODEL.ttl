@@ -1,0 +1,90 @@
+@prefix geo:   <http://www.opengis.net/spec/geosparql/1> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix geof:  <http://www.opengis.net/def/function/geosparql/> .
+@prefix e:     <http://example.com/> .
+@prefix gml:   <http://www.opengis.net/ont/gml#> .
+@prefix w3cGeo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ogc:   <http://www.opengis.net/> .
+@prefix geon:  <http://www.geonames.org/ontology#> .
+@prefix sosa:  <http://www.w3.org/ns/sosa/> .
+@prefix ssn:   <http://www.w3.org/ns/ssn/> .
+@prefix example: <http://example.com/> .
+
+[ a       example:Place ] .
+
+sosa:hasSimpleResult  rdfs:domain  sosa:Observation .
+
+sosa:resultTime  rdfs:domain  sosa:Observation .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ sosa:hasFeatureOfInterest  []  ] .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ example:gt  []  ] .
+
+[ a       example:Employee ] .
+
+sosa:madeObservation  rdfs:domain  sosa:Sensor ;
+        rdfs:range   sosa:Observation .
+
+[ a       example:Room ] .
+
+[ a       example:Employee ] .
+
+[ a       example:Room ] .
+
+[ a       example:Room ] .
+
+[ sosa:hasSimpleResult  []  ] .
+
+sosa:FeatureOfInterest
+        owl:disjointWith  sosa:Observation , sosa:ObservableProperty .
+
+sosa:observedProperty
+        rdfs:domain  sosa:Observation ;
+        rdfs:range   sosa:ObservableProperty .
+
+ogc:within  rdfs:range  example:Place .
+
+[ a       example:Employee ] .
+
+example:Human  owl:disjointWith  example:Place .
+
+sosa:ObservableProperty
+        owl:disjointWith  sosa:Observation , example:Human , example:Place .
+
+[ a       sosa:Observation ] .
+
+example:Employee  rdfs:subClassOf  example:Human .
+
+sosa:Observation  owl:disjointWith  example:Human , example:Place .
+
+example:Room  rdfs:subClassOf  example:Place .
+
+[ sosa:hasSimpleResult  []  ] .
+
+[ a       example:Human ] .
+
+[ a       example:Room ] .
+
+[ a       example:Employee ] .
+
+[ ogc:hasGeometry  []  ] .
+
+sosa:hasFeatureOfInterest
+        rdfs:domain  sosa:Observation ;
+        rdfs:range   sosa:FeatureOfInterest .
+
+example:CO2concentration
+        a                   sosa:ObservableProperty ;
+        example:maxAllowed  "0.33" .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ ogc:within  []  ] .
+
+[ a       sosa:Observation ] .

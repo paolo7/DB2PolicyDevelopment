@@ -1,6 +1,7 @@
 package logic;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 	}
 
 	@Override
-	public PredicateInstantiation applyRule(Map<String, RDFNode> bindingsMap, Set<Predicate> predicates, List<TextTemplate> label, Set<PredicateInstantiation> antecedent) {
+	public PredicateInstantiation applyRule(Map<String, RDFNode> bindingsMap, Set<Predicate> predicates, List<TextTemplate> label, Set<PredicateInstantiation> antecedent, Set<ConversionTriple> constraints) {
 		String predicateName = "";
 		for(TextTemplate tt : name) {
 			if(tt.isText()) predicateName += tt.getText();
@@ -90,13 +91,17 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 			}
 		}
 		int order = 0;
+		Map<Binding, Binding> shiftOrder = new HashMap<Binding,Binding>();
 		for(int i = 0; i < newBindings.length; i++) {
 			if(newBindings[i].isVar()) {
-				newBindings[i] = new BindingImpl(order);
-				order++;
+				if(!shiftOrder.containsKey(newBindings[i])) {
+					shiftOrder.put(newBindings[i], new BindingImpl(order));
+					order++;
+				}
+				newBindings[i] = shiftOrder.get(newBindings[i]);
 			}
 		}
-		return new PredicateInstantiationImpl(predicate, newBindings); 
+		return new PredicateInstantiationImpl(predicate, newBindings, constraints); 
 	}
 
 

@@ -12,33 +12,93 @@
 @prefix ssn:   <http://www.w3.org/ns/ssn/> .
 @prefix example: <http://example.com/> .
 
-<http://w3id.org/prohow/GPPG#LAMBDA1523874378437?v1>
-        a       example:Address .
+sosa:observedProperty
+        rdfs:domain  sosa:Observation ;
+        rdfs:range   sosa:ObservableProperty .
 
-example:add  a  example:Address .
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ ogc:hasGeometry  []  ] .
+
+[ sosa:hasSimpleResult  []  ] .
+
+[ example:gt  []  ] .
+
+[ a       example:Room ] .
+
+[ a       example:Place ] .
+
+[ a       example:Room ] .
+
+[ a       example:Human ] .
+
+[ a       example:Room ] .
+
+[ a       example:Employee ] .
+
+[ a       example:Employee ] .
+
+[ ogc:within  []  ] .
+
+ogc:within  rdfs:range  example:Place .
+
+[ sosa:hasSimpleResult  example:Human ] .
+
+example:Human  owl:disjointWith  example:Place .
+
+example:CO2concentration
+        a                   sosa:ObservableProperty , example:Human ;
+        example:maxAllowed  "0.33" .
+
+sosa:hasFeatureOfInterest
+        rdfs:domain  sosa:Observation ;
+        rdfs:range   sosa:FeatureOfInterest .
+
+[ a       example:Employee ] .
+
+[ a       sosa:Observation ] .
+
+example:Room  rdfs:subClassOf  example:Place .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+sosa:hasSimpleResult  rdfs:domain  sosa:Observation .
+
+sosa:madeObservation  rdfs:domain  sosa:Sensor ;
+        rdfs:range   sosa:Observation .
+
+sosa:resultTime  rdfs:domain  sosa:Observation .
+
+<http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v4>
+        sosa:hasFeatureOfInterest  <http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v2> ;
+        sosa:hasSimpleResult       <http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v3> ;
+        sosa:observedProperty      example:CO2concentration .
+
+[ a       example:Room ] .
+
+[ sosa:hasFeatureOfInterest  []  ] .
+
+[ a       sosa:Observation ] .
+
+example:Employee  rdfs:subClassOf  example:Human .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+sosa:Observation  owl:disjointWith  example:Place , example:Human .
+
+[ a       example:Employee ] .
+
+[ sosa:hasFeatureOfInterest  example:CO2concentration ] .
 
 sosa:FeatureOfInterest
         owl:disjointWith  sosa:ObservableProperty , sosa:Observation .
 
-sosa:Observation  owl:disjointWith  example:Place , example:Human .
-
-[ example:IMPOSSIBLE  example:add ] .
-
-[ a       example:Employee ] .
-
-[ example:hasAddress  example:add ] .
-
-[ a       example:Room ] .
-
-example:Human  owl:disjointWith  example:Place , example:Room .
-
-example:Employee  rdfs:subClassOf  example:Human .
-
-<http://w3id.org/prohow/GPPG#LAMBDA1523874378437?v0>
-        a                   example:Employee ;
-        example:hasAddress  example:add .
+<http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v2>
+        a       example:Human .
 
 sosa:ObservableProperty
         owl:disjointWith  example:Place , example:Human , sosa:Observation .
 
-[ example:possible  []  ] .
+[ sosa:hasSimpleResult  []  ] .

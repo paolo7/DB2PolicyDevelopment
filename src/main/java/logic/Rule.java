@@ -17,6 +17,6 @@ public interface Rule {
 	//to remove
 	public String getExpandedAntecedentSPARQL();
 	public String getGPPGAntecedentSPARQL();
-	public Set<PredicateInstantiation> applyRule(Map<String,RDFNode> bindingsMap, Set<Predicate> predicates);
+	public Set<PredicateInstantiation> applyRule(Map<String,RDFNode> bindingsMap, Set<Predicate> predicates, Set<PredicateInstantiation> existingPredicates);
 	public Set<Integer> getNoLitVariables();
 }

@@ -23,7 +23,7 @@ public class FileParserTest {
 		Set<Rule> rules = new HashSet<Rule>();
 		Set<PredicateInstantiation> existingPredicates = new HashSet<PredicateInstantiation>();
 		
-		FileParser.parse(System.getProperty("user.dir") + "/resources/rulesSimple.txt",
+		FileParser.parse(System.getProperty("user.dir") + "/resources/rules.txt",
 				predicates, rules, existingPredicates, true);
 		
 		System.out.println("*************** KNOWN PREDICATES\n" + 

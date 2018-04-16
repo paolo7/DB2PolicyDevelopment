@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.apache.jena.rdf.model.RDFNode;
+
 public abstract class PredicateInstantiationAbstr implements PredicateInstantiation {
 
 	@Override
@@ -75,7 +77,14 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 			else s += ", ";
 			s += this.getBindings()[i];
 		}
-		return s+")";
+		s += ")";
+		if(!getAdditionalConstraints().isEmpty()) {
+			s += " {";
+			for(ConversionTriple ct : getAdditionalConstraints())
+				s += "["+ct+"]";
+			s += "}";
+		}
+		return s;
 	}
 	
 	@Override
@@ -85,5 +94,20 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 		result = prime * result + Arrays.hashCode(this.getBindings());
 		result = prime * result + ((this.getPredicate() == null) ? 0 : this.getPredicate().hashCode());
 		return result;
+	}
+	
+	@Override
+	public boolean compatible(PredicateInstantiation other, Map<String, RDFNode> bindingsMap) {
+		if(!getPredicate().equals(other.getPredicate())) return false;
+		for(int i = 0; i < getBindings().length; i++) {
+			Binding boundValue = getBindings()[i];
+			if(boundValue.isVar() && bindingsMap.get("v"+boundValue.getVar()) != null && bindingsMap.get("v"+boundValue.getVar()).isURIResource()) 
+				boundValue = new BindingImpl(new ResourceURI(bindingsMap.get("v"+boundValue.getVar()).asResource().getURI()));
+			else if(boundValue.isVar() && bindingsMap.get("v"+boundValue.getVar()) != null && bindingsMap.get("v"+boundValue.getVar()).isLiteral()) 
+				boundValue = new BindingImpl(new ResourceLiteral(bindingsMap.get("v"+boundValue.getVar()).asLiteral().getLexicalForm()));
+			if(boundValue.isConstant() && other.getBindings()[i].isConstant() && ! boundValue.equals(other.getBindings()[i]))
+				return false;
+		}
+		return true;
 	}
 }

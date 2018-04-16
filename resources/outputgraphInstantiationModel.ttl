@@ -1,0 +1,30 @@
+@prefix geo:   <http://www.opengis.net/spec/geosparql/1> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix geof:  <http://www.opengis.net/def/function/geosparql/> .
+@prefix e:     <http://example.com/> .
+@prefix gml:   <http://www.opengis.net/ont/gml#> .
+@prefix w3cGeo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ogc:   <http://www.opengis.net/> .
+@prefix geon:  <http://www.geonames.org/ontology#> .
+@prefix sosa:  <http://www.w3.org/ns/sosa/> .
+@prefix ssn:   <http://www.w3.org/ns/ssn/> .
+@prefix example: <http://example.com/> .
+
+[ sosa:hasSimpleResult  example:Human ] .
+
+example:CO2concentration
+        a       example:Human .
+
+[ sosa:hasFeatureOfInterest  example:CO2concentration ] .
+
+<http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v4>
+        sosa:hasFeatureOfInterest  <http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v2> ;
+        sosa:hasSimpleResult       <http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v3> ;
+        sosa:observedProperty      example:CO2concentration .
+
+[ sosa:observedProperty  example:CO2concentration ] .
+
+<http://w3id.org/prohow/GPPG#LAMBDA1523893158214?v2>
+        a       example:Human .

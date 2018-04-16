@@ -63,10 +63,14 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	
 	public boolean checkOWLconsistency(Rule r, Map<String,RDFNode> bindingsMap, Model baseModel, Set<PredicateInstantiation> inferrablePredicates) {
 		overallConsistencyChecks++;
-		//OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RDFS_INF);
-		//model.add(baseModel);
 		Reasoner reasoner = ReasonerRegistry.getOWLMiniReasoner();
 		reasoner = reasoner.bindSchema(baseModel);
+		
+		try {
+			baseModel.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphXBASEMODEL.ttl")),"Turtle");
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
 		
 		Model modelExpanded = RDFUtil.generateRuleInstantiationModel(r,bindingsMap,RDFprefixes, knownPredicates, inferrablePredicates).add(baseModel);
 		try {
@@ -155,7 +159,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    				statinconsistencycheckreused++;
 		    			}
 		    			else {
-		    				inferrablePredicates = r.applyRule(bindingsMap, knownPredicates);
+		    				inferrablePredicates = r.applyRule(bindingsMap, knownPredicates, existingPredicates);
 		    				if (!checkOWLconsistency(r,bindingsMap, basicModel, inferrablePredicates)) {
 		    					validBinding = false;
 		    					inconsistentRuleApplications.get(r).add(bindingsMap);

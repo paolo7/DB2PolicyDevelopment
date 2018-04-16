@@ -31,6 +31,11 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 				throw new RuntimeException("ERROR: trying to instantiate a predicate with a null binding.");
 		}
 	}
+		
+	public PredicateInstantiationImpl(Predicate predicate, Binding[] bindings, Set<ConversionTriple> additionalConstraints) {
+		this(predicate, bindings);
+		this.additionalConstraints = additionalConstraints;	
+	}
 	
 	@Override
 	public Predicate getPredicate() {
@@ -64,11 +69,17 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 		if(b.isConstant()) return b;
 		int found = -1;
 		for(int i = 0; i < newSignatureBindings.length; i++) {
-			if(newSignatureBindings[i].isVar() && newSignatureBindings[i].getVar() == b.getVar())
+			if(newSignatureBindings[i].isVar() && newSignatureBindings[i].getVar() == b.getVar() && bindingsMap.containsKey("v"+i))
 				found = i;
 		}
 		if(found != -1) return new BindingImpl(found);
-		else return b;//throw new RuntimeException("ERROR: trying to instantiate a predicate, but there is a variable in the label that is not a variable of the predicate signature.");
+		else {
+			if(b.isConstant()) return b;
+			else {
+				return new BindingImpl(b.getVar()+newSignatureBindings.length);
+			}
+			//throw new RuntimeException("ERROR: trying to instantiate a predicate, but there is a variable in the label that is not a variable of the predicate signature.");
+		}
 	}
 	
 	private Binding reBind(Binding b, Map<String, RDFNode> bindingsMap) {
@@ -94,6 +105,8 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 	public Set<ConversionTriple> getAdditionalConstraints() {
 		return additionalConstraints;
 	}
+	
+	
 
 
 

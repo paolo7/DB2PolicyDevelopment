@@ -47,13 +47,33 @@ public class RuleImpl extends RuleAbstr{
 	public List<TextTemplate> getLabel() {
 		return label;
 	}
+	
+	private Set<ConversionTriple> computeConstraints(Map<String, RDFNode> bindingsMap, Set<Predicate> predicates, Binding[] newBindings){
+		Set<ConversionTriple> constraints = new HashSet<ConversionTriple>();
+		for(PredicateInstantiation pi: getAntecedent()) {
+			constraints.addAll(pi.applyBinding(bindingsMap, newBindings));
+		}
+		return constraints;
+	}
 
 	@Override
-	public Set<PredicateInstantiation> applyRule(Map<String, RDFNode> bindingsMap, Set<Predicate> predicates) {
+	public Set<PredicateInstantiation> applyRule(Map<String, RDFNode> bindingsMap, Set<Predicate> predicates, Set<PredicateInstantiation> existingPredicates) {
 		Set<PredicateInstantiation> newpredicates = new HashSet<PredicateInstantiation>();
-		
 		for(PredicateTemplate pt: consequent) {
-			newpredicates.add(pt.applyRule(bindingsMap, predicates, label, antecedent));
+			Set<ConversionTriple> constraints = computeConstraints(bindingsMap, predicates, pt.getBindings());
+			// try to get constraints from the available predicate instantiations
+			Set<ConversionTriple> importedConstraints = null;
+			int compatiblenum = 0;
+			for(PredicateInstantiation pi : this.getAntecedent()) {
+				for(PredicateInstantiation piExisting : existingPredicates) {
+					if(pi.compatible(piExisting, bindingsMap)) {					
+						compatiblenum++;
+						importedConstraints = piExisting.getAdditionalConstraints();
+					}
+				}
+				if (compatiblenum == 1) constraints.addAll(importedConstraints);
+			}
+			newpredicates.add(pt.applyRule(bindingsMap, predicates, label, antecedent, constraints));
 		}
 		
 		return newpredicates;

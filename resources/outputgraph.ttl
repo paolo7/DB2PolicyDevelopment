@@ -12,22 +12,46 @@
 @prefix ssn:   <http://www.w3.org/ns/ssn/> .
 @prefix example: <http://example.com/> .
 
-example:add  a  example:Address .
+sosa:observedProperty
+        rdfs:domain  sosa:Observation ;
+        rdfs:range   sosa:ObservableProperty .
+
+sosa:hasFeatureOfInterest
+        rdfs:domain  sosa:Observation ;
+        rdfs:range   sosa:FeatureOfInterest .
+
+example:CO2concentration
+        a                   sosa:ObservableProperty ;
+        example:maxAllowed  "0.33" .
 
 sosa:FeatureOfInterest
         owl:disjointWith  sosa:Observation , sosa:ObservableProperty .
 
 sosa:Observation  owl:disjointWith  example:Human , example:Place .
 
-<http://w3id.org/prohow/GPPG#LAMBDA1523874378437>
-        a                   example:Employee , example:Room ;
-        example:IMPOSSIBLE  example:add ;
-        example:hasAddress  example:add ;
-        example:possible    <http://w3id.org/prohow/GPPG#LAMBDA1523874378437> .
+sosa:madeObservation  rdfs:domain  sosa:Sensor ;
+        rdfs:range   sosa:Observation .
+
+<http://w3id.org/prohow/GPPG#LAMBDA1523893158214>
+        a                          example:Human , example:Room , sosa:Observation , example:Employee , example:Place ;
+        example:gt                 <http://w3id.org/prohow/GPPG#LAMBDA1523893158214> ;
+        ogc:hasGeometry            <http://w3id.org/prohow/GPPG#LAMBDA1523893158214> ;
+        ogc:within                 <http://w3id.org/prohow/GPPG#LAMBDA1523893158214> ;
+        sosa:hasFeatureOfInterest  <http://w3id.org/prohow/GPPG#LAMBDA1523893158214> ;
+        sosa:hasSimpleResult       <http://w3id.org/prohow/GPPG#LAMBDA1523893158214> ;
+        sosa:observedProperty      example:CO2concentration .
+
+example:Room  rdfs:subClassOf  example:Place .
+
+ogc:within  rdfs:range  example:Place .
 
 example:Employee  rdfs:subClassOf  example:Human .
 
-example:Human  owl:disjointWith  example:Room , example:Place .
+example:Human  owl:disjointWith  example:Place .
+
+sosa:resultTime  rdfs:domain  sosa:Observation .
 
 sosa:ObservableProperty
         owl:disjointWith  sosa:Observation , example:Human , example:Place .
+
+sosa:hasSimpleResult  rdfs:domain  sosa:Observation .

@@ -3,6 +3,7 @@ package logic;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,7 +58,7 @@ public class RDFUtil {
 		}
 		// if element is variable mapped to variable	
 		if(ct.getSubject().isVar() && ct.getSubject().getVar() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar()).isVar()) {
-			RDFNode element = bindingsMap.get("v"+psi.getBinding(ct.getSubject().getVar()));
+			RDFNode element = bindingsMap.get("v"+psi.getBinding(ct.getSubject().getVar()).getVar());
 			if(element != null && !element.isURIResource())
 				throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
 			if(element == null || element.asResource().getURI().equals(LAMBDAURI))
@@ -66,7 +67,7 @@ public class RDFUtil {
 				subject = element.asResource();
 		}
 		if(ct.getPredicate().isVar() && ct.getPredicate().getVar() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar()).isVar()) {
-			RDFNode element = bindingsMap.get("v"+psi.getBinding(ct.getPredicate().getVar()));
+			RDFNode element = bindingsMap.get("v"+psi.getBinding(ct.getPredicate().getVar()).getVar());
 			if(element != null && !element.isURIResource())
 				throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
 			if(element == null || element.asResource().getURI().equals(LAMBDAURI))
@@ -76,7 +77,7 @@ public class RDFUtil {
 			i++;
 		}
 		if(ct.getObject().isVar() && ct.getObject().getVar() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar()).isVar()) {
-			RDFNode element = bindingsMap.get("v"+psi.getBinding(ct.getObject().getVar()));
+			RDFNode element = bindingsMap.get("v"+psi.getBinding(ct.getObject().getVar()).getVar());
 			if(element == null || element.isURIResource() && element.asResource().getURI().equals(LAMBDAURI))
 				object = ResourceFactory.createResource(LAMBDAURI+psi.getBinding(ct.getObject().getVar()));
 			else 
@@ -111,16 +112,27 @@ public class RDFUtil {
 		}
 		
 		for(PredicateInstantiation psi : r.getAntecedent()) {
-			for(ConversionTriple ct: psi.getPredicate().getRDFtranslation()) {
+			Set<ConversionTriple> translationPlusConsequences = new HashSet<ConversionTriple>();
+			translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
+			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
+			for(ConversionTriple ct: translationPlusConsequences) {
 				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
 			}
 		}
 		for(PredicateInstantiation psi : inferrablePredicates) {
-			for(ConversionTriple ct: psi.getPredicate().getRDFtranslation()) {
+			Set<ConversionTriple> translationPlusConsequences = new HashSet<ConversionTriple>();
+			translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
+			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
+			for(ConversionTriple ct: translationPlusConsequences) {
 				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
 			}
 		}
-		
+		try {
+					model.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphInstantiationModel.ttl")),"Turtle");
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+				//	e.printStackTrace();
+				}
 		return model;
 	}
 	
@@ -132,7 +144,10 @@ public class RDFUtil {
 		}
 		int i = 0;		
 		for(PredicateInstantiation psi: predicates) {
-			for(ConversionTriple ct: psi.getPredicate().getRDFtranslation()) {
+			Set<ConversionTriple> translationPlusConsequences = new HashSet<ConversionTriple>();
+			translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
+			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
+			for(ConversionTriple ct: translationPlusConsequences) {
 				// if element is variable mapped to variable	
 				Resource subject = ResourceFactory.createResource();
 				Property predicate = ResourceFactory.createProperty(LAMBDAURI+i);
