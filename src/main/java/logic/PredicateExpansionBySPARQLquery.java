@@ -33,6 +33,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	private Map<String,String> RDFprefixes;
 	
 	private boolean debugPrint = true;
+	private boolean debugPrintOWLconsistencyChecks = false;
 	
 	private Map<Rule, Set<Map<String,RDFNode>>> inconsistentRuleApplications = new HashMap<Rule, Set<Map<String,RDFNode>>>();
 	
@@ -66,24 +67,24 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		Reasoner reasoner = ReasonerRegistry.getOWLMiniReasoner();
 		reasoner = reasoner.bindSchema(baseModel);
 		
-		try {
-			baseModel.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphXBASEMODEL.ttl")),"Turtle");
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
+		//try {
+		//	baseModel.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphXBASEMODEL.ttl")),"Turtle");
+		//		} catch (FileNotFoundException e) {
+		//			e.printStackTrace();
+		//		}
 		
 		Model modelExpanded = RDFUtil.generateRuleInstantiationModel(r,bindingsMap,RDFprefixes, knownPredicates, inferrablePredicates).add(baseModel);
-		try {
-			modelExpanded.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphExpandedRule.ttl")),"Turtle");
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
+		//try {
+		//	modelExpanded.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphExpandedRule.ttl")),"Turtle");
+		//		} catch (FileNotFoundException e) {
+		//			e.printStackTrace();
+		//		}
 		
 		
 		InfModel infmodel = ModelFactory.createInfModel(reasoner, modelExpanded);
 		ValidityReport validity = infmodel.validate();
 		if (validity.isValid()) {
-			System.out.print(".");
+			if(debugPrintOWLconsistencyChecks) System.out.print(".");
 		} else {
 		}
 		return validity.isValid();
@@ -154,7 +155,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    		Set<PredicateInstantiation> inferrablePredicates = null;
 		    		if(validBinding && consistencyCheck) {
 		    			if(inconsistentRuleApplications.get(r).contains(bindingsMap)) {
-		    				System.out.print("@");						
+		    				if(debugPrintOWLconsistencyChecks) System.out.print("@");						
 		    				validBinding = false;
 		    				statinconsistencycheckreused++;
 		    			}
@@ -163,7 +164,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    				if (!checkOWLconsistency(r,bindingsMap, basicModel, inferrablePredicates)) {
 		    					validBinding = false;
 		    					inconsistentRuleApplications.get(r).add(bindingsMap);
-		    					System.out.print("#");
+		    					if(debugPrintOWLconsistencyChecks) System.out.print("#");
 		    					statinconsistencycheckfound++;
 		    				}
 		    				statinconsistencycheck++;

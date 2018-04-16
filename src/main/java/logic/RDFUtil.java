@@ -133,12 +133,12 @@ public class RDFUtil {
 				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i, varsInLabelOffeset);	
 			}
 		}
-		try {
-					model.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphInstantiationModel.ttl")),"Turtle");
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-				//	e.printStackTrace();
-				}
+		//try {
+			//model.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphInstantiationModel.ttl")),"Turtle");
+			//} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			//	e.printStackTrace();
+			//}
 		return model;
 	}
 	
@@ -245,12 +245,12 @@ public class RDFUtil {
 			}
 		}
 		
-		try {
-			model.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraph.ttl")),"Turtle");
-		} catch (FileNotFoundException e) {
+		//try {
+		//	model.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraph.ttl")),"Turtle");
+		//} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//	e.printStackTrace();
+		//}
 		return model;
 	}
 	
