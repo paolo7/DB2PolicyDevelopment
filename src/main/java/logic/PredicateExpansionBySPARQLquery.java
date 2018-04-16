@@ -61,14 +61,14 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		return expandedPredicates;
 	}
 	
-	public boolean checkOWLconsistency(Rule r, Map<String,RDFNode> bindingsMap, Model baseModel) {
+	public boolean checkOWLconsistency(Rule r, Map<String,RDFNode> bindingsMap, Model baseModel, Set<PredicateInstantiation> inferrablePredicates) {
 		overallConsistencyChecks++;
 		//OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_DL_MEM_RDFS_INF);
 		//model.add(baseModel);
 		Reasoner reasoner = ReasonerRegistry.getOWLMiniReasoner();
 		reasoner = reasoner.bindSchema(baseModel);
 		
-		Model modelExpanded = RDFUtil.generateRuleInstantiationModel(r,bindingsMap,RDFprefixes, knownPredicates).add(baseModel);
+		Model modelExpanded = RDFUtil.generateRuleInstantiationModel(r,bindingsMap,RDFprefixes, knownPredicates, inferrablePredicates).add(baseModel);
 		try {
 			modelExpanded.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphExpandedRule.ttl")),"Turtle");
 				} catch (FileNotFoundException e) {
@@ -120,63 +120,57 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    ResultSet rs = qe.execSelect();
 		    while (rs.hasNext())
 			{
-		    	ruleApplicationConsidered++;
-				QuerySolution binding = rs.nextSolution();
-				Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
-				// Perform delta filtering
-				boolean validBinding = true;
-				for(Iterator<String> i = binding.varNames(); i.hasNext();) {
-					String var =  i.next();
-					RDFNode value = binding.get(var);
-					if(value.isResource() && value.isAnon()) value = null;
-					if(value.isLiteral()) {
-						// remove assignments from variables to literals if such variables are used in subj or pred position in the antecedent
-						if(varsNoLit.contains(new Integer(var.replaceFirst("v", ""))))
-							validBinding = false;
-					}
-					else if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI))
-						value = null;
-					bindingsMap.put(var, value);
-				}
-				if(!inconsistentRuleApplications.containsKey(r))
-					inconsistentRuleApplications.put(r, new HashSet<Map<String,RDFNode>>());
-				if(validBinding && consistencyCheck) {
-					if(inconsistentRuleApplications.get(r).contains(bindingsMap)) {
-						System.out.print("@");						
-						validBinding = false;
-						statinconsistencycheckreused++;
-					}
-					else {
-						if (!checkOWLconsistency(r,bindingsMap, basicModel)) {
-							validBinding = false;
-							inconsistentRuleApplications.get(r).add(bindingsMap);
-							System.out.print("#");
-							statinconsistencycheckfound++;
-						}
-						statinconsistencycheck++;
-					}
-				}
-				if(validBinding) {					
-					newPredicates.addAll(r.applyRule(bindingsMap, knownPredicates));
-					/*for(PredicateInstantiation p : r.applyRule(bindingsMap, knownPredicates)) {
-						if(p.getPredicate().getName().equals("hasClass")) {
-							System.out.println(p);
-							System.out.println("");
-						}
-					}*/
-				}
-				/*for(PredicateInstantiation pi: newPredicates) {
-					for(PredicateInstantiation pi2: newPredicates) {
-						boolean thesame = pi.equals(pi2);
-						int hash = pi.hashCode();
-						int hash2 = pi2.hashCode();
-						boolean sameHash = hash == hash2;
-						thesame = pi.equals(pi2);
-					}
-				}*/
+		    	QuerySolution binding = rs.nextSolution();
+		    	// the results of a GPPG evaluation, because of the Duplicate Empty Set assumption, might contain bindings without all the required variables
+		    	// these bindings can be ignored as they are semantic duplicates of other bindings that contain all the variables
+		    	boolean completeResultSet = true;
+		    	for(String var : query.getResultVars()) 
+		    		if (!binding.contains(var)) 
+		    			completeResultSet = false;
+		    	if(completeResultSet) {		
+		    		ruleApplicationConsidered++;
+		    		Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
+		    		// Perform delta filtering
+		    		boolean validBinding = true;
+		    		for(Iterator<String> i = binding.varNames(); i.hasNext();) {
+		    			String var =  i.next();
+		    			RDFNode value = binding.get(var);
+		    			if(value.isResource() && value.isAnon()) value = null;
+		    			if(value.isLiteral()) {
+		    				// remove assignments from variables to literals if such variables are used in subj or pred position in the antecedent
+		    				if(varsNoLit.contains(new Integer(var.replaceFirst("v", ""))))
+		    					validBinding = false;
+		    			}
+		    			else if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI))
+		    				value = null;
+		    			bindingsMap.put(var, value);
+		    		}
+		    		if(!inconsistentRuleApplications.containsKey(r))
+		    			inconsistentRuleApplications.put(r, new HashSet<Map<String,RDFNode>>());
+		    		Set<PredicateInstantiation> inferrablePredicates = null;
+		    		if(validBinding && consistencyCheck) {
+		    			if(inconsistentRuleApplications.get(r).contains(bindingsMap)) {
+		    				System.out.print("@");						
+		    				validBinding = false;
+		    				statinconsistencycheckreused++;
+		    			}
+		    			else {
+		    				inferrablePredicates = r.applyRule(bindingsMap, knownPredicates);
+		    				if (!checkOWLconsistency(r,bindingsMap, basicModel, inferrablePredicates)) {
+		    					validBinding = false;
+		    					inconsistentRuleApplications.get(r).add(bindingsMap);
+		    					System.out.print("#");
+		    					statinconsistencycheckfound++;
+		    				}
+		    				statinconsistencycheck++;
+		    			}
+		    		}
+		    		if(validBinding) {					
+		    			newPredicates.addAll(inferrablePredicates);
+		    		}
+		    	}
 			}
-
-			}
+		}
 		newPredicates.removeAll(existingPredicates);
 		
 		if(debugPrint) System.out.println("\n*************** **** Considered "+rulesConsidered+" rules, for a total of "+ruleApplicationConsidered+" combinations.");

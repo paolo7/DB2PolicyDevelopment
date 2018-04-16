@@ -20,5 +20,6 @@ public interface PredicateInstantiation {
 	public String toSPARQL(Map<Integer,Integer> varsExpansion);
 	public String toGPPGSPARQL();
 	public Set<ConversionTriple> applyBinding(Map<String, RDFNode> bindingsMap, Binding[] newSignatureBindings);
+	public Set<ConversionTriple> getAdditionalConstraints();
 	public Set<Integer> getNoLitVariables();
 }

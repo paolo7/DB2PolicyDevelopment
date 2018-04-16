@@ -59,6 +59,10 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
         for(int i = 0; i < this.getBindings().length; i++) {
         	if(! this.getBinding(i).equals(p.getBinding(i))) return false;
         }
+        if(this.getAdditionalConstraints().size() != p.getAdditionalConstraints().size())
+        	return false;
+        if(!this.getAdditionalConstraints().equals(p.getAdditionalConstraints()))
+        	return false;
         return true;
     }
 	

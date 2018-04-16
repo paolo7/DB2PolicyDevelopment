@@ -12,257 +12,33 @@
 @prefix ssn:   <http://www.w3.org/ns/ssn/> .
 @prefix example: <http://example.com/> .
 
-[ sosa:hasSimpleResult  []  ] .
+<http://w3id.org/prohow/GPPG#LAMBDA1523874378437?v1>
+        a       example:Address .
 
-sosa:observedProperty
-        rdfs:domain  sosa:Observation ;
-        rdfs:range   sosa:ObservableProperty .
-
-[ a       example:Place ] .
-
-[ ogc:within  []  ] .
-
-[ a       example:Place ] .
-
-[ a       example:Human ] .
-
-[ a       example:Room ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Place ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Place ] .
-
-<http://w3id.org/prohow/GPPG#LAMBDA1523809136125?v0>
-        a                example:Human , example:Place ;
-        ogc:hasGeometry  []  .
-
-[ a       example:Room ] .
-
-[ a       example:Employee ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Place ] .
-
-[ ogc:within  []  ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ ogc:within  []  ] .
-
-[ a       example:Human ] .
-
-[ ogc:within  []  ] .
-
-[ a       example:Place ] .
-
-[ ogc:within  []  ] .
-
-[ ogc:within  []  ] .
-
-[ a       example:Place ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ example:gt  "0.33" ] .
-
-[ a       example:Human ] .
-
-[ a       example:Human ] .
-
-example:Human  owl:disjointWith  example:Place .
-
-[ ogc:hasGeometry  []  ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ ogc:within  []  ] .
-
-[ a       example:Place ] .
-
-[ a       example:Place ] .
-
-[ a       sosa:Observation ] .
-
-example:CO2concentration
-        a                   sosa:ObservableProperty , example:Human ;
-        example:maxAllowed  "0.33" ;
-        ogc:hasGeometry     []  ;
-        ogc:hasGeometry     []  ;
-        ogc:hasGeometry     []  .
-
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Place ] .
-
-sosa:hasFeatureOfInterest
-        rdfs:domain  sosa:Observation ;
-        rdfs:range   sosa:FeatureOfInterest .
-
-[ ogc:hasGeometry  []  ] .
-
-[ ogc:hasGeometry  []  ] .
-
-example:Room  rdfs:subClassOf  example:Place .
-
-<http://w3id.org/prohow/GPPG#LAMBDA1523809136125?v4>
-        ogc:within  <http://w3id.org/prohow/GPPG#LAMBDA1523809136125?v5> .
-
-[ ogc:within  []  ] .
-
-[ ogc:within  []  ] .
-
-[ a       example:Room ] .
-
-[ a       example:Human ] .
-
-[ a       example:Room ] .
-
-sosa:hasSimpleResult  rdfs:domain  sosa:Observation .
-
-sosa:madeObservation  rdfs:domain  sosa:Sensor ;
-        rdfs:range   sosa:Observation .
-
-[ a       example:Place ] .
-
-[ a       example:Place ] .
-
-[ a       example:Place ] .
-
-sosa:resultTime  rdfs:domain  sosa:Observation .
-
-[ sosa:observedProperty  example:CO2concentration ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Room ] .
-
-[ a       example:Place ] .
-
-[ a       example:Employee ] .
-
-[ ogc:within  []  ] .
-
-[ a       example:Place ] .
-
-[ a       example:Room ] .
-
-[ ogc:hasGeometry  []  ] .
-
-<http://w3id.org/prohow/GPPG#LAMBDA1523809136125?v3>
-        a                example:Place , <http://w3id.org/prohow/GPPG#LAMBDA1523809136125?v1> ;
-        ogc:hasGeometry  <http://w3id.org/prohow/GPPG#LAMBDA1523809136125?v5> .
-
-[ a       example:Place ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Room ] .
-
-[ example:gt  "0.33" ] .
-
-[ ogc:within  []  ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ sosa:hasFeatureOfInterest  []  ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Room ] .
-
-[ sosa:hasSimpleResult  []  ] .
-
-example:Employee  rdfs:subClassOf  example:Human .
-
-[ ogc:hasGeometry  []  ] .
-
-[ ogc:within  []  ] .
-
-[ a       example:Place ] .
-
-[ a       example:Place ] .
-
-[ ogc:hasGeometry  []  ] .
-
-sosa:Observation  owl:disjointWith  example:Place , example:Human .
-
-[ ogc:within  []  ] .
-
-[ sosa:hasFeatureOfInterest  []  ] .
-
-[ ogc:hasGeometry  []  ] .
-
-<http://w3id.org/prohow/GPPG#LAMBDA1523809136125?v2>
-        a                <http://w3id.org/prohow/GPPG#LAMBDA1523809136125?v0> ;
-        ogc:hasGeometry  <http://w3id.org/prohow/GPPG#LAMBDA1523809136125?v4> .
-
-[ a       example:Room ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Human ] .
+example:add  a  example:Address .
 
 sosa:FeatureOfInterest
         owl:disjointWith  sosa:ObservableProperty , sosa:Observation .
 
-[ a       sosa:Observation ] .
+sosa:Observation  owl:disjointWith  example:Place , example:Human .
+
+[ example:IMPOSSIBLE  example:add ] .
+
+[ a       example:Employee ] .
+
+[ example:hasAddress  example:add ] .
 
 [ a       example:Room ] .
 
-[ a       example:Place ] .
+example:Human  owl:disjointWith  example:Place , example:Room .
 
-[ ogc:within  []  ] .
+example:Employee  rdfs:subClassOf  example:Human .
 
-[ sosa:hasSimpleResult  []  ] .
-
-[ ogc:within  []  ] .
-
-[ a       example:Place ] .
-
-[ a       example:Place ] .
-
-[ a       sosa:Observation ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ sosa:observedProperty  example:CO2concentration ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Place ] .
-
-[ a       example:Place ] .
+<http://w3id.org/prohow/GPPG#LAMBDA1523874378437?v0>
+        a                   example:Employee ;
+        example:hasAddress  example:add .
 
 sosa:ObservableProperty
         owl:disjointWith  example:Place , example:Human , sosa:Observation .
 
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Employee ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ example:gt  []  ] .
-
-[ sosa:observedProperty  example:CO2concentration ] .
-
-[ a       example:Place ] .
-
-[ sosa:hasFeatureOfInterest  []  ] .
-
-[ ogc:hasGeometry  []  ] .
-
-[ a       example:Place ] .
-
-[ ogc:within  []  ] .
+[ example:possible  []  ] .

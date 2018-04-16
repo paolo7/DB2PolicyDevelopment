@@ -103,7 +103,7 @@ public class RDFUtil {
 		model.add(s);
 	}
 	
-	public static Model generateRuleInstantiationModel(Rule r, Map<String,RDFNode> bindingsMap, Map<String,String> prefixes, Set<Predicate> knownPredicates) {
+	public static Model generateRuleInstantiationModel(Rule r, Map<String,RDFNode> bindingsMap, Map<String,String> prefixes, Set<Predicate> knownPredicates, Set<PredicateInstantiation> inferrablePredicates) {
 		Model model = ModelFactory.createDefaultModel();
 		Integer i = 0;
 		for(String s: prefixes.keySet()) {
@@ -115,7 +115,7 @@ public class RDFUtil {
 				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
 			}
 		}
-		for(PredicateInstantiation psi : r.applyRule(bindingsMap, knownPredicates)) {
+		for(PredicateInstantiation psi : inferrablePredicates) {
 			for(ConversionTriple ct: psi.getPredicate().getRDFtranslation()) {
 				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
 			}

@@ -11,6 +11,7 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 
 	private Predicate predicate;
 	private Binding[] bindings;
+	public Set<ConversionTriple> additionalConstraints = new HashSet<>();
 	
 	/**
 	 * The lenght of vars and resources should be equal to the varnum of the predicate.
@@ -87,6 +88,11 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 			} else return originalBinding;
 				
 		}
+	}
+
+	@Override
+	public Set<ConversionTriple> getAdditionalConstraints() {
+		return additionalConstraints;
 	}
 
 
