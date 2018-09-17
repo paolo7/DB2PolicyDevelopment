@@ -59,46 +59,6 @@ public abstract class RuleAbstr implements Rule{
 	}
 	
 	@Override
-	public String getExpandedAntecedentSPARQL() {	
-		// get the SELECT variables
-		Set<Integer> selectVars = new HashSet<Integer>();
-		Map<Integer,Integer> varsExpansion = new HashMap<Integer,Integer>();
-		for(PredicateTemplate ep : this.getConsequent()) {
-			for(int i = 0; i < ep.getBindings().length; i++) {
-				if(ep.getBindings()[i].isVar())
-					selectVars.add(new Integer(ep.getBindings()[i].getVar()));
-					//varsExpansion.put(new Integer(ep.getBindings()[i].getVar()), new Integer(1));
-			}
-			for(TextTemplate tt : ep.getName()) {
-				if(tt.isVar()) {
-					selectVars.add(new Integer(tt.getVar()));
-					//varsExpansion.put(new Integer(tt.getVar()), new Integer(1));
-				}
-			}
-		}
-		String SPARQL = "\nWHERE {\n";
-		//  compute the WHERE clause
-		for(PredicateInstantiation ep : this.getAntecedent()) {
-			SPARQL += ep.toSPARQL(varsExpansion);
-		}
-		
-		// Expand the SELECT variables
-		String SPARQLvariables = "SELECT ";
-		boolean first = true;
-		for(Integer i: varsExpansion.keySet()) {
-			for(int j = 1; j <= varsExpansion.get(new Integer(i)); j++) {				
-				if (first) first = false;
-				else SPARQLvariables += " ";
-				SPARQLvariables += "?v"+i;
-				for(int k = 1; k <= j; k++) {
-					SPARQLvariables += "i";
-				}
-			}
-		}
-		return SPARQLvariables+SPARQL+"}";
-	}
-	
-	@Override
     public boolean equals(Object o) {
   
         if (o == this) {

@@ -19,14 +19,12 @@ import org.apache.jena.shared.PrefixMapping;
 
 public class RDFUtil {
 	
-	//remove
-	public static String bnodeProxy = "http://w3id.org/prohow#BNODEPROXY"+new java.util.Date().getTime();
 	public static String LAMBDAURI = "http://w3id.org/prohow/GPPG#LAMBDA"+new java.util.Date().getTime();
-
+	public static LabelService labelService;
 	
 	public static PrefixMapping prefixes = PrefixMapping.Factory.create();
 	
-	private static void generateRuleInstantiationModelHelper(Model model, PredicateInstantiation psi, ConversionTriple ct, Map<String,RDFNode> bindingsMap, Integer i, int varsInLabelOffeset) {
+	private static void generateRuleInstantiationModelHelper(Model model, PredicateInstantiation psi, ConversionTriple ct, Map<String,RDFNode> bindingsMap, Integer i) {
 		Resource subject = null;
 		Property predicate = null;
 		RDFNode object = null;
@@ -110,19 +108,13 @@ public class RDFUtil {
 		for(String s: prefixes.keySet()) {
 			model.setNsPrefix(s,prefixes.get(s));
 		}
-		int varsInLabelOffeset = 0;
-		if(r.getConsequent().size() == 1) {
-			for(TextTemplate tt : r.getConsequent().iterator().next().getName()) {
-				if (tt.isVar()) varsInLabelOffeset++;
-			}
-		}
 		
 		for(PredicateInstantiation psi : r.getAntecedent()) {
 			Set<ConversionTriple> translationPlusConsequences = new HashSet<ConversionTriple>();
 			translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
 			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
 			for(ConversionTriple ct: translationPlusConsequences) {
-				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i, varsInLabelOffeset);	
+				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
 			}
 		}
 		for(PredicateInstantiation psi : inferrablePredicates) {
@@ -130,7 +122,7 @@ public class RDFUtil {
 			translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
 			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
 			for(ConversionTriple ct: translationPlusConsequences) {
-				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i, varsInLabelOffeset);	
+				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
 			}
 		}
 		//try {
@@ -259,7 +251,40 @@ public class RDFUtil {
 	}
 	
 	public static String resolveLabelOfURI(String URI) {
+		if(labelService != null && labelService.hasLabel(URI))
+			return labelService.getLabel(URI);
 		return URI.substring(URI.lastIndexOf("/") + 1);
+	}
+	
+	public static String resolveLabelOfURIasURIstring(String URI) {
+		String availableLabel = resolveLabelOfURI(URI);
+		// camel case code from https://stackoverflow.com/questions/249470/javame-convert-string-to-camelcase
+		StringBuffer result = new StringBuffer(availableLabel.length());
+		String strl = availableLabel.toLowerCase();
+		boolean bMustCapitalize = true;
+		for (int i = 0; i < strl.length(); i++)
+		{
+		  char c = strl.charAt(i);
+		  if (c >= 'a' && c <= 'z')
+		  {
+		    if (bMustCapitalize)
+		    {
+		      result.append(strl.substring(i, i+1).toUpperCase());
+		      bMustCapitalize = false;
+		    }
+		    else
+		    {
+		      result.append(c);
+		    }
+		  }
+		  else
+		  {
+		    bMustCapitalize = true;
+		  }
+		}
+		availableLabel = result.toString().replaceAll("[^A-Za-z0-9]", "");
+		if(availableLabel.length() < 15 && availableLabel.length() > 0) return availableLabel;
+		else return URI.substring(URI.lastIndexOf("/") + 1);
 	}
 	
 	public static String getSPARQLprefixes(Model m) {
@@ -269,6 +294,5 @@ public class RDFUtil {
 		}
 		return prefixes;
 	}
-	
 	
 }

@@ -23,9 +23,11 @@ public class FileParserTest {
 		Set<Rule> rules = new HashSet<Rule>();
 		Set<PredicateInstantiation> existingPredicates = new HashSet<PredicateInstantiation>();
 		
-		FileParser.parse(System.getProperty("user.dir") + "/resources/rules.txt",
+		FileParser.parse(System.getProperty("user.dir") + "/resources/rulesSimulation.txt",
 				predicates, rules, existingPredicates, true);
 		
+		LabelService labelservice = new LabelServiceImpl(existingPredicates, prefixes);
+		RDFUtil.labelService = labelservice;
 		System.out.println("*************** KNOWN PREDICATES\n" + 
 				"*************** These are the definitions of the predicates that we want to consider\n");
 		
@@ -53,11 +55,15 @@ public class FileParserTest {
 		Set<PredicateInstantiation> newPredicates = expansion.expand(existingPredicates);
 		
 		System.out.println("*************** INFERRED PREDICATES\n" + 
-				"*************** These are the predicates that we can derived from the ones that we assume to be available\n");
+				"*************** These are the predicates that we can derive from the ones that we assume to be available\n");
 		
 		for(PredicateInstantiation p: newPredicates) {
 			System.out.println("AVAILABLE PREDICATE: "+p+"\n----\n"+p.getPredicate()+"----\n");
 		}
+		
+		// output results as JSON
+		existingPredicates.addAll(newPredicates);
+		JSONoutput.outputAsJSON("JSONoutput.json", existingPredicates);
 		
 	}
 }

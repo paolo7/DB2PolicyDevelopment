@@ -20,15 +20,6 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 	}
 	
 	@Override
-	public String toSPARQL(Map<Integer,Integer> varsExpansion) {
-		String snippet = "";
-		for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
-			snippet += ct.toSPARQL(this.getBindings(), varsExpansion)+" .\n";
-		}
-		return snippet;
-	}
-	
-	@Override
 	public Set<Integer> getNoLitVariables(){
 		Set<Integer> noLitVars = new HashSet<Integer>();
 		for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {

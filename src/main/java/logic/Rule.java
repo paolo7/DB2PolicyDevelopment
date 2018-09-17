@@ -14,8 +14,6 @@ public interface Rule {
 	public List<TextTemplate> getLabel();
 	//to remove?
 	public String getAntecedentSPARQL();
-	//to remove
-	public String getExpandedAntecedentSPARQL();
 	public String getGPPGAntecedentSPARQL();
 	public Set<PredicateInstantiation> applyRule(Map<String,RDFNode> bindingsMap, Set<Predicate> predicates, Set<PredicateInstantiation> existingPredicates);
 	public Set<Integer> getNoLitVariables();

@@ -109,53 +109,9 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 		return expandedVar;
 	}
 	
-	@Override
-	public String toSPARQL(Binding[] bindings, Map<Integer,Integer> varsExpansion) {
-		boolean subjectIsConstant = this.getSubject().isConstant() || bindings[this.getSubject().getVar()].isConstant();
-		boolean objectIsConstant = this.getObject().isConstant() || bindings[this.getObject().getVar()].isConstant();
-		String snippet = toSPARQLhelper(bindings, varsExpansion, false, false);
-		if(subjectIsConstant || objectIsConstant) {
-			snippet = "{ {"+snippet+"}";
-			if(subjectIsConstant) snippet += " UNION {"+toSPARQLhelper(bindings, varsExpansion, true, false)+"}";
-			if(objectIsConstant) snippet += " UNION {"+toSPARQLhelper(bindings, varsExpansion, false, true)+"}";
-			snippet += " }";
-		} 
-		return snippet;
-		
-	}
+
 	
-	private String toSPARQLhelper(Binding[] bindings, Map<Integer,Integer> varsExpansion, boolean subjectWildcard, boolean objectWildcard) {
-		String snippet = "";
-		if(subjectWildcard) {
-			snippet += "<"+RDFUtil.bnodeProxy+">";
-		} else {			
-			if(this.getSubject().isConstant()) snippet += this.getSubject().getConstant().getLexicalValue();
-			else {
-				Binding b = bindings[this.getSubject().getVar()];
-				if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
-				else snippet += "?v"+expandVariable(b.getVar(), varsExpansion);
-			}
-		}
-		snippet += " ";
-		if(this.getPredicate().isConstant()) snippet += this.getPredicate().getConstant().getLexicalValue();
-		else {
-			Binding b = bindings[this.getPredicate().getVar()];
-			if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
-			else snippet += "?v"+expandVariable(b.getVar(), varsExpansion);
-		}
-		snippet += " ";
-		if(objectWildcard) {
-			snippet += "<"+RDFUtil.bnodeProxy+">";
-		} else {			
-			if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValue();
-			else {
-				Binding b = bindings[this.getObject().getVar()];
-				if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
-				else snippet += "?v"+expandVariable(b.getVar(), varsExpansion);
-			}
-		}
-		return snippet;
-	}
+
 	
 	@Override
     public boolean equals(Object o) {

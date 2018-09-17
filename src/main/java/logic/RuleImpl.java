@@ -72,6 +72,7 @@ public class RuleImpl extends RuleAbstr{
 					}
 				}
 				if (compatiblenum == 1) constraints.addAll(importedConstraints);
+				//if (compatiblenum == 2) System.out.println("Warning. Multiple predicate instantiations found for the antecedents of a rule. OWL-consistency not guaranteed.");
 			}
 			newpredicates.add(pt.applyRule(bindingsMap, predicates, label, antecedent, constraints));
 		}

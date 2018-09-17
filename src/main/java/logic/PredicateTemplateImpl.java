@@ -38,7 +38,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 				RDFNode node = bindingsMap.get("v"+tt.getVar());
 				if(node == null || node.isAnon()) throw new RuntimeException("ERROR: Trying to instantiate a new predicate with an unbound variable in the predicate name.");
 				else if(node.isLiteral()) predicateName += node.asLiteral().getLexicalForm();
-				else if(node.isURIResource()) predicateName += RDFUtil.resolveLabelOfURI(node.asResource().getURI());
+				else if(node.isURIResource()) predicateName += RDFUtil.resolveLabelOfURIasURIstring(node.asResource().getURI());
 				else throw new RuntimeException("ERROR: cannot create predicate instantiation because node is neither null, nor blank, nor literal, nor URI");
 			} 
 		}

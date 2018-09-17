@@ -2,20 +2,20 @@
 *************** These are the definitions of the predicates that we want to consider
 
 START PREDICATE 
-SIGNATURE     room(?x)
-LABEL         room ?x
-RDF           ?x rdf:type example:Room .
+SIGNATURE     tunnel(?x)
+LABEL         tunnel ?x
+RDF           ?x rdf:type example:Tunnel .
 END PREDICATE
 
 START PREDICATE 
-SIGNATURE     employee(?x)
-LABEL         employee ?x
-RDF           ?x rdf:type example:Employee .
+SIGNATURE     mainTunnel(?x)
+LABEL         main tunnel ?x
+RDF           ?x rdf:type example:MainTunnel .
 END PREDICATE
 
 START PREDICATE 
-SIGNATURE     human(?x)
-LABEL         human ?x
+SIGNATURE     person(?x)
+LABEL         person ?x
 RDF           ?x rdf:type example:Human .
 END PREDICATE
 
@@ -37,11 +37,11 @@ LABEL         ?x should never be less than ?y when humans are nearby
 RDF           ?x example:minAllowed ?y .
 END PREDICATE
 
-START PREDICATE 
-SIGNATURE     dangerSituation()
-LABEL         there is a danger
-RDF           example:SituationFlag example:hasFlag example:Danger .
-END PREDICATE
+*START PREDICATE 
+*SIGNATURE     dangerSituation()
+*LABEL         there is a danger
+*RDF           example:SituationFlag example:hasFlag example:Danger .
+*END PREDICATE
 
 START PREDICATE 
 SIGNATURE     >(?x,?y)
@@ -207,6 +207,18 @@ START RULE [?xC]In[?yC](?x,?y) <-- hasClass(?x,?xC) AND hasClass(?y,?yC) AND has
 LABEL      ?xC ?x is in ?yC ?y
 END RULE
 
+*** measurements inside other entities
+
+START RULE [?xC]MeasuredIn[?yC](?x,?y) <-- propertyOfObservation(?x,?xC) AND hasClass(?y,?yC) AND hasLocation(?x,?xL) AND hasLocation(?y,?yL) AND inside(?xL,?yL) AND place(?y)
+LABEL      ?xC ?x measured in ?yC ?y
+END RULE
+
+*** measurements inside other entities 2
+
+START RULE [?xC]MeasuredIn[?yC](?x,?y) <-- propertyOfObservation(?x,?xC) AND hasClass(?y,?yC) AND hasLocation(?x,?xL) AND hasLocation(?y,?yL) AND inside(?xL,?yL)
+LABEL      ?xC ?x measured in ?yC ?y
+END RULE
+
 *** max allowed near humans
 
 START RULE [?v0CO2]Danger(?v2, ?limit,   ?xHuman,?v4RoomClass,?v4Room) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0CO2) AND featureOfObservation(?v3,?v4Room) AND hasLocation(?v4Room,?xLroom) AND maxAllowedNearHumans(?v0CO2,?limit) AND hasLocation(?xHuman,?xLhuman) AND inside(?xLhuman,?xLroom) AND hasClass(?xHuman,example:Human) AND hasClass(?v4Room, ?v4RoomClass) AND >(?v2,?limit)
@@ -216,17 +228,17 @@ END RULE
 *************** AVAILABLE PREDICATES
 *************** These are the predicates that we assume are available from the start, i.e. the predicates that we can infer from a database
 
+
+** Basic
+
 START AVAILABLE   featureOfObservation(?x,?y)
 START AVAILABLE   measurementOfObservation(?x,?y)
-START AVAILABLE   propertyOfObservation(?x,example:CO2concentration)
-START AVAILABLE   room(?x)
 START AVAILABLE   >(?x,?y)
-START AVAILABLE   employee(?x)
-
-START AVAILABLE   hasLocation(?x,?y)
+START AVAILABLE   person(?x)
 START AVAILABLE   inside(?x,?y)
-START AVAILABLE   maxAllowedNearHumans(example:CO2concentration, "0.33")
 
+START AVAILABLE   maxAllowedNearHumans(example:CO2concentration, "0.33")
+START AVAILABLE   maxAllowedNearHumans(example:Temperature, "34")
 
 START AVAILABLE   domain(sosa:madeObservation,sosa:Sensor)
 START AVAILABLE   range(sosa:madeObservation,sosa:Observation)
@@ -237,11 +249,6 @@ START AVAILABLE   range(sosa:hasFeatureOfInterest,sosa:FeatureOfInterest)
 START AVAILABLE   domain(sosa:observedProperty,sosa:Observation)
 START AVAILABLE   range(sosa:observedProperty,sosa:ObservableProperty)
 
-START AVAILABLE   range(ogc:within,example:Place)
-
-START AVAILABLE   subClass(example:Employee,example:Human)
-START AVAILABLE   subClass(example:Room,example:Place)
-
 START AVAILABLE   disjoint(example:Human,example:Place)
 START AVAILABLE   disjoint(sosa:Observation,example:Place)
 START AVAILABLE   disjoint(sosa:Observation,example:Human)
@@ -251,8 +258,22 @@ START AVAILABLE   disjoint(sosa:ObservableProperty,example:Place)
 START AVAILABLE   disjoint(sosa:FeatureOfInterest,sosa:Observation)
 START AVAILABLE   disjoint(sosa:FeatureOfInterest,sosa:ObservableProperty)
 
-START AVAILABLE triple(example:CO2concentration,rdfs:label,"Carbon Dioxide 'CO2' concentration")
+START AVAILABLE   range(ogc:within,example:Place)
+START AVAILABLE   subClass(example:Person,example:Human)
+START AVAILABLE   subClass(example:Tunnel,example:Place)
+
+** Specific sensors
+
+START AVAILABLE   hasLocation(?x,?y)
+START AVAILABLE   propertyOfObservation(?x,example:CO2concentration)
+START AVAILABLE   propertyOfObservation(?x,example:Temperature)
+START AVAILABLE   tunnel(?x)
+START AVAILABLE   mainTunnel(?x)
+
+** Labels
+
+START AVAILABLE triple(example:CO2concentration,rdfs:label,"Carbon Dioxide CO2 concentration")
 START AVAILABLE triple(example:Human,rdfs:label,"person")
-START AVAILABLE triple(example:Employee,rdfs:label,"employee")
-START AVAILABLE triple(example:Room,rdfs:label,"room")
+START AVAILABLE triple(example:Person,rdfs:label,"person")
+START AVAILABLE triple(example:Tunnel,rdfs:label,"tunnel")
 START AVAILABLE triple(example:Place,rdfs:label,"location")
