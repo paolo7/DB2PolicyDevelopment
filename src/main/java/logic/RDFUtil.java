@@ -1,13 +1,9 @@
 package logic;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -111,7 +107,7 @@ public class RDFUtil {
 		
 		for(PredicateInstantiation psi : r.getAntecedent()) {
 			Set<ConversionTriple> translationPlusConsequences = new HashSet<ConversionTriple>();
-			translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
+			if(psi.getPredicate().getRDFtranslation() != null)translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
 			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
 			for(ConversionTriple ct: translationPlusConsequences) {
 				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
@@ -134,14 +130,13 @@ public class RDFUtil {
 		return model;
 	}
 	
-	
 	public static Model generateBasicModel(Set<PredicateInstantiation> predicates, Map<String,String> prefixes) {
 		Model model = ModelFactory.createDefaultModel();
 		for(String s: prefixes.keySet()) {
 			model.setNsPrefix(s,prefixes.get(s));
 		}
 		int i = 0;		
-		for(PredicateInstantiation psi: predicates) {
+		for(PredicateInstantiation psi: predicates) if (psi.getPredicate().getRDFtranslation() != null){
 			Set<ConversionTriple> translationPlusConsequences = new HashSet<ConversionTriple>();
 			translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
 			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
@@ -202,7 +197,7 @@ public class RDFUtil {
 		//Resource lambda = ResourceFactory.createResource(LAMBDAURI);
 		
 		for(PredicateInstantiation psi: predicates) {
-			for(ConversionTriple ct: psi.getPredicate().getRDFtranslation()) {
+			if(psi.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: psi.getPredicate().getRDFtranslation()) {
 				Resource subject = lambda;
 				Property predicate = lambda;
 				RDFNode object = lambda;				
@@ -253,7 +248,10 @@ public class RDFUtil {
 	public static String resolveLabelOfURI(String URI) {
 		if(labelService != null && labelService.hasLabel(URI))
 			return labelService.getLabel(URI);
-		return URI.substring(URI.lastIndexOf("/") + 1);
+		if(labelService != null && labelService.hasLabel(expandPrefix(URI)))
+			return labelService.getLabel(expandPrefix(URI));
+		return URI;
+		//return URI.substring(expandPrefix(URI).lastIndexOf("/") + 1);
 	}
 	
 	public static String resolveLabelOfURIasURIstring(String URI) {
@@ -293,6 +291,21 @@ public class RDFUtil {
 			prefixes += "PREFIX "+key+": <"+m.getNsPrefixMap().get(key)+">\n";
 		}
 		return prefixes;
+	}
+	
+	public static String getSPARQLprefixes(ExternalDB eDB) {
+		String prefixes = "";
+		Map<String,String> namespaces = eDB.getNamespaces();
+		for(String key: namespaces.keySet()) {
+			prefixes += "PREFIX "+key+": <"+namespaces.get(key)+">\n";
+		}
+		return prefixes;
+	}
+	
+	public static Model loadModel(String path) {
+		Model model = ModelFactory.createDefaultModel();
+		model.read(path) ;
+		return model;
 	}
 	
 }

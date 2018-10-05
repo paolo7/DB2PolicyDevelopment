@@ -1,7 +1,5 @@
 package logic;
 
-import java.util.Objects;
-
 public abstract class ResourceAbstr implements Resource {
 
 	@Override

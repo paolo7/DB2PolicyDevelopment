@@ -1,10 +1,8 @@
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -86,8 +84,8 @@ public class StartSimulator extends PApplet{
 			e.printStackTrace();
 		}
 		
-		mapWidth = (int) 100+maxRoomSize*2+Math.round(roomsNumber/8)*(maxRoomSize) ;
-		mapHeight = (int) 100+maxRoomSize*2+Math.round(roomsNumber/8)*(maxRoomSize) ;
+		mapWidth = 100+maxRoomSize*2+Math.round(roomsNumber/8)*(maxRoomSize) ;
+		mapHeight = 100+maxRoomSize*2+Math.round(roomsNumber/8)*(maxRoomSize) ;
         
         rooms = new LinkedList<Room>();
         people = new LinkedList<Person>();
@@ -191,17 +189,20 @@ public class StartSimulator extends PApplet{
 		System.out.println("Added room n."+rooms.size());
 	}
 	
+	@Override
 	public void settings(){
         size(windowWidth,windowHeight);
     }
 
-    public void setup(){
+    @Override
+	public void setup(){
         fill(255,255,255);
         surface.setResizable(true);
         pg = createGraphics(mapWidth, mapHeight);
     }
 
-    public void draw(){
+    @Override
+	public void draw(){
     	pg.beginDraw();
     	pg.background(120);
     	
@@ -241,7 +242,8 @@ public class StartSimulator extends PApplet{
     	  }
     	image(pg, imgx, imgy);
     }
-    public void mousePressed()
+    @Override
+	public void mousePressed()
     {
       dragging = true;
     }

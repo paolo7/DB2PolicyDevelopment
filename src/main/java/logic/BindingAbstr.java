@@ -1,7 +1,5 @@
 package logic;
 
-import java.util.Objects;
-
 public abstract class BindingAbstr implements Binding{
 
 	@Override
@@ -23,6 +21,7 @@ public abstract class BindingAbstr implements Binding{
         return false;
     }
 	
+	@Override
 	public String toString() {
 		if(this.isVar()) return "?v"+this.getVar();
 		else return this.getConstant().toString();

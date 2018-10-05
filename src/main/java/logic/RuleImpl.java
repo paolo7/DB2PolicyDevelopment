@@ -51,7 +51,8 @@ public class RuleImpl extends RuleAbstr{
 	private Set<ConversionTriple> computeConstraints(Map<String, RDFNode> bindingsMap, Set<Predicate> predicates, Binding[] newBindings){
 		Set<ConversionTriple> constraints = new HashSet<ConversionTriple>();
 		for(PredicateInstantiation pi: getAntecedent()) {
-			constraints.addAll(pi.applyBinding(bindingsMap, newBindings));
+			Set<ConversionTriple> newConstraints = pi.applyBinding(bindingsMap, newBindings).getLeft();
+			if(newConstraints != null) constraints.addAll(newConstraints);
 		}
 		return constraints;
 	}

@@ -46,7 +46,7 @@ END PREDICATE
 START PREDICATE 
 SIGNATURE     >(?x,?y)
 LABEL         ?x > ?y
-RDF           ?x example:gt ?y .
+RDF           FILTER ( ?x > ?y )
 END PREDICATE
 
 *** OWL predicates
@@ -68,13 +68,19 @@ END PREDICATE
 START PREDICATE 
 SIGNATURE     hasLocation(?x,?y)
 LABEL         ?x is at ?y
-RDF           ?x ogc:hasGeometry ?y .
+RDF           ?x ogc3:hasGeometry ?y .
 END PREDICATE
 
 START PREDICATE 
 SIGNATURE     inside(?x,?y)
 LABEL         ?x is inside ?y
-RDF           ?x ogc:within ?y .
+RDF           ?x example:inside ?y .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     insideWKT(?x,?y, ?xWKT, ?yWKT)
+LABEL         ?x is inside ?y
+RDF           ?x ogc2:asWKT ?xWKT . ?y ogc2:asWKT ?yWKT . FILTER (geof:sfContains( ?xWKT , ?yWKT ))
 END PREDICATE
 
 *** Standard SSN predicates
@@ -189,6 +195,11 @@ END RULE
 START RULE observation(?x) AND sensor(?y) <-- madeObservation(?y,?x)
 END RULE
 
+*** geographical rules
+
+START RULE inside(?x,?y) <-- insideWKT(?x,?y, ?xWTK, ?yWTK)
+END RULE
+
 *** elevating the property-feature-measurment triple
 
 START RULE [?v0]Of[?v1](?v4,?v2) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0) AND featureOfObservation(?v3,?v4) AND hasClass(?v4,?v1)
@@ -273,6 +284,7 @@ START AVAILABLE   mainTunnel(?x)
 ** Labels
 
 START AVAILABLE triple(example:CO2concentration,rdfs:label,"Carbon Dioxide CO2 concentration")
+START AVAILABLE triple(example:Temperature,rdfs:label,"Temperature")
 START AVAILABLE triple(example:Human,rdfs:label,"person")
 START AVAILABLE triple(example:Person,rdfs:label,"person")
 START AVAILABLE triple(example:Tunnel,rdfs:label,"tunnel")

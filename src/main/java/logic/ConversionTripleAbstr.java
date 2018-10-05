@@ -2,7 +2,6 @@ package logic;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 public abstract class ConversionTripleAbstr implements ConversionTriple{
@@ -70,25 +69,32 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 		return snippet+"}\n";
 	}
 	
+	
 	@Override
 	public String toSPARQL(Binding[] bindings) {
 		String snippet = "";
 		if(this.getSubject().isConstant()) snippet += this.getSubject().getConstant().getLexicalValue();
-		else {
+		else if (this.getSubject().getVar() >= bindings.length) {
+			snippet += "?v"+this.getSubject().getVar();
+		} else {
 			Binding b = bindings[this.getSubject().getVar()];
 			if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
 			else snippet += "?v"+b.getVar();
 		}
 		snippet += " ";
 		if(this.getPredicate().isConstant()) snippet += this.getPredicate().getConstant().getLexicalValue();
-		else {
+		else if (this.getPredicate().getVar() >= bindings.length) {
+			snippet += "?v"+this.getPredicate().getVar();
+		} else {
 			Binding b = bindings[this.getPredicate().getVar()];
 			if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
 			else snippet += "?v"+b.getVar();
 		}
 		snippet += " ";
 		if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValue();
-		else {
+		else if (this.getObject().getVar() >= bindings.length) {
+			snippet += "?v"+this.getObject().getVar();
+		} else {
 			Binding b = bindings[this.getObject().getVar()];
 			if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
 			else snippet += "?v"+b.getVar();
@@ -128,6 +134,7 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
         		&& this.getObject().equals(p.getObject());
     }
 	
+	@Override
 	public String toString() {
 		return this.getSubject()+" "+this.getPredicate()+" "+this.getObject();
 	}

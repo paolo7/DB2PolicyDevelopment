@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Set;
 
-import org.apache.jena.atlas.json.JsonBuilder;
-import org.apache.jena.atlas.json.JsonValue;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;

@@ -1,10 +1,14 @@
 package logic;
 
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.RDFNode;
 
 public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
@@ -53,15 +57,34 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 	}
 
 	@Override
-	public Set<ConversionTriple> applyBinding(Map<String, RDFNode> bindingsMap, Binding[] newSignatureBindings) {
+	public Pair<Set<ConversionTriple>,Set<ConversionFilter>> applyBinding(Map<String, RDFNode> bindingsMap, Binding[] newSignatureBindings) {
 		Set<ConversionTriple> newTriples = new HashSet<ConversionTriple>();
-		for(ConversionTriple ct: predicate.getRDFtranslation()) {
+		Set<ConversionFilter> newFilters = new HashSet<ConversionFilter>();
+		if(predicate.getRDFtranslation() != null) for(ConversionTriple ct: predicate.getRDFtranslation()) {
 			Binding subject = readjustTo0(reBind(ct.getSubject(),bindingsMap),bindingsMap, newSignatureBindings);
 			Binding predicate = readjustTo0(reBind(ct.getPredicate(),bindingsMap),bindingsMap, newSignatureBindings);
 			Binding object = readjustTo0(reBind(ct.getObject(),bindingsMap),bindingsMap, newSignatureBindings);
 			newTriples.add(new ConversionTripleImpl(subject,predicate,object));
-		}
-		return newTriples;
+		} else newTriples = null;
+		if(predicate.getRDFtranslationFilters() != null) for(ConversionFilter cf: predicate.getRDFtranslationFilters()) {
+			List<TextTemplate> ttList = new LinkedList<TextTemplate>();
+			for(TextTemplate tt : cf.templates) {
+				if(tt.isText()) ttList.add(new TextTemplateImpl(tt.getText()));
+				else {
+					Binding b = readjustTo0(reBind(new BindingImpl(tt.getVar()),bindingsMap),bindingsMap, newSignatureBindings);
+					if(b.isConstant()) {
+						if(b.getConstant().isLiteral()) {
+							
+							ttList.add(new TextTemplateImpl(b.getConstant().getLexicalValue()));
+						}
+						if(b.getConstant().isURI()) ttList.add(new TextTemplateImpl("<"+b.getConstant().getLexicalValue()+">"));
+					}
+					else ttList.add(new TextTemplateImpl(b.getVar()));
+				}
+			}
+			newFilters.add(new ConversionFilter(ttList));
+		} else newFilters = null;
+		return new ImmutablePair<Set<ConversionTriple>,Set<ConversionFilter>>(newTriples,newFilters);
 	}
 	
 	

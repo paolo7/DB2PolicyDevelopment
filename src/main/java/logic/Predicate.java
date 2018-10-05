@@ -13,5 +13,6 @@ public interface Predicate {
 	public String getName();
 	public int getVarnum();
 	public Set<ConversionTriple> getRDFtranslation();
+	public Set<ConversionFilter> getRDFtranslationFilters();
 	public List<TextTemplate> getTextLabel();
 }

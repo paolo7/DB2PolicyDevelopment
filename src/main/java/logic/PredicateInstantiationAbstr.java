@@ -3,7 +3,6 @@ package logic;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import org.apache.jena.rdf.model.RDFNode;
@@ -13,16 +12,28 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 	@Override
 	public String toSPARQL() {
 		String snippet = "";
-		for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
+		if (this.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
 			snippet += ct.toSPARQL(this.getBindings())+" .\n";
+		}
+		if (this.getPredicate().getRDFtranslationFilters() != null) for(ConversionFilter cf: this.getPredicate().getRDFtranslationFilters()) {
+			snippet += cf.toSPARQL(this.getBindings())+" .\n";
 		}
 		return snippet;
 	}
 	
 	@Override
+	public boolean hasVariables() {
+		if(this.getPredicate().getVarnum() == 0) return false;
+		for(Binding b : this.getBindings()) {
+			if(b.isVar()) return true;
+		}
+		return false;
+	}
+	
+	@Override
 	public Set<Integer> getNoLitVariables(){
 		Set<Integer> noLitVars = new HashSet<Integer>();
-		for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
+		if(this.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
 			noLitVars.addAll(ct.getNoLitVariables(this.getBindings()));
 		}
 		return noLitVars;
@@ -31,7 +42,7 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 	@Override
 	public String toGPPGSPARQL() {
 		String snippet = "";
-		for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
+		if(this.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
 			snippet += ct.toGPPGSPARQL(this.getBindings())+" \n";
 		}
 		return snippet;

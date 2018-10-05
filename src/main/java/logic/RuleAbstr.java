@@ -1,12 +1,7 @@
 package logic;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-
-import org.apache.commons.lang3.tuple.Triple;
 
 public abstract class RuleAbstr implements Rule{
 

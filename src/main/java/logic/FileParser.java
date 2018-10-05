@@ -2,7 +2,6 @@ package logic;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -33,6 +32,7 @@ public class FileParser {
 		String name = null;
 		int varnum = -1;
 		Set<ConversionTriple> translationToRDF = null;
+		Set<ConversionFilter> translationToRDFFilters = null;
 		List<TextTemplate> textLabel = null;
 		
 		Set<PredicateTemplate> rulePredicateTemplates = null;
@@ -41,8 +41,8 @@ public class FileParser {
 		
 		while ((line = bufferedReader.readLine()) != null) {
 			if(line.startsWith("END PREDICATE")) {
-				if(name != null && translationToRDF != null && textLabel != null && varnum >= 0) {
-					predicates.add(new PredicateImpl(name, varnum, translationToRDF, textLabel));
+				if(name != null && (translationToRDF != null || translationToRDFFilters != null) && textLabel != null && varnum >= 0) {
+					predicates.add(new PredicateImpl(name, varnum, translationToRDF, translationToRDFFilters, textLabel));
 				} else if(strictChecking){
 					throw new RuntimeException("WARNING: end predicate statement reached, but a full predicate could not be created. To suppress this warning turn off flag strictChecking");
 				}
@@ -66,6 +66,7 @@ public class FileParser {
 				name = null;
 				varnum = -1;
 				translationToRDF = null;
+				translationToRDFFilters = null;
 				textLabel = null;
 				rulePredicateTemplates = null;
 				ruleAntecedentPredicates = null;
@@ -94,7 +95,9 @@ public class FileParser {
 					ruleLabel = parseLabel(line.replaceFirst("LABEL", "").trim(), varnamemap);
 			}
 			if(line.startsWith("RDF") && mode.equals("PREDICATE")) {
-				translationToRDF  = parseRDF(line.replaceFirst("RDF", "").trim(), varnamemap);
+				Pair<Set<ConversionTriple>, Set<ConversionFilter>> parsedResults = parseRDF(line.replaceFirst("RDF", "").trim(), varnamemap);
+				translationToRDF  = parsedResults.left;
+				translationToRDFFilters =  parsedResults.right;				
 			}
 			/*if(line.startsWith("RULE") && !mode.equals("PREDICATE")) {
 				rules.add(parseRule(line.replaceFirst("RULE", "").trim(),predicates));
@@ -258,47 +261,67 @@ public class FileParser {
 		return label;
 	}
 	
-	private static Set<ConversionTriple> parseRDF(String text, Map<String,Integer> varnamemap){
+	private static Pair<Set<ConversionTriple>,Set<ConversionFilter>> parseRDF(String text, Map<String,Integer> varnamemap){
 		Set<ConversionTriple> RDFconversion = new HashSet<ConversionTriple>();
+		Set<ConversionFilter> RDFconversionFilter = new HashSet<ConversionFilter>();
 		String[] triples = text.split(" \\.");
 		for(String triple: triples) {
 			String[] tokens = triple.trim().split(" ");
-			if(tokens.length == 3) {
-				Binding subject = null;
-				Binding predicate = null;
-				Binding object = null;
-				for(String t: tokens) {
-					t = t.trim();
-					Binding newBinding = null;
-					if(t.startsWith("?")) {
-						t = t.replaceFirst("\\?", "");
-						if(!varnamemap.containsKey(t)) {
-							throw new RuntimeException("ERROR: trying to parse a triple with variable '"+t+"' but this variable is not defined in the predicate signature.");
+			if(tokens[0].equals("FILTER")) {
+				List<TextTemplate> templates = new LinkedList<TextTemplate>();
+				for(String tt : tokens) {
+					if(tt.startsWith("?")) {
+						tt = tt.replaceFirst("\\?", "");
+						if(!varnamemap.containsKey(tt)) {
+							throw new RuntimeException("ERROR: trying to parse a FILTER with variable '"+tt+"' but this variable is not defined in the predicate signature.");
 						}
-						newBinding = new BindingImpl(varnamemap.get(t));
+						templates.add(new TextTemplateImpl(varnamemap.get(tt)));
 					}
 					else {
-						if(t.startsWith("\"") && t.endsWith("\""))
-							newBinding = new BindingImpl(new ResourceLiteral(t.substring(1, t.length()-1)));
-						else
-							newBinding = new BindingImpl(new ResourceURI(t));
-					}
-					if(subject == null) {
-						subject = newBinding;
-					}
-					else if(predicate == null) {
-						predicate = newBinding;
-					}
-					else if(object == null) {
-						object = newBinding;
+						templates.add(new TextTemplateImpl(tt));
 					}
 				}
-				RDFconversion.add(new ConversionTripleImpl(subject,predicate,object));
-			} else if(tokens.length > 0) {
-				throw new RuntimeException("ERROR: RDF definition of a predicate is malformed, 3 tokens were expected but "+tokens.length+" were found: "+text);
+				RDFconversionFilter.add(new ConversionFilter(templates));
+			} else {				
+				if(tokens.length == 3) {
+					Binding subject = null;
+					Binding predicate = null;
+					Binding object = null;
+					for(String t: tokens) {
+						t = t.trim();
+						Binding newBinding = null;
+						if(t.startsWith("?")) {
+							t = t.replaceFirst("\\?", "");
+							if(!varnamemap.containsKey(t)) {
+								throw new RuntimeException("ERROR: trying to parse a triple with variable '"+t+"' but this variable is not defined in the predicate signature.");
+							}
+							newBinding = new BindingImpl(varnamemap.get(t));
+						}
+						else {
+							if(t.startsWith("\"") && t.endsWith("\""))
+								newBinding = new BindingImpl(new ResourceLiteral(t.substring(1, t.length()-1)));
+							else
+								newBinding = new BindingImpl(new ResourceURI(t));
+						}
+						if(subject == null) {
+							subject = newBinding;
+						}
+						else if(predicate == null) {
+							predicate = newBinding;
+						}
+						else if(object == null) {
+							object = newBinding;
+						}
+					}
+					RDFconversion.add(new ConversionTripleImpl(subject,predicate,object));
+				} else if(tokens.length > 0) {
+					throw new RuntimeException("ERROR: RDF definition of a predicate is malformed, 3 tokens were expected but "+tokens.length+" were found: "+text);
+				}
 			}
 		}
-		return RDFconversion;
+		if(RDFconversion.size() == 0) RDFconversion = null;
+		if(RDFconversionFilter.size() == 0) RDFconversionFilter = null;
+		return new Pair<Set<ConversionTriple>,Set<ConversionFilter>>(RDFconversion,RDFconversionFilter);
 	}
 	
 	public static Map<String,String> parsePrefixes(String filepath) throws IOException{
@@ -309,7 +332,7 @@ public class FileParser {
 		String line;
 		
 		while ((line = bufferedReader.readLine()) != null) {
-			if(line.length() > 0) {
+			if(line.trim().length() > 0) {
 				String[] parts = line.split(" ");
 				if(parts.length != 2) throw new RuntimeException("ERROR: prefixes file malformed, each line should be either empty, or contain 2 space separated strings");
 				map.put(parts[0], parts[1]);

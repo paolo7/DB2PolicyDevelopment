@@ -1,14 +1,40 @@
 package logic;
 
-import java.io.IOException;
-import java.util.HashMap;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.LogManager;
+
+import org.apache.jena.rdf.model.Model;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+
+import GraphDB.QueryUtil;
 
 public class FileParserTest {
 
-	public static void main(String[] args) throws IOException {
+	
+	public static void setLoggingLevel(ch.qos.logback.classic.Level level) {
+	    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+	    root.setLevel(level);
+	}	
+
+	
+	public static void main(String[] args) throws Exception {
+		
+		setLoggingLevel(ch.qos.logback.classic.Level.ERROR);
+		
+		// this implementation uses GraphDB as an external triplestore that is GeoSparql enabled.
+		// but any other triplestore that follows the rdf4j framework should be compatible
+		ExternalDB eDB = new ExternalDB_GraphDB("http://152.78.64.224:7200/", "test", "temp");
+		eDB.loadRDF(new File(System.getProperty("user.dir")+"/resources/localRDF.ttl"), RDFFormat.TURTLE);
+		countTriples(eDB);
+		//testGeo(eDB);
 		
 		Map<String,String> prefixes = FileParser.parsePrefixes(System.getProperty("user.dir") + "/resources/prefixes.txt");
 		/*prefixes.put("example", "http://example.com/");
@@ -49,6 +75,17 @@ public class FileParserTest {
 			System.out.println("AVAILABLE PREDICATE: "+p+"\n");
 		}
 		
+		
+		System.out.println("\n*************** APPLYING RULES TO TRIPLESTORE BEFORE EXPANSION\n");
+		
+		//Model dataset = RDFUtil.loadModel(System.getProperty("user.dir") + "/resources/simulationData/data.ttl");
+		for(String s: prefixes.keySet()) {
+			eDB.setNamespace(s,prefixes.get(s));
+		}
+		PredicateEvaluation.evaluate(eDB, existingPredicates);
+		
+		
+		LogManager.getLogManager().reset();
 		System.out.println("*************** APPLYING EXPANSION\n");
 		PredicateExpansion expansion = new PredicateExpansionBySPARQLquery(predicates, rules);
 		expansion.setPrefixes(prefixes);
@@ -65,5 +102,74 @@ public class FileParserTest {
 		existingPredicates.addAll(newPredicates);
 		JSONoutput.outputAsJSON("JSONoutput.json", existingPredicates);
 		
+		System.out.println("\n*************** APPLYING RULES TO TRIPLESTORE\n");
+		
+		//Model dataset = RDFUtil.loadModel(System.getProperty("user.dir") + "/resources/simulationData/data.ttl");
+		//for(String s: prefixes.keySet()) {
+		//	dataset.setNsPrefix(s,prefixes.get(s));
+		//}
+		//PredicateEvaluation.evaluate(dataset, existingPredicates);
+		
+		eDB.clearDB();
+	}
+	
+	public static void countTriples(ExternalDB eDB) {
+		TupleQueryResult result = eDB.query("SELECT (COUNT(*) AS ?no) WHERE { ?s ?p ?o  }");
+		while (result.hasNext()) {
+            BindingSet bindingSet = result.next();
+            Value no = bindingSet.getBinding("no").getValue();
+
+            System.out.println("Loaded dataset with "+no.stringValue()+" triples.");
+        }
+        result.close();
+	}
+	
+	public static void testGeo(ExternalDB eDB) {
+		/*SPARQLRepository q = new SPARQLRepository("http://152.78.64.224:7200/repositories/test1");
+		q.initialize();
+		RepositoryConnection connection = q.getConnection();
+		TupleQueryResult result = QueryUtil.evaluateSelectQuery(connection,"PREFIX my: <http://example.org/ApplicationSchema#>\n" + 
+				"PREFIX geo: <http://www.opengis.net/ont/geosparql#>\n" + 
+				"PREFIX geof: <http://www.opengis.net/def/function/geosparql/>\n" + 
+				"\n" + 
+				"SELECT ?a ?b ?aWKT ?bWKT \n" + 
+				"WHERE {\n" + 
+				"    ?a <http://www.opengis.net/rdf#hasGeometry> ?aGeom .\n" + 
+				"    ?b <http://www.opengis.net/rdf#hasGeometry> ?bGeom .\n" + 
+				"    ?aGeom geo:asWKT ?aWKT .\n" + 
+				"    ?bGeom geo:asWKT ?bWKT .\n" + 
+				"    FILTER (geof:sfContains(?aWKT, ?bWKT))\n" + 
+				"}");
+		while (result.hasNext()) {
+            BindingSet bindingSet = result.next();
+            for(String name : bindingSet.getBindingNames()) {
+            	Value v = bindingSet.getBinding(name).getValue();
+            	System.out.println(name+": "+v.stringValue());
+            }
+            System.out.println("");
+        }
+        result.close();*/
+        
+		TupleQueryResult result = eDB.query("PREFIX my: <http://example.org/ApplicationSchema#>\n" + 
+				"PREFIX geo: <http://www.opengis.net/ont/geosparql#>\n" + 
+				"PREFIX geof: <http://www.opengis.net/def/function/geosparql/>\n" + 
+				"\n" + 
+				"SELECT ?a ?b ?aWKT ?bWKT \n" + 
+				"WHERE {\n" + 
+				"    ?a <http://www.opengis.net/rdf#hasGeometry> ?aGeom .\n" + 
+				"    ?b <http://www.opengis.net/rdf#hasGeometry> ?bGeom .\n" + 
+				"    ?aGeom geo:asWKT ?aWKT .\n" + 
+				"    ?bGeom geo:asWKT ?bWKT .\n" + 
+				"    FILTER (geof:sfContains(?aWKT, ?bWKT))\n" + 
+				"}");
+		while (result.hasNext()) {
+            BindingSet bindingSet = result.next();
+            for(String name : bindingSet.getBindingNames()) {
+            	Value v = bindingSet.getBinding(name).getValue();
+            	System.out.println(name+": "+v.stringValue());
+            }
+            System.out.println("");
+        }
+        result.close();
 	}
 }

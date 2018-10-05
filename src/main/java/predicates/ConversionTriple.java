@@ -1,7 +1,5 @@
 package predicates;
 
-import java.util.Set;
-
 public class ConversionTriple {
 
 	public String subject;

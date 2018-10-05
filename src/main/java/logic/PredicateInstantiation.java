@@ -1,9 +1,9 @@
 package logic;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.rdf.model.RDFNode;
 
 /**
@@ -14,11 +14,12 @@ import org.apache.jena.rdf.model.RDFNode;
 public interface PredicateInstantiation {
 
 	public Predicate getPredicate();
+	public boolean hasVariables();
 	public Binding[] getBindings();
 	public Binding getBinding(int index);
 	public String toSPARQL();
 	public String toGPPGSPARQL();
-	public Set<ConversionTriple> applyBinding(Map<String, RDFNode> bindingsMap, Binding[] newSignatureBindings);
+	public Pair<Set<ConversionTriple>,Set<ConversionFilter>> applyBinding(Map<String, RDFNode> bindingsMap, Binding[] newSignatureBindings);
 	public Set<ConversionTriple> getAdditionalConstraints();
 	public Set<Integer> getNoLitVariables();
 	public boolean compatible(PredicateInstantiation other, Map<String, RDFNode> bindingsMap);

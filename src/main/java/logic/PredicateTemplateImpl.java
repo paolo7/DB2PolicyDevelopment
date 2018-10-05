@@ -1,6 +1,5 @@
 package logic;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -8,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.jena.query.QuerySolution;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.rdf.model.RDFNode;
 
 public class PredicateTemplateImpl extends PredicateTemplateAbstr{
@@ -21,10 +20,12 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 		this.bindings = bindings;
 	}
 
+	@Override
 	public List<TextTemplate> getName() {
 		return name;
 	}
 
+	@Override
 	public Binding[] getBindings() {
 		return bindings;
 	}
@@ -47,10 +48,13 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 			predicate = PredicateUtil.get(predicateName, bindings.length, predicates);
 		} else {
 			Set<ConversionTriple> translationToRDF = new HashSet<ConversionTriple>();
+			Set<ConversionFilter> translationToRDFFilters = new HashSet<ConversionFilter>();
 			for(PredicateInstantiation pi: antecedent) {
-				translationToRDF.addAll(pi.applyBinding(bindingsMap, bindings));
+				Pair<Set<ConversionTriple>,Set<ConversionFilter>> boundconversiontriples = pi.applyBinding(bindingsMap, bindings);
+				if(boundconversiontriples.getLeft() != null) translationToRDF.addAll(boundconversiontriples.getLeft());
+				if(boundconversiontriples.getRight() != null) translationToRDFFilters.addAll(boundconversiontriples.getRight());
 			}
-			
+			if(translationToRDFFilters.size() == 0) translationToRDFFilters = null;
 			List<TextTemplate> textLabel = new LinkedList<TextTemplate>();
 			for(TextTemplate tt : label) {
 				if(tt.isText()) textLabel.add(tt);
@@ -72,7 +76,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 				}
 			}
 			
-			predicate = new PredicateImpl(predicateName, bindings.length, translationToRDF, textLabel);
+			predicate = new PredicateImpl(predicateName, bindings.length, translationToRDF, translationToRDFFilters, textLabel);
 		}
 		Binding[] newBindings = new Binding[bindings.length];
 		for(int i = 0; i < newBindings.length; i++) {

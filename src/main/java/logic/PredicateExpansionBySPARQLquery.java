@@ -1,16 +1,11 @@
 package logic;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -90,6 +85,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		return validity.isValid();
 	}
 
+	@Override
 	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates) {
 		return expand(existingPredicates,true);
 	}

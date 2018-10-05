@@ -1,11 +1,8 @@
 package logic;
 
-import java.util.List;
-import java.util.Objects;
-
 public abstract class PredicateAbstr implements Predicate{
 
-	@Override
+	/*@Override
     public boolean equals(Object o) {
   
         if (o == this) {
@@ -15,6 +12,10 @@ public abstract class PredicateAbstr implements Predicate{
             return false;
         }
         Predicate p = (Predicate) o;
+        
+        if(this.getRDFtranslation() == null) {
+        	if (p.getRDFtranslation() != null) return false;
+        }
         
         if(this.getRDFtranslation().size() != p.getRDFtranslation().size())
         	return false;
@@ -31,7 +32,7 @@ public abstract class PredicateAbstr implements Predicate{
         }
          
         return this.getName().toLowerCase().equals(p.getName().toLowerCase()) && this.getVarnum() == p.getVarnum();
-    }
+    }*/
 	
 	@Override
 	public String toString() {
@@ -52,13 +53,16 @@ public abstract class PredicateAbstr implements Predicate{
 		s += "\n";
 		// rdf conversion
 		s += "RDF      : ";
-		for (ConversionTriple tt : this.getRDFtranslation()) {	
+		if(this.getRDFtranslation() != null) for (ConversionTriple tt : this.getRDFtranslation()) {	
+			s += tt+" . \n           ";
+		}
+		if(this.getRDFtranslationFilters() != null) for (ConversionFilter tt : this.getRDFtranslationFilters()) {	
 			s += tt+" . \n           ";
 		}
 		return s;
 	}
 	
-	@Override
+/*	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 7;
@@ -67,5 +71,51 @@ public abstract class PredicateAbstr implements Predicate{
 		result = prime * result + ((this.getRDFtranslation() == null) ? 0 : this.getRDFtranslation().hashCode());
 		result = prime * result + this.getVarnum();
 		return result;
+	}*/
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.getName() == null) ? 0 : this.getName().hashCode());
+		result = prime * result + ((this.getTextLabel() == null) ? 0 : this.getTextLabel().hashCode());
+		result = prime * result + ((this.getRDFtranslation() == null) ? 0 : this.getRDFtranslation().hashCode());
+		result = prime * result + ((this.getRDFtranslationFilters() == null) ? 0 : this.getRDFtranslationFilters().hashCode());
+		result = prime * result + this.getVarnum();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PredicateImpl other = (PredicateImpl) obj;
+		if (getName() == null) {
+			if (other.getName() != null)
+				return false;
+		} else if (!getName().equals(other.getName()))
+			return false;
+		if (getTextLabel() == null) {
+			if (other.getTextLabel() != null)
+				return false;
+		} else if (!getTextLabel().equals(other.getTextLabel()))
+			return false;
+		if (getRDFtranslation() == null) {
+			if (other.getRDFtranslation() != null)
+				return false;
+		} else if (!getRDFtranslation().equals(other.getRDFtranslation()))
+			return false;
+		if (getRDFtranslationFilters() == null) {
+			if (other.getRDFtranslationFilters() != null)
+				return false;
+		} else if (!getRDFtranslationFilters().equals(other.getRDFtranslationFilters()))
+			return false;
+		if (getVarnum() != other.getVarnum())
+			return false;
+		return true;
 	}
 }

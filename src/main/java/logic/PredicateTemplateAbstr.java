@@ -1,7 +1,6 @@
 package logic;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public abstract class PredicateTemplateAbstr implements PredicateTemplate{
 

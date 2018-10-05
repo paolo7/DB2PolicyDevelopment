@@ -1,6 +1,5 @@
 package logic;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -10,25 +9,27 @@ public class PredicateImpl extends PredicateAbstr {
 	private int varnum;
 	
 	private Set<ConversionTriple> translationToRDF;
+	private Set<ConversionFilter> translationToRDFFilters;
 	private List<TextTemplate> textLabel;
 	
-	public PredicateImpl(String name, int varnum, Set<ConversionTriple> translationToRDF, List<TextTemplate> textLabel) {
+	public PredicateImpl(String name, int varnum, Set<ConversionTriple> translationToRDF, Set<ConversionFilter> translationToRDFFilters, List<TextTemplate> textLabel) {
 		if(name == null)
 			throw new RuntimeException("ERROR: trying to instantiate a predicate without a name");
-		if(translationToRDF == null)
+		if(translationToRDF == null && translationToRDFFilters == null)
 			throw new RuntimeException("ERROR: trying to instantiate a predicate without an RDF translation");	
 		if(textLabel == null)
 			throw new RuntimeException("ERROR: trying to instantiate a predicate without a textual label");	
-		if(translationToRDF.size() == 0)
+		if(translationToRDF != null && translationToRDF.size() == 0 && translationToRDFFilters == null)
 			throw new RuntimeException("ERROR: trying to instantiate a predicate with empty RDF translation");	
-		if(translationToRDF.size() == 0)
-			throw new RuntimeException("ERROR: trying to instantiate a predicate with empty textual label");	
+		//if(translationToRDFFilters.size() == 0 && translationToRDF == null)
+		//	throw new RuntimeException("ERROR: trying to instantiate a predicate with empty textual label");	
 		if(varnum < 0) 
 			throw new RuntimeException("ERROR: trying to instantiate a predicate with less than one variable");
 		this.name = name;
 		this.varnum = varnum;
 		this.translationToRDF = translationToRDF;
 		this.textLabel = textLabel;
+		this.translationToRDFFilters = translationToRDFFilters;
 	}
 	
 	@Override
@@ -45,12 +46,16 @@ public class PredicateImpl extends PredicateAbstr {
 	public Set<ConversionTriple> getRDFtranslation() {
 		return translationToRDF;
 	}
+	
+	@Override
+	public Set<ConversionFilter> getRDFtranslationFilters() {
+		return translationToRDFFilters;
+	}
 
 	@Override
 	public List<TextTemplate> getTextLabel() {
 		return textLabel;
 	}
-
 
 
 /*	@Override

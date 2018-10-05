@@ -27,6 +27,7 @@ public class MySQLConnection implements DBConnection {
 		this.databasename = databasename;
 	}
 	
+	@Override
 	public boolean initialiseDB() {
 		Connection c;
 		try {
@@ -82,6 +83,7 @@ public class MySQLConnection implements DBConnection {
 		return true;
 	}
 
+	@Override
 	public boolean insertStatement(String s) {
 		try {
 			Statement st = conn.createStatement();
@@ -94,6 +96,7 @@ public class MySQLConnection implements DBConnection {
 		return true;
 	}
 
+	@Override
 	public boolean tableExists(String tablename) {
 		DatabaseMetaData md;
 		try {
@@ -109,6 +112,7 @@ public class MySQLConnection implements DBConnection {
 		return false;
 	}
 
+	@Override
 	public boolean columnInTableExists(String tablename, String columname) {
 		DatabaseMetaData md;
 		try {
