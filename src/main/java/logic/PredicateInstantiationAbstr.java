@@ -23,7 +23,9 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 	
 	@Override
 	public boolean hasVariables() {
-		if(this.getPredicate().getVarnum() == 0) return false;
+		if(this.getPredicate().getVarnum() == 0) {
+			return false;			
+		}
 		for(Binding b : this.getBindings()) {
 			if(b.isVar()) return true;
 		}
@@ -106,7 +108,7 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 			if(boundValue.isVar() && bindingsMap.get("v"+boundValue.getVar()) != null && bindingsMap.get("v"+boundValue.getVar()).isURIResource()) 
 				boundValue = new BindingImpl(new ResourceURI(bindingsMap.get("v"+boundValue.getVar()).asResource().getURI()));
 			else if(boundValue.isVar() && bindingsMap.get("v"+boundValue.getVar()) != null && bindingsMap.get("v"+boundValue.getVar()).isLiteral()) 
-				boundValue = new BindingImpl(new ResourceLiteral(bindingsMap.get("v"+boundValue.getVar()).asLiteral().getLexicalForm()));
+				boundValue = new BindingImpl(new ResourceLiteral(bindingsMap.get("v"+boundValue.getVar()).asLiteral().getLexicalForm(), bindingsMap.get("v"+boundValue.getVar()).asLiteral().getDatatypeURI()));
 			if(boundValue.isConstant() && other.getBindings()[i].isConstant() && ! boundValue.equals(other.getBindings()[i]))
 				return false;
 		}

@@ -24,9 +24,12 @@ public class PredicateEvaluation {
 	}
 	
 public static void evaluate(ExternalDB eDB, PredicateInstantiation predicate) {
-	if(!predicate.hasVariables()) return;
+
+	//System.out.println(predicate.hasVariables()+" >> "+predicate);
+	//if(!predicate.hasVariables()) return;
 	String SPARQLquery = RDFUtil.getSPARQLprefixes(eDB) + "SELECT * WHERE {" + predicate.toSPARQL() + "}";
 	TupleQueryResult result = eDB.query(SPARQLquery);
+	//System.out.println(predicate.getPredicate().getName());
 	while (result.hasNext()) {
 		BindingSet bindingSet = result.next();
 		String resultString = "";

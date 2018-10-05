@@ -80,7 +80,7 @@ END PREDICATE
 START PREDICATE 
 SIGNATURE     insideWKT(?x,?y, ?xWKT, ?yWKT)
 LABEL         ?x is inside ?y
-RDF           ?x ogc2:asWKT ?xWKT . ?y ogc2:asWKT ?yWKT . FILTER (geof:sfContains( ?xWKT , ?yWKT ))
+RDF           ?x ogc2:asWKT ?xWKT . ?y ogc2:asWKT ?yWKT . FILTER (geof:sfContains( ?xWKT , ?yWKT ) && !sameTerm( ?x , ?y ))
 END PREDICATE
 
 *** Standard SSN predicates
@@ -246,10 +246,10 @@ START AVAILABLE   featureOfObservation(?x,?y)
 START AVAILABLE   measurementOfObservation(?x,?y)
 START AVAILABLE   >(?x,?y)
 START AVAILABLE   person(?x)
-START AVAILABLE   inside(?x,?y)
+START AVAILABLE   insideWKT(?x,?y,?xl,?yl)
 
-START AVAILABLE   maxAllowedNearHumans(example:CO2concentration, "0.33")
-START AVAILABLE   maxAllowedNearHumans(example:Temperature, "34")
+START AVAILABLE   maxAllowedNearHumans(example:CO2concentration, 0.33)
+START AVAILABLE   maxAllowedNearHumans(example:Temperature, 34)
 
 START AVAILABLE   domain(sosa:madeObservation,sosa:Sensor)
 START AVAILABLE   range(sosa:madeObservation,sosa:Observation)

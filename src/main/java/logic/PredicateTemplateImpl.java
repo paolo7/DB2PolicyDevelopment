@@ -85,7 +85,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 				RDFNode newBinding = bindingsMap.get("v"+bindings[i].getVar());
 				if(newBinding != null && !newBinding.isAnon()) {
 					if(newBinding.isLiteral()) {
-						newBindings[i] = new BindingImpl(new ResourceLiteral(newBinding.asLiteral().getLexicalForm()));
+						newBindings[i] = new BindingImpl(new ResourceLiteral(newBinding.asLiteral().getLexicalForm(), newBinding.asLiteral().getDatatypeURI()));
 					} else {
 						newBindings[i] = new BindingImpl(new ResourceURI(newBinding.asResource().getURI()));
 					}

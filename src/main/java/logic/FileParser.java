@@ -15,6 +15,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.xsd.impl.XSDBaseStringType;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 import com.mysql.cj.core.conf.url.ConnectionUrlParser.Pair;
 
@@ -162,6 +165,7 @@ public class FileParser {
 	    List<Binding> bindingList = new LinkedList<Binding>();
 	    for(String t : variableTokens) {
 	    	t = t.trim();
+	    	
 	    	if(t.startsWith("?")) {
 	    		t = t.replaceFirst("\\?","").trim();
 	    		if(! varNameMap.containsKey(t)) {					
@@ -170,9 +174,13 @@ public class FileParser {
 	    		bindingList.add(new BindingImpl(varNameMap.get(t)));
 	    	} else {
 	    		if(t.startsWith("\"") && t.endsWith("\""))
-	    			bindingList.add(new BindingImpl(new ResourceLiteral(t.substring(1, t.length()-1))));
-				else
-					bindingList.add(new BindingImpl(new ResourceURI(t)));
+	    			bindingList.add(new BindingImpl(new ResourceLiteral(t.substring(1, t.length()-1), XMLSchema.STRING) ));
+	    		else {
+	    			if(isNumeric(t))
+	    				bindingList.add(new BindingImpl(new ResourceLiteral(t, XMLSchema.DECIMAL)));
+	    			else
+	    				bindingList.add(new BindingImpl(new ResourceURI(t)));
+	    		}
 	    		//bindingList.add(new BindingImpl(new ResourceURI(t)));
 	    	}
 	    }
@@ -183,6 +191,15 @@ public class FileParser {
 	    }
 	    Predicate p = PredicateUtil.get(predicatename, bindingList.size(), predicates);
 	    return new PredicateInstantiationImpl(p,binding);	    
+	}
+	
+	public static boolean isNumeric(String strNum) {
+	    try {
+	        double d = Double.parseDouble(strNum);
+	    } catch (NumberFormatException | NullPointerException nfe) {
+	        return false;
+	    }
+	    return true;
 	}
 	
 	private static PredicateTemplate parseConsequentPredicate(String text, Map<String,Integer> varNameMap) {
@@ -299,9 +316,13 @@ public class FileParser {
 						}
 						else {
 							if(t.startsWith("\"") && t.endsWith("\""))
-								newBinding = new BindingImpl(new ResourceLiteral(t.substring(1, t.length()-1)));
-							else
-								newBinding = new BindingImpl(new ResourceURI(t));
+								newBinding = new BindingImpl(new ResourceLiteral(t.substring(1, t.length()-1), XMLSchema.STRING));
+							else {
+								if(isNumeric(t))
+									newBinding = new BindingImpl(new ResourceLiteral(t.substring(1, t.length()-1), XMLSchema.DECIMAL));
+								else
+									newBinding = new BindingImpl(new ResourceURI(t));
+							}
 						}
 						if(subject == null) {
 							subject = newBinding;

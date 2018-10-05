@@ -12,6 +12,8 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.shared.PrefixMapping;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 public class RDFUtil {
 	
@@ -250,8 +252,26 @@ public class RDFUtil {
 			return labelService.getLabel(URI);
 		if(labelService != null && labelService.hasLabel(expandPrefix(URI)))
 			return labelService.getLabel(expandPrefix(URI));
-		return URI;
-		//return URI.substring(expandPrefix(URI).lastIndexOf("/") + 1);
+		//return URI;
+		return URI.substring(expandPrefix(URI).lastIndexOf("/") + 1);
+	}
+	
+	public static boolean isNumericDatatypeIRI(IRI iri) {
+		if(iri.equals(XMLSchema.DECIMAL) || 
+				iri.equals(XMLSchema.DOUBLE) || 
+				iri.equals(XMLSchema.FLOAT) ||
+				iri.equals(XMLSchema.INT) ||
+				iri.equals(XMLSchema.INTEGER) ||
+				iri.equals(XMLSchema.LONG) ||
+				iri.equals(XMLSchema.NEGATIVE_INTEGER) ||
+				iri.equals(XMLSchema.POSITIVE_INTEGER) ||
+				iri.equals(XMLSchema.SHORT) ||
+				iri.equals(XMLSchema.UNSIGNED_INT) ||
+				iri.equals(XMLSchema.UNSIGNED_LONG) ||
+				iri.equals(XMLSchema.UNSIGNED_SHORT) 
+				)
+			return true;
+		return false;
 	}
 	
 	public static String resolveLabelOfURIasURIstring(String URI) {

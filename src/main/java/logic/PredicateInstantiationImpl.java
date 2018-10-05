@@ -115,7 +115,7 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 				if(node == null || node.isAnon()) return originalBinding;
 				else {
 					if(node.isLiteral()) 
-						return new BindingImpl(new ResourceLiteral(node.asLiteral().getLexicalForm()));
+						return new BindingImpl(new ResourceLiteral(node.asLiteral().getLexicalForm(), node.asLiteral().getDatatypeURI()));
 					else if(node.isURIResource()) return new BindingImpl(new ResourceURI(node.asResource().getURI()));
 					else throw new RuntimeException("ERROR: cannot create a conversion triple because node is neither null, nor blank, nor literal, nor URI");
 				}

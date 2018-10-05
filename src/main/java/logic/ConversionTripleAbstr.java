@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+
 public abstract class ConversionTripleAbstr implements ConversionTriple{
 
 	
@@ -96,7 +98,11 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 			snippet += "?v"+this.getObject().getVar();
 		} else {
 			Binding b = bindings[this.getObject().getVar()];
-			if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
+			if(b.isConstant()) {
+				if(b.getConstant().isLiteral() && RDFUtil.isNumericDatatypeIRI(((ResourceLiteral) b.getConstant()).getLiteralTypeIRI()))
+					snippet += b.getConstant().getLexicalValue();
+				else snippet += "\""+b.getConstant().getLexicalValue()+"\"";
+			}
 			else snippet += "?v"+b.getVar();
 		}
 		return snippet;
