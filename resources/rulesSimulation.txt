@@ -72,6 +72,12 @@ RDF           ?x ogc3:hasGeometry ?y .
 END PREDICATE
 
 START PREDICATE 
+SIGNATURE     hasWKTLocation(?x,?y)
+LABEL         ?x is at WTK ?y 
+RDF           ?x example:hasWKTGeometry ?y . 
+END PREDICATE
+
+START PREDICATE 
 SIGNATURE     inside(?x,?y)
 LABEL         ?x is inside ?y
 RDF           ?x example:inside ?y .
@@ -200,6 +206,9 @@ END RULE
 START RULE inside(?x,?y) <-- insideWKT(?x,?y, ?xWTK, ?yWTK)
 END RULE
 
+START RULE hasWKTLocation(?x,?y) <-- propertyOfObservation(?z,example:Location) AND featureOfObservation(?z,?x) AND measurementOfObservation(?z,?y) 
+END RULE
+
 *** elevating the property-feature-measurment triple
 
 START RULE [?v0]Of[?v1](?v4,?v2) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0) AND featureOfObservation(?v3,?v4) AND hasClass(?v4,?v1)
@@ -272,6 +281,7 @@ START AVAILABLE ASSERTED   disjoint(sosa:FeatureOfInterest,sosa:ObservableProper
 START AVAILABLE ASSERTED   range(ogc:within,example:Place)
 START AVAILABLE ASSERTED   subClass(example:Person,example:Human)
 START AVAILABLE ASSERTED   subClass(example:Tunnel,example:Place)
+START AVAILABLE ASSERTED   subClass(example:MainTunnel,example:Place)
 
 ** Specific sensors
 
@@ -285,6 +295,7 @@ START AVAILABLE   mainTunnel(?x)
 
 START AVAILABLE ASSERTED triple(example:CO2concentration,rdfs:label,"Carbon Dioxide CO2 concentration")
 START AVAILABLE ASSERTED triple(example:Temperature,rdfs:label,"Temperature")
+START AVAILABLE ASSERTED triple(example:Location,rdfs:label,"Location")
 START AVAILABLE ASSERTED triple(example:Human,rdfs:label,"person")
 START AVAILABLE ASSERTED triple(example:Person,rdfs:label,"person")
 START AVAILABLE ASSERTED triple(example:Tunnel,rdfs:label,"tunnel")

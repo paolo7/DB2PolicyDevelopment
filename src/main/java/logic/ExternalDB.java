@@ -21,6 +21,8 @@ public interface ExternalDB {
 
 	public Map<String, String> getNamespaces();
 	
+	public int countTriples();
+	
 	public void insertFullyInstantiatedPredicate(PredicateInstantiation pi);
 
 }

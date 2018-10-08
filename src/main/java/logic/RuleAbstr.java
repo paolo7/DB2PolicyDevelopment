@@ -7,9 +7,9 @@ public abstract class RuleAbstr implements Rule{
 
 	@Override
 	public String getAntecedentSPARQL() {
-		String SPARQL = "SELECT DISTINCT ";
+		String SPARQL = "SELECT DISTINCT *";
 		
-		// get the SELECT variables
+		/*// get the SELECT variables
 		
 		Set<Integer> selectVars = new HashSet<Integer>();
 		for(PredicateTemplate ep : this.getConsequent()) {
@@ -26,7 +26,7 @@ public abstract class RuleAbstr implements Rule{
 			if (first) first = false;
 			else SPARQL += " ";
 			SPARQL += "?v"+i;
-		}
+		}*/
 		SPARQL += "\nWHERE {\n";
 		//  compute the WHERE clause
 		for(PredicateInstantiation ep : this.getAntecedent()) {

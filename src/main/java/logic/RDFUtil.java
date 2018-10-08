@@ -2,8 +2,10 @@ package logic;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -12,13 +14,18 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.shared.PrefixMapping;
+import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.URI;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 public class RDFUtil {
 	
 	public static String LAMBDAURI = "http://w3id.org/prohow/GPPG#LAMBDA"+new java.util.Date().getTime();
 	public static LabelService labelService;
+	
+	private static final Model mInternalModel = ModelFactory.createDefaultModel(); 
 	
 	public static PrefixMapping prefixes = PrefixMapping.Factory.create();
 	
@@ -323,10 +330,64 @@ public class RDFUtil {
 		return prefixes;
 	}
 	
+	public static String getSPARQLdefaultPrefixes() {
+		String prefixesString = "";
+		for(String key : prefixes.getNsPrefixMap().keySet()) {
+			prefixesString += "PREFIX "+key+": <"+prefixes.getNsPrefixMap().get(key)+">\n";
+		}
+		return prefixesString;
+	}
+	
 	public static Model loadModel(String path) {
 		Model model = ModelFactory.createDefaultModel();
 		model.read(path) ;
 		return model;
 	}
+	
+	//part of the code taken from from http://www.javased.com/index.php?source_dir=Empire/jena/src/com/clarkparsia/empire/jena/util/JenaSesameUtils.java
+	public static RDFNode asJenaNode(Value theValue) { 
+		  if (theValue instanceof org.eclipse.rdf4j.model.Literal) { 
+		   return asJenaLiteral( (org.eclipse.rdf4j.model.Literal) theValue); 
+		  } 
+		  else { 
+		   return asJenaResource( (org.eclipse.rdf4j.model.Resource) theValue); 
+		  } 
+		 } 
+	public static Literal asJenaLiteral(org.eclipse.rdf4j.model.Literal theLiteral) { 
+		  if (theLiteral == null) { 
+		   return null; 
+		  } 
+		  else if (theLiteral.getLanguage() != null) { 
+			  Optional<String> language = theLiteral.getLanguage();
+			  if (language.isPresent()) return mInternalModel.createLiteral(theLiteral.getLabel(), language.get() );
+			  else return mInternalModel.createLiteral(theLiteral.getLabel());
+		  } 
+		  else if (theLiteral.getDatatype() != null) { 
+		   return mInternalModel.createTypedLiteral(theLiteral.getLabel(), 
+		              theLiteral.getDatatype().toString()); 
+		  } 
+		  else { 
+		   return mInternalModel.createLiteral(theLiteral.getLabel()); 
+		  } 
+		 } 
+	public static Resource asJenaResource(org.eclipse.rdf4j.model.Resource theRes) { 
+		  if (theRes == null) { 
+		   return null; 
+		  } 
+		  else if (theRes instanceof IRI) { 
+		   return asJenaIRI( (IRI) theRes); 
+		  } 
+		  else { 
+		   return mInternalModel.createResource(new org.apache.jena.rdf.model.AnonId(((BNode) theRes).getID())); 
+		  } 
+		 }
+	 public static Property asJenaIRI(IRI theIRI) { 
+		  if (theIRI == null) { 
+		   return null; 
+		  } 
+		  else { 
+		   return mInternalModel.getProperty(theIRI.toString()); 
+		  } 
+		 } 
 	
 }

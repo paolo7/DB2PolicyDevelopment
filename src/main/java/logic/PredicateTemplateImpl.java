@@ -30,6 +30,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 		return bindings;
 	}
 
+	
 	@Override
 	public PredicateInstantiation applyRule(Map<String, RDFNode> bindingsMap, Set<Predicate> predicates, List<TextTemplate> label, Set<PredicateInstantiation> antecedent, Set<ConversionTriple> constraints) {
 		String predicateName = "";

@@ -57,6 +57,19 @@ public class ExternalDB_GraphDB implements ExternalDB{
 				"}");
 	}
 	
+	@Override
+	public int countTriples() {
+		TupleQueryResult result = query("SELECT (COUNT(*) AS ?no) WHERE { ?s ?p ?o  }");
+		int triples = -1;
+		while (result.hasNext()) {
+            BindingSet bindingSet = result.next();
+            Value no = bindingSet.getBinding("no").getValue();
+            triples = Integer.parseInt(no.stringValue());
+        }
+        result.close();
+        return triples;
+	}
+	
 	public ExternalDB_GraphDB(String endpoint, String repoID) {
 		//SPARQLRepository rep = new SPARQLRepository(endpoint);
 		//rep.initialize();

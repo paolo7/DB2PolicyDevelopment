@@ -33,7 +33,7 @@ public class FileParserTest {
 		// but any other triplestore that follows the rdf4j framework should be compatible
 		ExternalDB eDB = new ExternalDB_GraphDB("http://152.78.64.224:7200/", "test", "temp");
 		eDB.loadRDF(new File(System.getProperty("user.dir")+"/resources/localRDF.ttl"), RDFFormat.TURTLE);
-		countTriples(eDB);
+		System.out.println("Loaded dataset with "+eDB.countTriples()+" triples.");
 		
 		Map<String,String> prefixes = FileParser.parsePrefixes(System.getProperty("user.dir") + "/resources/prefixes.txt");
 
@@ -46,6 +46,8 @@ public class FileParserTest {
 		
 		FileParser.parse(System.getProperty("user.dir") + "/resources/rulesSimulation.txt",
 				predicates, rules, existingPredicates, true, eDB);
+		
+		PredicateEvaluation.computeRuleClosure(eDB, rules, predicates);
 		
 		LabelService labelservice = new LabelServiceImpl(existingPredicates, prefixes);
 		RDFUtil.labelService = labelservice;
@@ -71,9 +73,8 @@ public class FileParserTest {
 		}
 		
 		
-		System.out.println("\n*************** APPLYING RULES TO TRIPLESTORE BEFORE EXPANSION\n");
+		System.out.println("\n*************** CHECKING PREDICATED ON TRIPLESTORE BEFORE EXPANSION\n");
 		
-		//Model dataset = RDFUtil.loadModel(System.getProperty("user.dir") + "/resources/simulationData/data.ttl");
 		for(String s: prefixes.keySet()) {
 			eDB.setNamespace(s,prefixes.get(s));
 		}
@@ -97,27 +98,14 @@ public class FileParserTest {
 		existingPredicates.addAll(newPredicates);
 		JSONoutput.outputAsJSON("JSONoutput.json", existingPredicates);
 		
-		System.out.println("\n*************** APPLYING RULES TO TRIPLESTORE\n");
+		System.out.println("\n*************** CHECKING INFERRED PREDICATES ON TRIPLESTORE TO \n");
 		
-		//Model dataset = RDFUtil.loadModel(System.getProperty("user.dir") + "/resources/simulationData/data.ttl");
-		//for(String s: prefixes.keySet()) {
-		//	dataset.setNsPrefix(s,prefixes.get(s));
-		//}
-		//PredicateEvaluation.evaluate(dataset, existingPredicates);
+		PredicateEvaluation.evaluate(eDB, newPredicates);
 		
-		eDB.clearDB();
+		//eDB.clearDB();
 	}
 	
-	public static void countTriples(ExternalDB eDB) {
-		TupleQueryResult result = eDB.query("SELECT (COUNT(*) AS ?no) WHERE { ?s ?p ?o  }");
-		while (result.hasNext()) {
-            BindingSet bindingSet = result.next();
-            Value no = bindingSet.getBinding("no").getValue();
-
-            System.out.println("Loaded dataset with "+no.stringValue()+" triples.");
-        }
-        result.close();
-	}
+	
 	
 	public static void testGeo(ExternalDB eDB) {
 		/*SPARQLRepository q = new SPARQLRepository("http://152.78.64.224:7200/repositories/test1");
