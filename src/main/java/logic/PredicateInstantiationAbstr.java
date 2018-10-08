@@ -22,6 +22,18 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 	}
 	
 	@Override
+	public String toSPARQL_INSERT() {
+		String snippet = "";
+		if (this.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
+			snippet += ct.toSPARQL_INSERT(this.getBindings())+" .\n";
+		}
+		if (this.getPredicate().getRDFtranslationFilters() != null) for(ConversionFilter cf: this.getPredicate().getRDFtranslationFilters()) {
+			snippet += cf.toSPARQL_INSERT(this.getBindings())+" .\n";
+		}
+		return snippet;
+	}
+	
+	@Override
 	public boolean hasVariables() {
 		if(this.getPredicate().getVarnum() == 0) {
 			return false;			

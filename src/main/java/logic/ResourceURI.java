@@ -25,5 +25,10 @@ public class ResourceURI extends ResourceAbstr {
 		return true;
 	}
 
+	@Override
+	public String getLexicalValueExpanded() {
+		return "<"+RDFUtil.expandPrefix(URI)+">";
+	}
+
 
 }

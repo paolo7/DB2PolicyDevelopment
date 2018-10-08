@@ -108,20 +108,41 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 		return snippet;
 	}
 	
-	private String expandVariable(int var, Map<Integer,Integer> varsExpansion) {
-		if(!varsExpansion.containsKey(new Integer(var))) {
-			varsExpansion.put(new Integer(var), new Integer(0));
+	@Override
+	public String toSPARQL_INSERT(Binding[] bindings) {
+		String snippet = "";
+		if(this.getSubject().isConstant()) snippet += this.getSubject().getConstant().getLexicalValueExpanded();
+		else if (this.getSubject().getVar() >= bindings.length) {
+			snippet += "?v"+this.getSubject().getVar();
+		} else {
+			Binding b = bindings[this.getSubject().getVar()];
+			if(b.isConstant()) snippet += b.getConstant().getLexicalValueExpanded();
+			else snippet += "?v"+b.getVar();
 		}
-		int varRepetitions = varsExpansion.get(new Integer(var));
-		String expandedVar = ""+var;
-		for(int i = 0; i <= varRepetitions ; i++) {
-			expandedVar += "i";
+		snippet += " ";
+		if(this.getPredicate().isConstant()) snippet += this.getPredicate().getConstant().getLexicalValueExpanded();
+		else if (this.getPredicate().getVar() >= bindings.length) {
+			snippet += "?v"+this.getPredicate().getVar();
+		} else {
+			Binding b = bindings[this.getPredicate().getVar()];
+			if(b.isConstant()) snippet += b.getConstant().getLexicalValueExpanded();
+			else snippet += "?v"+b.getVar();
 		}
-		varsExpansion.put(new Integer(var), new Integer(varRepetitions+1));
-		return expandedVar;
+		snippet += " ";
+		if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValueExpanded();
+		else if (this.getObject().getVar() >= bindings.length) {
+			snippet += "?v"+this.getObject().getVar();
+		} else {
+			Binding b = bindings[this.getObject().getVar()];
+			if(b.isConstant()) {
+				if(b.getConstant().isLiteral() && RDFUtil.isNumericDatatypeIRI(((ResourceLiteral) b.getConstant()).getLiteralTypeIRI()))
+					snippet += b.getConstant().getLexicalValue();
+				else snippet += b.getConstant().getLexicalValueExpanded();
+			}
+			else snippet += "?v"+b.getVar();
+		}
+		return snippet;
 	}
-	
-
 	
 
 	

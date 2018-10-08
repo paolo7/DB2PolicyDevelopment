@@ -23,7 +23,17 @@ import com.mysql.cj.core.conf.url.ConnectionUrlParser.Pair;
 
 public class FileParser {
 
-	public static void parse(String filepath, Set<Predicate> predicates, Set<Rule> rules, Set<PredicateInstantiation> predicateInstantiation, boolean strictChecking) throws IOException  {
+	/**
+	 * 
+	 * @param filepath path to the rule file
+	 * @param predicates the set of known predicates defined in the rule file (under START PREDICATE)
+	 * @param rules the set of known rules defined in the rule file (under START RULE)
+	 * @param predicateInstantiation the set of predicate instantiations that are potentially available in the datasets in consideration (under START AVAILABLE)
+	 * @param strictChecking whether to enable consistency checks
+	 * @param eDB if != null, this is the external database where to add each statement that is assumed to be true for every dataset in consideration, e.g. ontological statements (under START AVAILABLE ASSERTED).
+	 * @throws IOException
+	 */
+	public static void parse(String filepath, Set<Predicate> predicates, Set<Rule> rules, Set<PredicateInstantiation> predicateInstantiation, boolean strictChecking, ExternalDB eDB) throws IOException  {
 		
 		File file = new File(filepath);
 		FileReader fileReader = new FileReader(file);
@@ -111,7 +121,13 @@ public class FileParser {
 				rulePredicateTemplates =  ruleSignature.getLeft();
 				ruleAntecedentPredicates = ruleSignature.getRight();
 			}
-			if(line.startsWith("START AVAILABLE")) {
+			if(line.startsWith("START AVAILABLE ASSERTED")) {
+				PredicateInstantiation pi = parseAvailablePredicate(line.replaceFirst("START AVAILABLE ASSERTED", "").trim(),predicates);
+				predicateInstantiation.add(pi);
+				if(eDB != null) {
+					eDB.insertFullyInstantiatedPredicate(pi);
+				}
+			} else if(line.startsWith("START AVAILABLE")) {
 				predicateInstantiation.add(parseAvailablePredicate(line.replaceFirst("START AVAILABLE", "").trim(),predicates));
 			}
 		}

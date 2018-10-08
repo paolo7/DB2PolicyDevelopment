@@ -284,6 +284,25 @@
     ]
   },
   {
+    "propertyName": "triple",
+    "propertyVariables": [
+      {
+        "URI": "example:Temperature"
+      },
+      {
+        "URI": "rdfs:label"
+      },
+      {
+        "lexicalValue": "Temperature"
+      }
+    ],
+    "label": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
     "propertyName": "GeometryInMaintunnel",
     "propertyVariables": [
       {
@@ -743,6 +762,21 @@
     ]
   },
   {
+    "propertyName": "insideWKT",
+    "propertyVariables": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "label": [
+      0,
+      "is",
+      "inside",
+      1
+    ]
+  },
+  {
     "propertyName": "measurementOfObservation",
     "propertyVariables": [
       0,
@@ -934,6 +968,21 @@
     ]
   },
   {
+    "propertyName": "ObservationInMaintunnel",
+    "propertyVariables": [
+      0,
+      1
+    ],
+    "label": [
+      "Observation",
+      0,
+      "is",
+      "in",
+      "MainTunnel",
+      1
+    ]
+  },
+  {
     "propertyName": "TemperatureDanger",
     "propertyVariables": [
       0,
@@ -973,21 +1022,6 @@
       "limit",
       "of",
       "34"
-    ]
-  },
-  {
-    "propertyName": "ObservationInMaintunnel",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "Observation",
-      0,
-      "is",
-      "in",
-      "MainTunnel",
-      1
     ]
   },
   {
@@ -1410,6 +1444,19 @@
     ]
   },
   {
+    "propertyName": "hasClass",
+    "propertyVariables": [
+      0,
+      {
+        "URI": "e:Place"
+      }
+    ],
+    "label": [
+      1,
+      0
+    ]
+  },
+  {
     "propertyName": "CO2concentrationDanger",
     "propertyVariables": [
       0,
@@ -1449,19 +1496,6 @@
       "limit",
       "of",
       "0.33"
-    ]
-  },
-  {
-    "propertyName": "hasClass",
-    "propertyVariables": [
-      0,
-      {
-        "URI": "e:Place"
-      }
-    ],
-    "label": [
-      1,
-      0
     ]
   },
   {

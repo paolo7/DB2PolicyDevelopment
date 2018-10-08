@@ -27,6 +27,30 @@ public class ConversionFilter {
 		return snippet;
 	}
 	
+	public String toSPARQL_INSERT(Binding[] bindings) {
+		String snippet = "";
+		for(TextTemplate tt : templates) {
+			if (tt.isText()) snippet += tt.getText()+" ";
+			else {
+				if (tt.getVar() >= bindings.length) {
+					snippet += "?v"+tt.getVar()+" ";
+				} else {
+					Binding b = bindings[tt.getVar()];
+					
+					
+					
+					if(b.isConstant()) {
+						if(b.getConstant().isLiteral() && RDFUtil.isNumericDatatypeIRI(((ResourceLiteral) b.getConstant()).getLiteralTypeIRI()))
+							snippet += b.getConstant().getLexicalValue();
+						else snippet += b.getConstant().getLexicalValueExpanded();
+					}
+					else snippet += "?v"+b.getVar()+" ";
+				}
+			}
+		}
+		return snippet;
+	}
+	
 	@Override
 	public String toString() {
 		String snippet = "";

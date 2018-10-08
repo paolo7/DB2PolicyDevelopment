@@ -34,14 +34,9 @@ public class FileParserTest {
 		ExternalDB eDB = new ExternalDB_GraphDB("http://152.78.64.224:7200/", "test", "temp");
 		eDB.loadRDF(new File(System.getProperty("user.dir")+"/resources/localRDF.ttl"), RDFFormat.TURTLE);
 		countTriples(eDB);
-		//testGeo(eDB);
 		
 		Map<String,String> prefixes = FileParser.parsePrefixes(System.getProperty("user.dir") + "/resources/prefixes.txt");
-		/*prefixes.put("example", "http://example.com/");
-		prefixes.put("sosa", "http://www.w3.org/ns/sosa/");
-		prefixes.put("ssn", "http://www.w3.org/ns/ssn/");
-		prefixes.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-		prefixes.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");*/
+
 		
 		RDFUtil.prefixes.setNsPrefixes(prefixes);
 		
@@ -50,7 +45,7 @@ public class FileParserTest {
 		Set<PredicateInstantiation> existingPredicates = new HashSet<PredicateInstantiation>();
 		
 		FileParser.parse(System.getProperty("user.dir") + "/resources/rulesSimulation.txt",
-				predicates, rules, existingPredicates, true);
+				predicates, rules, existingPredicates, true, eDB);
 		
 		LabelService labelservice = new LabelServiceImpl(existingPredicates, prefixes);
 		RDFUtil.labelService = labelservice;

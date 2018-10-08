@@ -24,6 +24,10 @@ public class ResourceLiteral extends ResourceAbstr {
 	public String getLexicalValue() {
 		return literalValue;
 	}
+	
+	public String getLexicalValueExpanded() {
+		return "\""+literalValue+"\"^^<"+typeIRI.stringValue()+">";
+	}
 
 	@Override
 	public boolean isLiteral() {

@@ -146,4 +146,12 @@ public class ExternalDB_GraphDB implements ExternalDB{
 	public TupleQueryResult query(String queryString) {
 		return QueryUtil.evaluateSelectQuery(connection,queryString);
 	}
+
+	@Override
+	public void insertFullyInstantiatedPredicate(PredicateInstantiation pi) {
+		if(pi.hasVariables()) throw new RuntimeException("ERROR, cannot assert this predicate instantion defined under START AVAILABLE ASSERTED as it contains variables: "+pi.toSPARQL());
+		sparqlInsert("INSERT DATA {\n" + 
+				pi.toSPARQL_INSERT()+
+				"}");
+	}
 }

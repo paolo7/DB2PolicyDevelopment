@@ -9,5 +9,6 @@ public interface ConversionTriple {
 	public Binding getObject();
 	public String toGPPGSPARQL(Binding[] bindings);
 	public String toSPARQL(Binding[] bindings);
+	public String toSPARQL_INSERT(Binding[] bindings);
 	public Set<Integer> getNoLitVariables(Binding[] bindings);
 }

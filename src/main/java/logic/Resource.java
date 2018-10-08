@@ -6,6 +6,8 @@ public interface Resource {
 
 	public String getLexicalValue();
 	
+	public String getLexicalValueExpanded();
+	
 	public boolean isLiteral();
 	
 	public boolean isURI();

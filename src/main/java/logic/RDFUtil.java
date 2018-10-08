@@ -253,7 +253,8 @@ public class RDFUtil {
 		if(labelService != null && labelService.hasLabel(expandPrefix(URI)))
 			return labelService.getLabel(expandPrefix(URI));
 		//return URI;
-		return URI.substring(expandPrefix(URI).lastIndexOf("/") + 1);
+		if(URI.contains("/")) return URI.substring(expandPrefix(URI).lastIndexOf("/") + 1);
+		else return URI;
 	}
 	
 	public static boolean isNumericDatatypeIRI(IRI iri) {

@@ -20,5 +20,7 @@ public interface ExternalDB {
 	public void setNamespace(String prefix, String name);
 
 	public Map<String, String> getNamespaces();
+	
+	public void insertFullyInstantiatedPredicate(PredicateInstantiation pi);
 
 }
