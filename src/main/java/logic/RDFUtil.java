@@ -1,5 +1,6 @@
 package logic;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -389,5 +390,18 @@ public class RDFUtil {
 		   return mInternalModel.getProperty(theIRI.toString()); 
 		  } 
 		 } 
+	 
+	 public static int index = 0;
+	 public static String getBlankNodeBaseURI() {
+		 String baseURI = prefixes.getNsPrefixURI("blanknode")+index+"n"+new Date().getTime()+"v";
+		 index++;
+		 return baseURI;
+	 }
+	 
+	public static String getBlankNodeOrNewVarString(String baseNew, int var) {
+		if (baseNew == null)
+			return "_:b"+var;
+		else return "<"+baseNew+var+">";
+	}
 	
 }

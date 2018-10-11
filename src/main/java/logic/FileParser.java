@@ -125,7 +125,7 @@ public class FileParser {
 				PredicateInstantiation pi = parseAvailablePredicate(line.replaceFirst("START AVAILABLE ASSERTED", "").trim(),predicates);
 				predicateInstantiation.add(pi);
 				if(eDB != null) {
-					eDB.insertFullyInstantiatedPredicate(pi);
+					eDB.insertFullyInstantiatedPredicate(pi,null);
 				}
 			} else if(line.startsWith("START AVAILABLE")) {
 				predicateInstantiation.add(parseAvailablePredicate(line.replaceFirst("START AVAILABLE", "").trim(),predicates));

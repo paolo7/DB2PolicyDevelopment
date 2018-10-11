@@ -78,6 +78,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 			}
 			
 			predicate = new PredicateImpl(predicateName, bindings.length, translationToRDF, translationToRDFFilters, textLabel);
+			predicates.add(predicate);
 		}
 		Binding[] newBindings = new Binding[bindings.length];
 		for(int i = 0; i < newBindings.length; i++) {

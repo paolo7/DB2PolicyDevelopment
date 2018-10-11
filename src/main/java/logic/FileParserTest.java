@@ -73,12 +73,12 @@ public class FileParserTest {
 		}
 		
 		
-		System.out.println("\n*************** CHECKING PREDICATED ON TRIPLESTORE BEFORE EXPANSION\n");
-		
 		for(String s: prefixes.keySet()) {
 			eDB.setNamespace(s,prefixes.get(s));
 		}
-		PredicateEvaluation.evaluate(eDB, existingPredicates);
+		//System.out.println("\n*************** CHECKING PREDICATED ON TRIPLESTORE BEFORE EXPANSION (known predicates: "+predicates.size()+")\n");
+		
+		//PredicateEvaluation.evaluate(eDB, existingPredicates);
 		
 		
 		LogManager.getLogManager().reset();
@@ -86,6 +86,7 @@ public class FileParserTest {
 		PredicateExpansion expansion = new PredicateExpansionBySPARQLquery(predicates, rules);
 		expansion.setPrefixes(prefixes);
 		Set<PredicateInstantiation> newPredicates = expansion.expand(existingPredicates);
+		predicates = expansion.getPredicates();
 		
 		System.out.println("*************** INFERRED PREDICATES\n" + 
 				"*************** These are the predicates that we can derive from the ones that we assume to be available\n");
@@ -98,9 +99,10 @@ public class FileParserTest {
 		existingPredicates.addAll(newPredicates);
 		JSONoutput.outputAsJSON("JSONoutput.json", existingPredicates);
 		
-		System.out.println("\n*************** CHECKING INFERRED PREDICATES ON TRIPLESTORE TO \n");
+		System.out.println("\n*************** CHECKING INFERRED PREDICATES ON TRIPLESTORE (known predicates: "+predicates.size()+")\n");
 		
-		PredicateEvaluation.evaluate(eDB, newPredicates);
+		PredicateEvaluation.computeRuleClosure(eDB, rules, predicates);
+		PredicateEvaluation.evaluate(eDB, existingPredicates);
 		
 		//eDB.clearDB();
 	}

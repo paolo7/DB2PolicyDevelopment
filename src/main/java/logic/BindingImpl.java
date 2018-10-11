@@ -4,8 +4,6 @@ public class BindingImpl extends BindingAbstr {
 
 	private int var;
 	private Resource resource;
-	private boolean isURI = false;
-	private boolean isNumeric = false;
 	
 	public BindingImpl(Resource resource) {
 		this.var = -1;

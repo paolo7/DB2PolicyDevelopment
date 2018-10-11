@@ -22,13 +22,13 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 	}
 	
 	@Override
-	public String toSPARQL_INSERT() {
+	public String toSPARQL_INSERT(String baseNew) {
 		String snippet = "";
 		if (this.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
-			snippet += ct.toSPARQL_INSERT(this.getBindings())+" .\n";
+			snippet += ct.toSPARQL_INSERT(this.getBindings(), baseNew)+" .\n";
 		}
 		if (this.getPredicate().getRDFtranslationFilters() != null) for(ConversionFilter cf: this.getPredicate().getRDFtranslationFilters()) {
-			snippet += cf.toSPARQL_INSERT(this.getBindings())+" .\n";
+			snippet += cf.toSPARQL_INSERT(this.getBindings(), baseNew)+" .\n";
 		}
 		return snippet;
 	}

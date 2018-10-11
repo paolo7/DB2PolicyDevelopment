@@ -27,13 +27,25 @@ public class ConversionFilter {
 		return snippet;
 	}
 	
-	public String toSPARQL_INSERT(Binding[] bindings) {
+	public String toSPARQL() {
+		String snippet = "";
+		for(TextTemplate tt : templates) {
+			if (tt.isText()) snippet += tt.getText()+" ";
+			else {
+				snippet += "?v"+tt.getVar()+" ";
+			}
+		}
+		return snippet;
+	}
+	
+	public String toSPARQL_INSERT(Binding[] bindings, String baseNew) {
 		String snippet = "";
 		for(TextTemplate tt : templates) {
 			if (tt.isText()) snippet += tt.getText()+" ";
 			else {
 				if (tt.getVar() >= bindings.length) {
-					snippet += "?v"+tt.getVar()+" ";
+					snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,tt.getVar());
+
 				} else {
 					Binding b = bindings[tt.getVar()];
 					
@@ -44,7 +56,9 @@ public class ConversionFilter {
 							snippet += b.getConstant().getLexicalValue();
 						else snippet += b.getConstant().getLexicalValueExpanded();
 					}
-					else snippet += "?v"+b.getVar()+" ";
+					else {
+						snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,b.getVar());
+					}
 				}
 			}
 		}

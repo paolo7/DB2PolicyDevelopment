@@ -23,6 +23,6 @@ public interface ExternalDB {
 	
 	public int countTriples();
 	
-	public void insertFullyInstantiatedPredicate(PredicateInstantiation pi);
+	public void insertFullyInstantiatedPredicate(PredicateInstantiation pi, String baseBlank);
 
 }

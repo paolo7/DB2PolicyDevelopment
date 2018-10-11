@@ -14,5 +14,6 @@ public interface Predicate {
 	public int getVarnum();
 	public Set<ConversionTriple> getRDFtranslation();
 	public Set<ConversionFilter> getRDFtranslationFilters();
+	public String toSPARQL();
 	public List<TextTemplate> getTextLabel();
 }

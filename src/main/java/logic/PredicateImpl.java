@@ -57,7 +57,6 @@ public class PredicateImpl extends PredicateAbstr {
 		return textLabel;
 	}
 
-
 /*	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

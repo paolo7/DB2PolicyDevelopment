@@ -62,6 +62,18 @@ public abstract class PredicateAbstr implements Predicate{
 		return s;
 	}
 	
+	@Override
+	public String toSPARQL() {
+		String s = "";
+		if(this.getRDFtranslation() != null) for (ConversionTriple tt : this.getRDFtranslation()) {	
+			s += tt.toSPARQL()+" . \n           ";
+		}
+		if(this.getRDFtranslationFilters() != null) for (ConversionFilter tt : this.getRDFtranslationFilters()) {	
+			s += tt.toSPARQL()+" . \n           ";
+		}
+		return s;
+	}
+	
 /*	@Override
 	public int hashCode() {
 		final int prime = 31;

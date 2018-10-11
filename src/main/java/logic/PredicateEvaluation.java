@@ -33,9 +33,10 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 	
 		//System.out.println(predicate.hasVariables()+" >> "+predicate);
 		//if(!predicate.hasVariables()) return;
-		String SPARQLquery = RDFUtil.getSPARQLprefixes(eDB) + "SELECT * WHERE {" + predicate.toSPARQL() + "}";
+		String SPARQLquery = RDFUtil.getSPARQLprefixes(eDB) + "SELECT * WHERE {" + predicate.getPredicate().toSPARQL() + "}";
 		TupleQueryResult result = eDB.query(SPARQLquery);
-		//System.out.println(predicate.getPredicate().getName());
+		if(predicate.getPredicate().getName().equals("HighCO2concentrationAlert"))
+			System.out.println(predicate.getPredicate().getName());
 		while (result.hasNext()) {
 			BindingSet bindingSet = result.next();
 			String resultString = "";
@@ -74,7 +75,14 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 		while (!terminationReached) {
 			int triples = eDB.countTriples();
 			for(Rule r : rules) {
-				if(!r.createsNewPredicate()) applyRule(eDB, r, knownPredicates);
+				/*if(r.getConsequent().iterator().next().getName().iterator().next().getText().equals("inside")) {
+					System.out.println("rrrr "+r);
+				}*/
+				/*if(r.getConsequent().iterator().next().getName().iterator().next().getText().equals("hasWKTLocation")) {
+					System.out.println(r);
+				}*/
+				if(!r.createsNewPredicate()) 
+					applyRule(eDB, r, knownPredicates);
 			}			
 			if(eDB.countTriples() == triples) terminationReached = true;
 			System.out.println(iteration++ + ") Triples in DB: "+eDB.countTriples());
@@ -84,9 +92,6 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 	
 	
 	public static void applyRule(ExternalDB eDB, Rule rule, Set<Predicate> knownPredicates) {
-		if(rule.getConsequent().iterator().next().getName().iterator().next().getText().equals("hasLocation")) {
-			System.out.println(rule);
-		}
 		if(rule.createsNewPredicate()) throw new RuntimeException("Error, cannot apply rule to dataset because it is a predicate creation rule: \n"+rule.toString());
 		String SPARQLquery = RDFUtil.getSPARQLdefaultPrefixes()+rule.getAntecedentSPARQL();
 		TupleQueryResult result = eDB.query(SPARQLquery);
@@ -105,8 +110,9 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 				//Predicate predicate = PredicateUtil.get(predicateName, bindings.length, predicates);
 				pis.add(pt.applyRule(bindingsMap, knownPredicates, null, null, null));
 			}
+			String baseNew = RDFUtil.getBlankNodeBaseURI();
 			for(PredicateInstantiation pi : pis) {
-				eDB.insertFullyInstantiatedPredicate(pi);
+				eDB.insertFullyInstantiatedPredicate(pi,baseNew);
 			}
 	    }
 	}

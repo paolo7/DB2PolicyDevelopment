@@ -29,8 +29,8 @@ public abstract class RuleAbstr implements Rule{
 		}*/
 		SPARQL += "\nWHERE {\n";
 		//  compute the WHERE clause
-		for(PredicateInstantiation ep : this.getAntecedent()) {
-			SPARQL += ep.toSPARQL();
+		for(PredicateInstantiation ip : this.getAntecedent()) {
+			SPARQL += ip.toSPARQL();
 		}
 		return SPARQL+"}";
 	}

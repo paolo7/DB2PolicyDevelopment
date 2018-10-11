@@ -16,7 +16,7 @@ END PREDICATE
 START PREDICATE 
 SIGNATURE     person(?x)
 LABEL         person ?x
-RDF           ?x rdf:type example:Human .
+RDF           ?x rdf:type example:Person .
 END PREDICATE
 
 START PREDICATE 
@@ -29,6 +29,18 @@ START PREDICATE
 SIGNATURE     maxAllowedNearHumans(?x,?y)
 LABEL         ?x should never exceed ?y when humans are nearby
 RDF           ?x example:maxAllowed ?y .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     highLevel(?x,?y)
+LABEL         levels of ?x above ?y are high
+RDF           ?x example:highLevel ?y .
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     extremeLevel(?x,?y)
+LABEL         levels of ?x above ?y are extreme
+RDF           ?x example:extremeLevel ?y .
 END PREDICATE
 
 START PREDICATE 
@@ -53,7 +65,7 @@ END PREDICATE
 
 START PREDICATE 
 SIGNATURE     disjoint(?x,?y)
-LABEL         A ' ?x ' cannot be a ' ?y
+LABEL         a ?x cannot be a ?y
 RDF           ?x owl:disjointWith ?y .
 END PREDICATE
 
@@ -72,21 +84,21 @@ RDF           ?x ogc3:hasGeometry ?y .
 END PREDICATE
 
 START PREDICATE 
-SIGNATURE     hasWKTLocation(?x,?y)
-LABEL         ?x is at WTK ?y 
-RDF           ?x example:hasWKTGeometry ?y . 
+SIGNATURE     hasWKTLocation(?x,?y,?z)
+LABEL         ?x is at ?y WTK: ?z 
+RDF           ?x ogc3:hasGeometry ?y . ?y ogc2:asWKT ?z .
 END PREDICATE
 
 START PREDICATE 
 SIGNATURE     inside(?x,?y)
-LABEL         ?x is inside ?y
+LABEL         ?x is inside1 ?y
 RDF           ?x example:inside ?y .
 END PREDICATE
 
 START PREDICATE 
 SIGNATURE     insideWKT(?x,?y, ?xWKT, ?yWKT)
-LABEL         ?x is inside ?y
-RDF           ?x ogc2:asWKT ?xWKT . ?y ogc2:asWKT ?yWKT . FILTER (geof:sfContains( ?xWKT , ?yWKT ) && !sameTerm( ?x , ?y ))
+LABEL         ?x is inside2 ?y
+RDF           ?x ogc2:asWKT ?xWKT . ?y ogc2:asWKT ?yWKT . FILTER (geof:sfContains( ?yWKT , ?xWKT ) && !sameTerm( ?x , ?y ))
 END PREDICATE
 
 *** Standard SSN predicates
@@ -161,7 +173,7 @@ END PREDICATE
 
 START PREDICATE 
 SIGNATURE     subClass(?x,?y)
-LABEL         a ?y is a ?x 
+LABEL         a ?x is a ?y 
 RDF           ?x rdfs:subClassOf ?y . 
 END PREDICATE
 
@@ -206,7 +218,10 @@ END RULE
 START RULE inside(?x,?y) <-- insideWKT(?x,?y, ?xWTK, ?yWTK)
 END RULE
 
-START RULE hasWKTLocation(?x,?y) <-- propertyOfObservation(?z,example:Location) AND featureOfObservation(?z,?x) AND measurementOfObservation(?z,?y) 
+START RULE hasWKTLocation(?x,?b,?y) <-- propertyOfObservation(?z,example:Location) AND featureOfObservation(?z,?x) AND measurementOfObservation(?z,?y) 
+END RULE
+
+START RULE hasLocation(?x,?y) <-- hasWKTLocation(?x,?y,?z)
 END RULE
 
 *** elevating the property-feature-measurment triple
@@ -239,10 +254,18 @@ START RULE [?xC]MeasuredIn[?yC](?x,?y) <-- propertyOfObservation(?x,?xC) AND has
 LABEL      ?xC ?x measured in ?yC ?y
 END RULE
 
-*** max allowed near humans
+*** dangers and max allowed near humans
 
 START RULE [?v0CO2]Danger(?v2, ?limit,   ?xHuman,?v4RoomClass,?v4Room) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0CO2) AND featureOfObservation(?v3,?v4Room) AND hasLocation(?v4Room,?xLroom) AND maxAllowedNearHumans(?v0CO2,?limit) AND hasLocation(?xHuman,?xLhuman) AND inside(?xLhuman,?xLroom) AND hasClass(?xHuman,example:Human) AND hasClass(?v4Room, ?v4RoomClass) AND >(?v2,?limit)
 LABEL      There is a danger near human ?xHuman in ?v4RoomClass ?v4Room the value of ?v0CO2 has been detected to be ?v2 , above the limit of ?limit
+END RULE
+
+START RULE High[?v0CO2]Alert(?v2, ?limit,   ?xHuman,?v4RoomClass,?v4Room) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0CO2) AND featureOfObservation(?v3,?v4Room) AND hasLocation(?v4Room,?xLroom) AND highLevel(?v0CO2,?limit) hasClass(?v4Room, ?v4RoomClass) AND >(?v2,?limit)
+LABEL      There is a high level of ?v0CO2 in ?v4RoomClass ?v4Room because the measured value ?v2 is more than ?limit
+END RULE
+
+START RULE Extreme[?v0CO2]Alert(?v2, ?limit,   ?xHuman,?v4RoomClass,?v4Room) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0CO2) AND featureOfObservation(?v3,?v4Room) AND hasLocation(?v4Room,?xLroom) AND extremeLevel(?v0CO2,?limit) hasClass(?v4Room, ?v4RoomClass) AND >(?v2,?limit)
+LABEL      There is a high level of ?v0CO2 in ?v4RoomClass ?v4Room because the measured value ?v2 is more than ?limit
 END RULE
 
 *************** AVAILABLE PREDICATES
@@ -257,8 +280,14 @@ START AVAILABLE   >(?x,?y)
 START AVAILABLE   person(?x)
 START AVAILABLE   insideWKT(?x,?y,?xl,?yl)
 
-START AVAILABLE ASSERTED   maxAllowedNearHumans(example:CO2concentration, 0.33)
-START AVAILABLE ASSERTED   maxAllowedNearHumans(example:Temperature, 34)
+START AVAILABLE ASSERTED   maxAllowedNearHumans(example:CO2concentration, 0)
+START AVAILABLE ASSERTED   maxAllowedNearHumans(example:Temperature, 0)
+
+START AVAILABLE ASSERTED   highLevel(example:CO2concentration, 35)
+START AVAILABLE ASSERTED   extremeLevel(example:CO2concentration, 70)
+
+START AVAILABLE ASSERTED   highLevel(example:Temperature, 30)
+START AVAILABLE ASSERTED   extremeLevel(example:Temperature, 40)
 
 START AVAILABLE ASSERTED   domain(sosa:madeObservation,sosa:Sensor)
 START AVAILABLE ASSERTED   range(sosa:madeObservation,sosa:Observation)
@@ -296,7 +325,9 @@ START AVAILABLE   mainTunnel(?x)
 START AVAILABLE ASSERTED triple(example:CO2concentration,rdfs:label,"Carbon Dioxide CO2 concentration")
 START AVAILABLE ASSERTED triple(example:Temperature,rdfs:label,"Temperature")
 START AVAILABLE ASSERTED triple(example:Location,rdfs:label,"Location")
-START AVAILABLE ASSERTED triple(example:Human,rdfs:label,"person")
+START AVAILABLE ASSERTED triple(example:Person,rdfs:label,"person")
+START AVAILABLE ASSERTED triple(example:Human,rdfs:label,"human")
 START AVAILABLE ASSERTED triple(example:Person,rdfs:label,"person")
 START AVAILABLE ASSERTED triple(example:Tunnel,rdfs:label,"tunnel")
 START AVAILABLE ASSERTED triple(example:Place,rdfs:label,"location")
+START AVAILABLE ASSERTED triple(example:MainTunnel,rdfs:label,"main tunnel")

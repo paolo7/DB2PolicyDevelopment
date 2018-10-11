@@ -23,6 +23,7 @@ import org.apache.jena.reasoner.ValidityReport;
 public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	
 	private Set<Predicate> knownPredicates;
+
 	private Set<Rule> rules;
 	
 	private Map<String,String> RDFprefixes;
@@ -173,6 +174,14 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 			}
 		}
 		newPredicates.removeAll(existingPredicates);
+		
+		for(PredicateInstantiation pi : newPredicates) {
+			Predicate p = pi.getPredicate();
+			if(PredicateUtil.containsOne(p.getName(), p.getVarnum(), knownPredicates)) {
+				knownPredicates.add(p);
+			}
+
+		}
 		
 		if(debugPrint) System.out.println("\n*************** **** Considered "+rulesConsidered+" rules, for a total of "+ruleApplicationConsidered+" combinations.");
 		if(debugPrint) System.out.println("*************** **** Consistency checks made "+overallConsistencyChecks);

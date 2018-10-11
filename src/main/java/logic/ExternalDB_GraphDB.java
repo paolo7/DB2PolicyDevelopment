@@ -132,6 +132,13 @@ public class ExternalDB_GraphDB implements ExternalDB{
 		connection.commit();
 	}
 	
+	public boolean sparqlAsk(String insertQuery) {
+		connection.begin();
+		boolean answer = QueryUtil.evaluateAskQuery(connection, String.format(insertQuery) );
+		connection.commit();
+		return answer;
+	}
+	
 	@Override
 	public void setNamespace(String prefix, String name) {
 		connection.begin();
@@ -161,10 +168,10 @@ public class ExternalDB_GraphDB implements ExternalDB{
 	}
 
 	@Override
-	public void insertFullyInstantiatedPredicate(PredicateInstantiation pi) {
-		if(pi.hasVariables()) throw new RuntimeException("ERROR, cannot assert this predicate instantion defined under START AVAILABLE ASSERTED as it contains variables: "+pi.toSPARQL());
-		sparqlInsert("INSERT DATA {\n" + 
-				pi.toSPARQL_INSERT()+
-				"}");
+	public void insertFullyInstantiatedPredicate(PredicateInstantiation pi, String baseNew) {
+		//if(pi.hasVariables()) throw new RuntimeException("ERROR, cannot assert this predicate instantion defined under START AVAILABLE ASSERTED as it contains variables: "+pi.toSPARQL());
+		// If the statements don't already exist, insert them
+		if (!sparqlAsk("ASK {\n" + pi.toSPARQL_INSERT(null)+ "}"))
+			sparqlInsert("INSERT DATA {\n" + pi.toSPARQL_INSERT(baseNew)+ "}");
 	}
 }

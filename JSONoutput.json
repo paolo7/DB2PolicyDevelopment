@@ -1,15 +1,13 @@
 [
   {
-    "propertyName": "GeometryInTunnel",
+    "propertyName": "PersonInTunnel",
     "propertyVariables": [
-      {
-        "URI": "e:Temperature"
-      },
-      0
+      0,
+      1
     ],
     "label": [
-      "Geometry",
-      "Temperature",
+      "person",
+      0,
       "is",
       "in",
       "tunnel",
@@ -51,60 +49,67 @@
     ]
   },
   {
-    "propertyName": "TunnelInMaintunnel",
+    "propertyName": "ObservationInMainTunnel",
     "propertyVariables": [
       0,
       1
     ],
     "label": [
-      "tunnel",
+      "Observation",
       0,
       "is",
       "in",
-      "MainTunnel",
+      "main tunnel",
       1
     ]
   },
   {
-    "propertyName": "TemperatureDanger",
+    "propertyName": "disjoint",
     "propertyVariables": [
-      0,
       {
-        "lexicalValue": "34"
+        "URI": "sosa:FeatureOfInterest"
       },
-      1,
       {
-        "URI": "e:MainTunnel"
-      },
-      2
+        "URI": "sosa:Observation"
+      }
     ],
     "label": [
-      "There",
-      "is",
       "a",
-      "danger",
-      "near",
-      "human",
-      2,
-      "in",
-      "MainTunnel",
-      4,
-      "the",
-      "value",
-      "of",
-      "Temperature",
-      "has",
-      "been",
-      "detected",
-      "to",
-      "be",
       0,
-      ",",
-      "above",
-      "the",
-      "limit",
-      "of",
-      "34"
+      "cannot",
+      "be",
+      "a",
+      1
+    ]
+  },
+  {
+    "propertyName": "PersonInLocation",
+    "propertyVariables": [
+      0,
+      1
+    ],
+    "label": [
+      "person",
+      0,
+      "is",
+      "in",
+      "location",
+      1
+    ]
+  },
+  {
+    "propertyName": "HumanInTunnel",
+    "propertyVariables": [
+      0,
+      1
+    ],
+    "label": [
+      "human",
+      0,
+      "is",
+      "in",
+      "tunnel",
+      1
     ]
   },
   {
@@ -126,16 +131,14 @@
     ]
   },
   {
-    "propertyName": "GeometryInTunnel",
+    "propertyName": "MainTunnelInTunnel",
     "propertyVariables": [
-      {
-        "URI": "e:CO2concentration"
-      },
-      0
+      0,
+      1
     ],
     "label": [
-      "Geometry",
-      "Carbon Dioxide CO2 concentration",
+      "main tunnel",
+      0,
       "is",
       "in",
       "tunnel",
@@ -143,59 +146,21 @@
     ]
   },
   {
-    "propertyName": "TemperatureDanger",
+    "propertyName": "disjoint",
     "propertyVariables": [
-      0,
       {
-        "lexicalValue": "34"
+        "URI": "sosa:Observation"
       },
-      1,
       {
-        "URI": "e:Place"
-      },
-      2
+        "URI": "example:Place"
+      }
     ],
     "label": [
-      "There",
-      "is",
       "a",
-      "danger",
-      "near",
-      "human",
-      2,
-      "in",
-      "location",
-      4,
-      "the",
-      "value",
-      "of",
-      "Temperature",
-      "has",
-      "been",
-      "detected",
-      "to",
+      0,
+      "cannot",
       "be",
-      0,
-      ",",
-      "above",
-      "the",
-      "limit",
-      "of",
-      "34"
-    ]
-  },
-  {
-    "propertyName": "GeometryInTunnel",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "Geometry",
-      0,
-      "is",
-      "in",
-      "tunnel",
+      "a",
       1
     ]
   },
@@ -208,124 +173,6 @@
     "label": [
       0,
       "\u003e",
-      1
-    ]
-  },
-  {
-    "propertyName": "disjoint",
-    "propertyVariables": [
-      {
-        "URI": "sosa:ObservableProperty"
-      },
-      {
-        "URI": "example:Human"
-      }
-    ],
-    "label": [
-      "A",
-      "\u0027",
-      0,
-      "\u0027",
-      "cannot",
-      "be",
-      "a",
-      "\u0027",
-      1
-    ]
-  },
-  {
-    "propertyName": "TemperatureDanger",
-    "propertyVariables": [
-      0,
-      {
-        "lexicalValue": "34"
-      },
-      1,
-      {
-        "URI": "ogc:Geometry"
-      },
-      2
-    ],
-    "label": [
-      "There",
-      "is",
-      "a",
-      "danger",
-      "near",
-      "human",
-      2,
-      "in",
-      "Geometry",
-      4,
-      "the",
-      "value",
-      "of",
-      "Temperature",
-      "has",
-      "been",
-      "detected",
-      "to",
-      "be",
-      0,
-      ",",
-      "above",
-      "the",
-      "limit",
-      "of",
-      "34"
-    ]
-  },
-  {
-    "propertyName": "maxAllowedNearHumans",
-    "propertyVariables": [
-      {
-        "URI": "example:Temperature"
-      },
-      {
-        "lexicalValue": "34"
-      }
-    ],
-    "label": [
-      0,
-      "should",
-      "never",
-      "exceed",
-      1,
-      "when",
-      "humans",
-      "are",
-      "nearby"
-    ]
-  },
-  {
-    "propertyName": "ObservablePropertyInLocation",
-    "propertyVariables": [
-      {
-        "URI": "e:Temperature"
-      },
-      0
-    ],
-    "label": [
-      "ObservableProperty",
-      "Temperature",
-      "is",
-      "in",
-      "location",
-      1
-    ]
-  },
-  {
-    "propertyName": "TunnelInGeometry",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "tunnel",
-      0,
-      "is",
-      "in",
-      "Geometry",
       1
     ]
   },
@@ -349,36 +196,21 @@
     ]
   },
   {
-    "propertyName": "GeometryInMaintunnel",
+    "propertyName": "disjoint",
     "propertyVariables": [
       {
-        "URI": "e:CO2concentration"
+        "URI": "example:Human"
       },
-      0
-    ],
-    "label": [
-      "Geometry",
-      "Carbon Dioxide CO2 concentration",
-      "is",
-      "in",
-      "MainTunnel",
-      1
-    ]
-  },
-  {
-    "propertyName": "GeometryInLocation",
-    "propertyVariables": [
       {
-        "URI": "e:Temperature"
-      },
-      0
+        "URI": "example:Place"
+      }
     ],
     "label": [
-      "Geometry",
-      "Temperature",
-      "is",
-      "in",
-      "location",
+      "a",
+      0,
+      "cannot",
+      "be",
+      "a",
       1
     ]
   },
@@ -401,52 +233,45 @@
     ]
   },
   {
-    "propertyName": "ObservablePropertyInTunnel",
+    "propertyName": "maxAllowedNearHumans",
     "propertyVariables": [
       {
-        "URI": "e:Temperature"
+        "URI": "example:Temperature"
       },
-      0
+      {
+        "lexicalValue": "0"
+      }
     ],
     "label": [
-      "ObservableProperty",
-      "Temperature",
-      "is",
-      "in",
-      "tunnel",
-      1
+      0,
+      "should",
+      "never",
+      "exceed",
+      1,
+      "when",
+      "humans",
+      "are",
+      "nearby"
     ]
   },
   {
-    "propertyName": "PersonInGeometry",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "person",
-      0,
-      "is",
-      "in",
-      "Geometry",
-      1
-    ]
-  },
-  {
-    "propertyName": "ObservablePropertyInMaintunnel",
+    "propertyName": "extremeLevel",
     "propertyVariables": [
       {
-        "URI": "e:Temperature"
+        "URI": "example:Temperature"
       },
-      0
+      {
+        "lexicalValue": "40"
+      }
     ],
     "label": [
-      "ObservableProperty",
-      "Temperature",
-      "is",
-      "in",
-      "MainTunnel",
-      1
+      "levels",
+      "of",
+      0,
+      "above",
+      1,
+      "are",
+      "extreme"
     ]
   },
   {
@@ -469,77 +294,35 @@
     ]
   },
   {
-    "propertyName": "disjoint",
+    "propertyName": "maxAllowedNearHumans",
     "propertyVariables": [
       {
-        "URI": "sosa:FeatureOfInterest"
+        "URI": "example:CO2concentration"
       },
       {
-        "URI": "sosa:ObservableProperty"
+        "lexicalValue": "0"
       }
     ],
     "label": [
-      "A",
-      "\u0027",
       0,
-      "\u0027",
-      "cannot",
-      "be",
-      "a",
-      "\u0027",
-      1
+      "should",
+      "never",
+      "exceed",
+      1,
+      "when",
+      "humans",
+      "are",
+      "nearby"
     ]
   },
   {
-    "propertyName": "PersonInTunnel",
+    "propertyName": "Human",
     "propertyVariables": [
-      0,
-      1
+      0
     ],
     "label": [
-      "person",
-      0,
-      "is",
-      "in",
-      "tunnel",
-      1
-    ]
-  },
-  {
-    "propertyName": "GeometryInMaintunnel",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "Geometry",
-      0,
-      "is",
-      "in",
-      "MainTunnel",
-      1
-    ]
-  },
-  {
-    "propertyName": "disjoint",
-    "propertyVariables": [
-      {
-        "URI": "sosa:ObservableProperty"
-      },
-      {
-        "URI": "sosa:Observation"
-      }
-    ],
-    "label": [
-      "A",
-      "\u0027",
-      0,
-      "\u0027",
-      "cannot",
-      "be",
-      "a",
-      "\u0027",
-      1
+      "human",
+      0
     ]
   },
   {
@@ -558,25 +341,45 @@
     ]
   },
   {
-    "propertyName": "disjoint",
+    "propertyName": "TemperatureDanger",
     "propertyVariables": [
+      0,
       {
-        "URI": "example:Human"
+        "lexicalValue": "0"
       },
+      1,
       {
-        "URI": "example:Place"
-      }
+        "URI": "e:Tunnel"
+      },
+      2
     ],
     "label": [
-      "A",
-      "\u0027",
-      0,
-      "\u0027",
-      "cannot",
-      "be",
+      "There",
+      "is",
       "a",
-      "\u0027",
-      1
+      "danger",
+      "near",
+      "human",
+      2,
+      "in",
+      "tunnel",
+      4,
+      "the",
+      "value",
+      "of",
+      "Temperature",
+      "has",
+      "been",
+      "detected",
+      "to",
+      "be",
+      0,
+      ",",
+      "above",
+      "the",
+      "limit",
+      "of",
+      "0"
     ]
   },
   {
@@ -600,6 +403,56 @@
     ]
   },
   {
+    "propertyName": "subClass",
+    "propertyVariables": [
+      {
+        "URI": "example:MainTunnel"
+      },
+      {
+        "URI": "example:Place"
+      }
+    ],
+    "label": [
+      "a",
+      0,
+      "is",
+      "a",
+      1
+    ]
+  },
+  {
+    "propertyName": "triple",
+    "propertyVariables": [
+      {
+        "URI": "example:MainTunnel"
+      },
+      {
+        "URI": "rdfs:label"
+      },
+      {
+        "lexicalValue": "main tunnel"
+      }
+    ],
+    "label": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "propertyName": "inside",
+    "propertyVariables": [
+      0,
+      1
+    ],
+    "label": [
+      0,
+      "is",
+      "inside1",
+      1
+    ]
+  },
+  {
     "propertyName": "triple",
     "propertyVariables": [
       {
@@ -616,38 +469,6 @@
       0,
       1,
       2
-    ]
-  },
-  {
-    "propertyName": "GeometryInLocation",
-    "propertyVariables": [
-      {
-        "URI": "e:CO2concentration"
-      },
-      0
-    ],
-    "label": [
-      "Geometry",
-      "Carbon Dioxide CO2 concentration",
-      "is",
-      "in",
-      "location",
-      1
-    ]
-  },
-  {
-    "propertyName": "GeometryInGeometry",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "Geometry",
-      0,
-      "is",
-      "in",
-      "Geometry",
-      1
     ]
   },
   {
@@ -669,6 +490,21 @@
     ]
   },
   {
+    "propertyName": "HumanInLocation",
+    "propertyVariables": [
+      0,
+      1
+    ],
+    "label": [
+      "human",
+      0,
+      "is",
+      "in",
+      "location",
+      1
+    ]
+  },
+  {
     "propertyName": "featureOfObservation",
     "propertyVariables": [
       0,
@@ -681,48 +517,6 @@
       "made",
       "on",
       1
-    ]
-  },
-  {
-    "propertyName": "CO2concentrationDanger",
-    "propertyVariables": [
-      0,
-      {
-        "lexicalValue": "0.33"
-      },
-      1,
-      {
-        "URI": "ogc:Geometry"
-      },
-      2
-    ],
-    "label": [
-      "There",
-      "is",
-      "a",
-      "danger",
-      "near",
-      "human",
-      2,
-      "in",
-      "Geometry",
-      4,
-      "the",
-      "value",
-      "of",
-      "Carbon Dioxide CO2 concentration",
-      "has",
-      "been",
-      "detected",
-      "to",
-      "be",
-      0,
-      ",",
-      "above",
-      "the",
-      "limit",
-      "of",
-      "0.33"
     ]
   },
   {
@@ -754,59 +548,36 @@
     ]
   },
   {
-    "propertyName": "GeometryInGeometry",
+    "propertyName": "hasLocation",
     "propertyVariables": [
-      {
-        "URI": "e:Temperature"
-      },
-      0
+      0,
+      1
     ],
     "label": [
-      "Geometry",
-      "Temperature",
+      0,
       "is",
-      "in",
-      "Geometry",
+      "at",
       1
     ]
   },
   {
-    "propertyName": "disjoint",
+    "propertyName": "highLevel",
     "propertyVariables": [
       {
-        "URI": "sosa:FeatureOfInterest"
+        "URI": "example:Temperature"
       },
       {
-        "URI": "sosa:Observation"
+        "lexicalValue": "30"
       }
     ],
     "label": [
-      "A",
-      "\u0027",
+      "levels",
+      "of",
       0,
-      "\u0027",
-      "cannot",
-      "be",
-      "a",
-      "\u0027",
-      1
-    ]
-  },
-  {
-    "propertyName": "GeometryInMaintunnel",
-    "propertyVariables": [
-      {
-        "URI": "e:Temperature"
-      },
-      0
-    ],
-    "label": [
-      "Geometry",
-      "Temperature",
-      "is",
-      "in",
-      "MainTunnel",
-      1
+      "above",
+      1,
+      "are",
+      "high"
     ]
   },
   {
@@ -825,33 +596,36 @@
     ]
   },
   {
-    "propertyName": "insideWKT",
+    "propertyName": "HighTemperatureAlert",
     "propertyVariables": [
       0,
+      {
+        "lexicalValue": "30"
+      },
       1,
       2,
       3
     ],
     "label": [
-      0,
+      "There",
       "is",
-      "inside",
-      1
-    ]
-  },
-  {
-    "propertyName": "PersonInLocation",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "person",
-      0,
-      "is",
+      "a",
+      "high",
+      "level",
+      "of",
+      "Temperature",
       "in",
-      "location",
-      1
+      3,
+      4,
+      "because",
+      "the",
+      "measured",
+      "value",
+      0,
+      "is",
+      "more",
+      "than",
+      "30"
     ]
   },
   {
@@ -886,37 +660,53 @@
     ]
   },
   {
-    "propertyName": "person",
+    "propertyName": "ObservablePropertyInMainTunnel",
     "propertyVariables": [
+      {
+        "URI": "e:Temperature"
+      },
       0
     ],
     "label": [
-      "person",
-      0
+      "ObservableProperty",
+      "Carbon Dioxide CO2 concentration",
+      "is",
+      "in",
+      "main tunnel",
+      1
     ]
   },
   {
-    "propertyName": "person",
-    "propertyVariables": [
-      0
-    ],
-    "label": [
-      "person",
-      0
-    ]
-  },
-  {
-    "propertyName": "MaintunnelInGeometry",
+    "propertyName": "TunnelInMainTunnel",
     "propertyVariables": [
       0,
       1
     ],
     "label": [
-      "MainTunnel",
+      "tunnel",
       0,
       "is",
       "in",
-      "Geometry",
+      "main tunnel",
+      1
+    ]
+  },
+  {
+    "propertyName": "disjoint",
+    "propertyVariables": [
+      {
+        "URI": "sosa:ObservableProperty"
+      },
+      {
+        "URI": "example:Human"
+      }
+    ],
+    "label": [
+      "a",
+      0,
+      "cannot",
+      "be",
+      "a",
       1
     ]
   },
@@ -939,19 +729,70 @@
     ]
   },
   {
-    "propertyName": "GeometryInGeometry",
+    "propertyName": "ObservablePropertyInLocation",
     "propertyVariables": [
       {
-        "URI": "e:CO2concentration"
+        "URI": "e:Temperature"
       },
       0
     ],
     "label": [
-      "Geometry",
+      "ObservableProperty",
       "Carbon Dioxide CO2 concentration",
       "is",
       "in",
-      "Geometry",
+      "location",
+      1
+    ]
+  },
+  {
+    "propertyName": "ExtremeCO2concentrationAlert",
+    "propertyVariables": [
+      0,
+      {
+        "lexicalValue": "70"
+      },
+      1,
+      2,
+      3
+    ],
+    "label": [
+      "There",
+      "is",
+      "a",
+      "high",
+      "level",
+      "of",
+      "Carbon Dioxide CO2 concentration",
+      "in",
+      3,
+      4,
+      "because",
+      "the",
+      "measured",
+      "value",
+      0,
+      "is",
+      "more",
+      "than",
+      "70"
+    ]
+  },
+  {
+    "propertyName": "subClass",
+    "propertyVariables": [
+      {
+        "URI": "example:Person"
+      },
+      {
+        "URI": "example:Human"
+      }
+    ],
+    "label": [
+      "a",
+      0,
+      "is",
+      "a",
       1
     ]
   },
@@ -978,21 +819,18 @@
     ]
   },
   {
-    "propertyName": "subClass",
+    "propertyName": "MainTunnelInMainTunnel",
     "propertyVariables": [
-      {
-        "URI": "example:Person"
-      },
-      {
-        "URI": "example:Human"
-      }
+      0,
+      1
     ],
     "label": [
-      "a",
-      1,
+      "main tunnel",
+      0,
       "is",
-      "a",
-      0
+      "in",
+      "main tunnel",
+      1
     ]
   },
   {
@@ -1048,17 +886,20 @@
     ]
   },
   {
-    "propertyName": "ObservationInMaintunnel",
+    "propertyName": "domain",
     "propertyVariables": [
-      0,
-      1
+      {
+        "URI": "sosa:observedProperty"
+      },
+      {
+        "URI": "sosa:Observation"
+      }
     ],
     "label": [
-      "Observation",
+      "range",
+      "of",
       0,
       "is",
-      "in",
-      "MainTunnel",
       1
     ]
   },
@@ -1067,11 +908,11 @@
     "propertyVariables": [
       0,
       {
-        "lexicalValue": "34"
+        "lexicalValue": "0"
       },
       1,
       {
-        "URI": "e:Human"
+        "URI": "ogc:Geometry"
       },
       2
     ],
@@ -1084,7 +925,7 @@
       "human",
       2,
       "in",
-      "person",
+      "tunnel",
       4,
       "the",
       "value",
@@ -1101,40 +942,7 @@
       "the",
       "limit",
       "of",
-      "34"
-    ]
-  },
-  {
-    "propertyName": "MaintunnelInTunnel",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "MainTunnel",
-      0,
-      "is",
-      "in",
-      "tunnel",
-      1
-    ]
-  },
-  {
-    "propertyName": "domain",
-    "propertyVariables": [
-      {
-        "URI": "sosa:observedProperty"
-      },
-      {
-        "URI": "sosa:Observation"
-      }
-    ],
-    "label": [
-      "range",
-      "of",
-      0,
-      "is",
-      1
+      "0"
     ]
   },
   {
@@ -1156,17 +964,19 @@
     ]
   },
   {
-    "propertyName": "LocationInMaintunnel",
+    "propertyName": "ObservablePropertyInMainTunnel",
     "propertyVariables": [
-      0,
-      1
+      {
+        "URI": "e:CO2concentration"
+      },
+      0
     ],
     "label": [
-      "location",
-      0,
+      "ObservableProperty",
+      "Carbon Dioxide CO2 concentration",
       "is",
       "in",
-      "MainTunnel",
+      "main tunnel",
       1
     ]
   },
@@ -1208,28 +1018,6 @@
     "label": [
       "observation",
       0
-    ]
-  },
-  {
-    "propertyName": "maxAllowedNearHumans",
-    "propertyVariables": [
-      {
-        "URI": "example:CO2concentration"
-      },
-      {
-        "lexicalValue": "0.33"
-      }
-    ],
-    "label": [
-      0,
-      "should",
-      "never",
-      "exceed",
-      1,
-      "when",
-      "humans",
-      "are",
-      "nearby"
     ]
   },
   {
@@ -1275,15 +1063,151 @@
     ]
   },
   {
+    "propertyName": "hasClass",
+    "propertyVariables": [
+      0,
+      {
+        "URI": "e:Human"
+      }
+    ],
+    "label": [
+      1,
+      0
+    ]
+  },
+  {
+    "propertyName": "HumanInMainTunnel",
+    "propertyVariables": [
+      0,
+      1
+    ],
+    "label": [
+      "human",
+      0,
+      "is",
+      "in",
+      "main tunnel",
+      1
+    ]
+  },
+  {
+    "propertyName": "MainTunnelInLocation",
+    "propertyVariables": [
+      0,
+      1
+    ],
+    "label": [
+      "main tunnel",
+      0,
+      "is",
+      "in",
+      "location",
+      1
+    ]
+  },
+  {
+    "propertyName": "PersonInMainTunnel",
+    "propertyVariables": [
+      0,
+      1
+    ],
+    "label": [
+      "person",
+      0,
+      "is",
+      "in",
+      "main tunnel",
+      1
+    ]
+  },
+  {
+    "propertyName": "disjoint",
+    "propertyVariables": [
+      {
+        "URI": "sosa:Observation"
+      },
+      {
+        "URI": "example:Human"
+      }
+    ],
+    "label": [
+      "a",
+      0,
+      "cannot",
+      "be",
+      "a",
+      1
+    ]
+  },
+  {
+    "propertyName": "disjoint",
+    "propertyVariables": [
+      {
+        "URI": "sosa:ObservableProperty"
+      },
+      {
+        "URI": "example:Place"
+      }
+    ],
+    "label": [
+      "a",
+      0,
+      "cannot",
+      "be",
+      "a",
+      1
+    ]
+  },
+  {
+    "propertyName": "extremeLevel",
+    "propertyVariables": [
+      {
+        "URI": "example:CO2concentration"
+      },
+      {
+        "lexicalValue": "70"
+      }
+    ],
+    "label": [
+      "levels",
+      "of",
+      0,
+      "above",
+      1,
+      "are",
+      "extreme"
+    ]
+  },
+  {
+    "propertyName": "highLevel",
+    "propertyVariables": [
+      {
+        "URI": "example:CO2concentration"
+      },
+      {
+        "lexicalValue": "35"
+      }
+    ],
+    "label": [
+      "levels",
+      "of",
+      0,
+      "above",
+      1,
+      "are",
+      "high"
+    ]
+  },
+  {
     "propertyName": "CO2concentrationDanger",
     "propertyVariables": [
       0,
       {
-        "lexicalValue": "0.33"
+        "lexicalValue": "0"
       },
       1,
       {
-        "URI": "e:Human"
+        "URI": "e:Place"
       },
       2
     ],
@@ -1296,7 +1220,7 @@
       "human",
       2,
       "in",
-      "person",
+      "tunnel",
       4,
       "the",
       "value",
@@ -1313,58 +1237,25 @@
       "the",
       "limit",
       "of",
-      "0.33"
+      "0"
     ]
   },
   {
     "propertyName": "disjoint",
     "propertyVariables": [
       {
-        "URI": "sosa:Observation"
+        "URI": "sosa:FeatureOfInterest"
       },
       {
-        "URI": "example:Place"
+        "URI": "sosa:ObservableProperty"
       }
     ],
     "label": [
-      "A",
-      "\u0027",
+      "a",
       0,
-      "\u0027",
       "cannot",
       "be",
       "a",
-      "\u0027",
-      1
-    ]
-  },
-  {
-    "propertyName": "PersonInMaintunnel",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "person",
-      0,
-      "is",
-      "in",
-      "MainTunnel",
-      1
-    ]
-  },
-  {
-    "propertyName": "LocationInGeometry",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "location",
-      0,
-      "is",
-      "in",
-      "Geometry",
       1
     ]
   },
@@ -1384,45 +1275,22 @@
     ]
   },
   {
-    "propertyName": "TemperatureDanger",
+    "propertyName": "triple",
     "propertyVariables": [
-      0,
       {
-        "lexicalValue": "34"
+        "URI": "example:Human"
       },
-      1,
       {
-        "URI": "e:Tunnel"
+        "URI": "rdfs:label"
       },
-      2
+      {
+        "lexicalValue": "human"
+      }
     ],
     "label": [
-      "There",
-      "is",
-      "a",
-      "danger",
-      "near",
-      "human",
-      2,
-      "in",
-      "tunnel",
-      4,
-      "the",
-      "value",
-      "of",
-      "Temperature",
-      "has",
-      "been",
-      "detected",
-      "to",
-      "be",
       0,
-      ",",
-      "above",
-      "the",
-      "limit",
-      "of",
-      "34"
+      1,
+      2
     ]
   },
   {
@@ -1445,15 +1313,18 @@
     ]
   },
   {
-    "propertyName": "Geometry",
+    "propertyName": "hasLocation",
     "propertyVariables": [
       {
-        "URI": "e:Temperature"
-      }
+        "URI": "e:CO2concentration"
+      },
+      0
     ],
     "label": [
-      "Geometry",
-      "Temperature"
+      0,
+      "is",
+      "at",
+      1
     ]
   },
   {
@@ -1475,20 +1346,23 @@
     ]
   },
   {
-    "propertyName": "ObservablePropertyInGeometry",
+    "propertyName": "person",
     "propertyVariables": [
-      {
-        "URI": "e:Temperature"
-      },
       0
     ],
     "label": [
-      "ObservableProperty",
-      "Temperature",
-      "is",
-      "in",
-      "Geometry",
-      1
+      "person",
+      0
+    ]
+  },
+  {
+    "propertyName": "person",
+    "propertyVariables": [
+      0
+    ],
+    "label": [
+      "person",
+      0
     ]
   },
   {
@@ -1522,7 +1396,211 @@
     "propertyVariables": [
       0,
       {
-        "lexicalValue": "0.33"
+        "lexicalValue": "0"
+      },
+      1,
+      {
+        "URI": "e:MainTunnel"
+      },
+      2
+    ],
+    "label": [
+      "There",
+      "is",
+      "a",
+      "danger",
+      "near",
+      "human",
+      2,
+      "in",
+      "tunnel",
+      4,
+      "the",
+      "value",
+      "of",
+      "Carbon Dioxide CO2 concentration",
+      "has",
+      "been",
+      "detected",
+      "to",
+      "be",
+      0,
+      ",",
+      "above",
+      "the",
+      "limit",
+      "of",
+      "0"
+    ]
+  },
+  {
+    "propertyName": "ExtremeTemperatureAlert",
+    "propertyVariables": [
+      0,
+      {
+        "lexicalValue": "40"
+      },
+      1,
+      2,
+      3
+    ],
+    "label": [
+      "There",
+      "is",
+      "a",
+      "high",
+      "level",
+      "of",
+      "Temperature",
+      "in",
+      3,
+      4,
+      "because",
+      "the",
+      "measured",
+      "value",
+      0,
+      "is",
+      "more",
+      "than",
+      "40"
+    ]
+  },
+  {
+    "propertyName": "HighCO2concentrationAlert",
+    "propertyVariables": [
+      0,
+      {
+        "lexicalValue": "35"
+      },
+      1,
+      2,
+      3
+    ],
+    "label": [
+      "There",
+      "is",
+      "a",
+      "high",
+      "level",
+      "of",
+      "Carbon Dioxide CO2 concentration",
+      "in",
+      3,
+      4,
+      "because",
+      "the",
+      "measured",
+      "value",
+      0,
+      "is",
+      "more",
+      "than",
+      "35"
+    ]
+  },
+  {
+    "propertyName": "disjoint",
+    "propertyVariables": [
+      {
+        "URI": "sosa:ObservableProperty"
+      },
+      {
+        "URI": "sosa:Observation"
+      }
+    ],
+    "label": [
+      "a",
+      0,
+      "cannot",
+      "be",
+      "a",
+      1
+    ]
+  },
+  {
+    "propertyName": "subClass",
+    "propertyVariables": [
+      {
+        "URI": "example:Tunnel"
+      },
+      {
+        "URI": "example:Place"
+      }
+    ],
+    "label": [
+      "a",
+      0,
+      "is",
+      "a",
+      1
+    ]
+  },
+  {
+    "propertyName": "ObservablePropertyInTunnel",
+    "propertyVariables": [
+      {
+        "URI": "e:CO2concentration"
+      },
+      0
+    ],
+    "label": [
+      "ObservableProperty",
+      "Carbon Dioxide CO2 concentration",
+      "is",
+      "in",
+      "tunnel",
+      1
+    ]
+  },
+  {
+    "propertyName": "TemperatureDanger",
+    "propertyVariables": [
+      0,
+      {
+        "lexicalValue": "0"
+      },
+      1,
+      {
+        "URI": "e:MainTunnel"
+      },
+      2
+    ],
+    "label": [
+      "There",
+      "is",
+      "a",
+      "danger",
+      "near",
+      "human",
+      2,
+      "in",
+      "tunnel",
+      4,
+      "the",
+      "value",
+      "of",
+      "Temperature",
+      "has",
+      "been",
+      "detected",
+      "to",
+      "be",
+      0,
+      ",",
+      "above",
+      "the",
+      "limit",
+      "of",
+      "0"
+    ]
+  },
+  {
+    "propertyName": "CO2concentrationDanger",
+    "propertyVariables": [
+      0,
+      {
+        "lexicalValue": "0"
       },
       1,
       {
@@ -1556,149 +1634,7 @@
       "the",
       "limit",
       "of",
-      "0.33"
-    ]
-  },
-  {
-    "propertyName": "disjoint",
-    "propertyVariables": [
-      {
-        "URI": "sosa:ObservableProperty"
-      },
-      {
-        "URI": "example:Place"
-      }
-    ],
-    "label": [
-      "A",
-      "\u0027",
-      0,
-      "\u0027",
-      "cannot",
-      "be",
-      "a",
-      "\u0027",
-      1
-    ]
-  },
-  {
-    "propertyName": "disjoint",
-    "propertyVariables": [
-      {
-        "URI": "sosa:Observation"
-      },
-      {
-        "URI": "example:Human"
-      }
-    ],
-    "label": [
-      "A",
-      "\u0027",
-      0,
-      "\u0027",
-      "cannot",
-      "be",
-      "a",
-      "\u0027",
-      1
-    ]
-  },
-  {
-    "propertyName": "ObservablePropertyInGeometry",
-    "propertyVariables": [
-      {
-        "URI": "e:CO2concentration"
-      },
-      0
-    ],
-    "label": [
-      "ObservableProperty",
-      "Carbon Dioxide CO2 concentration",
-      "is",
-      "in",
-      "Geometry",
-      1
-    ]
-  },
-  {
-    "propertyName": "subClass",
-    "propertyVariables": [
-      {
-        "URI": "example:MainTunnel"
-      },
-      {
-        "URI": "example:Place"
-      }
-    ],
-    "label": [
-      "a",
-      1,
-      "is",
-      "a",
-      0
-    ]
-  },
-  {
-    "propertyName": "GeometryInLocation",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "Geometry",
-      0,
-      "is",
-      "in",
-      "location",
-      1
-    ]
-  },
-  {
-    "propertyName": "inside",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      0,
-      "is",
-      "inside",
-      1
-    ]
-  },
-  {
-    "propertyName": "subClass",
-    "propertyVariables": [
-      {
-        "URI": "example:Tunnel"
-      },
-      {
-        "URI": "example:Place"
-      }
-    ],
-    "label": [
-      "a",
-      1,
-      "is",
-      "a",
-      0
-    ]
-  },
-  {
-    "propertyName": "ObservablePropertyInTunnel",
-    "propertyVariables": [
-      {
-        "URI": "e:CO2concentration"
-      },
-      0
-    ],
-    "label": [
-      "ObservableProperty",
-      "Carbon Dioxide CO2 concentration",
-      "is",
-      "in",
-      "tunnel",
-      1
+      "0"
     ]
   },
   {
@@ -1722,41 +1658,6 @@
     ],
     "label": [
       "property",
-      0
-    ]
-  },
-  {
-    "propertyName": "MaintunnelInLocation",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "MainTunnel",
-      0,
-      "is",
-      "in",
-      "location",
-      1
-    ]
-  },
-  {
-    "propertyName": "tunnel",
-    "propertyVariables": [
-      0
-    ],
-    "label": [
-      "tunnel",
-      0
-    ]
-  },
-  {
-    "propertyName": "tunnel",
-    "propertyVariables": [
-      0
-    ],
-    "label": [
-      "tunnel",
       0
     ]
   },
@@ -1765,7 +1666,69 @@
     "propertyVariables": [
       0,
       {
-        "lexicalValue": "0.33"
+        "lexicalValue": "0"
+      },
+      1,
+      {
+        "URI": "ogc:Geometry"
+      },
+      2
+    ],
+    "label": [
+      "There",
+      "is",
+      "a",
+      "danger",
+      "near",
+      "human",
+      2,
+      "in",
+      "tunnel",
+      4,
+      "the",
+      "value",
+      "of",
+      "Carbon Dioxide CO2 concentration",
+      "has",
+      "been",
+      "detected",
+      "to",
+      "be",
+      0,
+      ",",
+      "above",
+      "the",
+      "limit",
+      "of",
+      "0"
+    ]
+  },
+  {
+    "propertyName": "tunnel",
+    "propertyVariables": [
+      0
+    ],
+    "label": [
+      "tunnel",
+      0
+    ]
+  },
+  {
+    "propertyName": "tunnel",
+    "propertyVariables": [
+      0
+    ],
+    "label": [
+      "tunnel",
+      0
+    ]
+  },
+  {
+    "propertyName": "TemperatureDanger",
+    "propertyVariables": [
+      0,
+      {
+        "lexicalValue": "0"
       },
       1,
       {
@@ -1782,12 +1745,12 @@
       "human",
       2,
       "in",
-      "location",
+      "tunnel",
       4,
       "the",
       "value",
       "of",
-      "Carbon Dioxide CO2 concentration",
+      "Temperature",
       "has",
       "been",
       "detected",
@@ -1799,93 +1762,7 @@
       "the",
       "limit",
       "of",
-      "0.33"
-    ]
-  },
-  {
-    "propertyName": "Geometry",
-    "propertyVariables": [
-      {
-        "URI": "e:CO2concentration"
-      }
-    ],
-    "label": [
-      "Geometry",
-      "Carbon Dioxide CO2 concentration"
-    ]
-  },
-  {
-    "propertyName": "ObservablePropertyInMaintunnel",
-    "propertyVariables": [
-      {
-        "URI": "e:CO2concentration"
-      },
-      0
-    ],
-    "label": [
-      "ObservableProperty",
-      "Carbon Dioxide CO2 concentration",
-      "is",
-      "in",
-      "MainTunnel",
-      1
-    ]
-  },
-  {
-    "propertyName": "ObservationInGeometry",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "Observation",
-      0,
-      "is",
-      "in",
-      "Geometry",
-      1
-    ]
-  },
-  {
-    "propertyName": "CO2concentrationDanger",
-    "propertyVariables": [
-      0,
-      {
-        "lexicalValue": "0.33"
-      },
-      1,
-      {
-        "URI": "e:MainTunnel"
-      },
-      2
-    ],
-    "label": [
-      "There",
-      "is",
-      "a",
-      "danger",
-      "near",
-      "human",
-      2,
-      "in",
-      "MainTunnel",
-      4,
-      "the",
-      "value",
-      "of",
-      "Carbon Dioxide CO2 concentration",
-      "has",
-      "been",
-      "detected",
-      "to",
-      "be",
-      0,
-      ",",
-      "above",
-      "the",
-      "limit",
-      "of",
-      "0.33"
+      "0"
     ]
   },
   {
@@ -1900,21 +1777,6 @@
       "is",
       "in",
       "location",
-      1
-    ]
-  },
-  {
-    "propertyName": "MaintunnelInMaintunnel",
-    "propertyVariables": [
-      0,
-      1
-    ],
-    "label": [
-      "MainTunnel",
-      0,
-      "is",
-      "in",
-      "MainTunnel",
       1
     ]
   },
@@ -1936,22 +1798,50 @@
     ]
   },
   {
-    "propertyName": "triple",
+    "propertyName": "LocationInMainTunnel",
     "propertyVariables": [
-      {
-        "URI": "example:Human"
-      },
-      {
-        "URI": "rdfs:label"
-      },
-      {
-        "lexicalValue": "person"
-      }
+      0,
+      1
+    ],
+    "label": [
+      "location",
+      0,
+      "is",
+      "in",
+      "main tunnel",
+      1
+    ]
+  },
+  {
+    "propertyName": "insideWKT",
+    "propertyVariables": [
+      0,
+      1,
+      2,
+      3
     ],
     "label": [
       0,
-      1,
-      2
+      "is",
+      "inside2",
+      1
+    ]
+  },
+  {
+    "propertyName": "ObservablePropertyInTunnel",
+    "propertyVariables": [
+      {
+        "URI": "e:Temperature"
+      },
+      0
+    ],
+    "label": [
+      "ObservableProperty",
+      "Carbon Dioxide CO2 concentration",
+      "is",
+      "in",
+      "tunnel",
+      1
     ]
   }
 ]
