@@ -33,7 +33,7 @@ public class FileParser {
 	 * @param eDB if != null, this is the external database where to add each statement that is assumed to be true for every dataset in consideration, e.g. ontological statements (under START AVAILABLE ASSERTED).
 	 * @throws IOException
 	 */
-	public static void parse(String filepath, Set<Predicate> predicates, Set<Rule> rules, Set<PredicateInstantiation> predicateInstantiation, boolean strictChecking, ExternalDB eDB) throws IOException  {
+	public static void parse(String filepath, Set<Predicate> predicates, Set<Rule> rules, Set<PredicateInstantiation> predicateInstantiation, Set<PredicateInstantiation> predicateInstantiationPrint, boolean strictChecking, ExternalDB eDB) throws IOException  {
 		
 		File file = new File(filepath);
 		FileReader fileReader = new FileReader(file);
@@ -130,6 +130,9 @@ public class FileParser {
 			} else if(line.startsWith("START AVAILABLE")) {
 				predicateInstantiation.add(parseAvailablePredicate(line.replaceFirst("START AVAILABLE", "").trim(),predicates));
 			}
+			if(line.startsWith("PRINT PREDICATE")) {
+				predicateInstantiationPrint.add(parseAvailablePredicate(line.replaceFirst("PRINT PREDICATE", "").trim(),predicates));
+			}
 		}
 		bufferedReader.close();
 		fileReader.close();
@@ -173,10 +176,9 @@ public class FileParser {
 	    if(m.find()) {
 	    	variables = m.group(1);    
 	    }
-	    String[] variableTokens = variables.split(",");
+	    String[] variableTokens = new String[0];
+	    if(variables != null) variableTokens = variables.split(",");
 	    String predicatename = text.replaceAll("\\(.*\\)", "").trim();
-
-	    List<TextTemplate> tt = new LinkedList<TextTemplate>();
 
 	    List<Binding> bindingList = new LinkedList<Binding>();
 	    for(String t : variableTokens) {

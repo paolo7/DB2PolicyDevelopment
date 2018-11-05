@@ -13,7 +13,10 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.Selector;
+import org.apache.jena.rdf.model.SimpleSelector;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.shared.PrefixMapping;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
@@ -197,6 +200,15 @@ public class RDFUtil {
 		return model;
 	}
 	
+	public static void addToDefaultPrefixes(Map<String,String> prefix) {
+		for(String s: prefix.keySet()) {
+			prefixes.setNsPrefix(s,prefix.get(s));
+		}
+	}
+	public static void addToDefaultPrefixes(Model additionalVocabularies) {
+		prefixes.setNsPrefixes(additionalVocabularies).getNsPrefixMap();
+	}
+	
 	public static Model generateGPPGSandboxModel(Set<PredicateInstantiation> predicates, Map<String,String> prefixes) {
 		Model model = ModelFactory.createDefaultModel();
 		for(String s: prefixes.keySet()) {
@@ -354,6 +366,18 @@ public class RDFUtil {
 		   return asJenaResource( (org.eclipse.rdf4j.model.Resource) theValue); 
 		  } 
 		 } 
+	
+	public static void loadLabelsFromModel(Model m) {
+		Selector selector = new SimpleSelector(null, ResourceFactory.createProperty("http://www.w3.org/2000/01/rdf-schema#label"), (String) null);
+		StmtIterator iter = m.listStatements(selector);
+		while(iter.hasNext()) {
+			Statement s = iter.next();
+			String uri = s.getSubject().getURI();
+			String label = s.getObject().asLiteral().getLexicalForm();
+			RDFUtil.labelService.setLabel(uri, label);
+		}
+	}
+	
 	public static Literal asJenaLiteral(org.eclipse.rdf4j.model.Literal theLiteral) { 
 		  if (theLiteral == null) { 
 		   return null; 

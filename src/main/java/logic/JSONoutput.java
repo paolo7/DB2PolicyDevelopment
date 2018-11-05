@@ -21,28 +21,46 @@ public class JSONoutput {
 			Predicate p = pi.getPredicate();
 			jo.add("propertyName", new JsonPrimitive(p.getName()));
 			JsonArray jVars = new JsonArray();
+			
+			// instantiate the variables JSON object
 			for(int i = 0; i < pi.getBindings().length; i++) {
 				Binding b = pi.getBinding(i);
 				if(b.isConstant() && b.getConstant().isURI()) {
 					JsonObject URI = new JsonObject();
-					URI.add("URI", new JsonPrimitive(b.getConstant().getLexicalValue()));
+					URI.add("URI", new JsonPrimitive(((ResourceURI) b.getConstant()).getURI()));
 					jVars.add(URI);
 				} else if(b.isConstant() && b.getConstant().isLiteral()) {
 					JsonObject literal = new JsonObject();
 					literal.add("lexicalValue", new JsonPrimitive(b.getConstant().getLexicalValue()));
+					literal.add("datatype", new JsonPrimitive( ((ResourceLiteral) b.getConstant()).getLiteralTypeIRI().stringValue() ));
 					jVars.add(literal);
 				} else if (b.isVar()){
-					jVars.add(b.getVar());
+					jVars.add(i);
 				}
 			}
+			
+			// instantiate the label JSON object
+			
 			JsonArray label = new JsonArray();
 			for (TextTemplate tt : p.getTextLabel()) {
-				if(tt.isVar()) label.add(tt.getVar());
+				if(tt.isVar()) {
+					if(pi.getBindings()[tt.getVar()].isVar())
+						label.add(tt.getVar());
+					else {
+						if(pi.getBindings()[tt.getVar()].getConstant().isLiteral()) {
+							ResourceLiteral rl = (ResourceLiteral) pi.getBindings()[tt.getVar()].getConstant();
+							label.add(rl.getLexicalValue());
+						} else {
+							ResourceURI ru = (ResourceURI) pi.getBindings()[tt.getVar()].getConstant();
+							label.add(RDFUtil.resolveLabelOfURI(ru.getURI()));
+						}
+					}
+				}
 				else label.add(tt.getText());
 			}
 			jo.add("propertyVariables", jVars);
 			jo.add("label", label);
-			ja.add(jo);
+			if(!ja.contains(jo)) ja.add(jo);
 		}
 		
 		try (Writer writer = new FileWriter(filename)) {
@@ -50,7 +68,6 @@ public class JSONoutput {
 		    gson.toJson(ja, writer);
 		    System.out.println("Available predicates have been saved to the JSON file "+filename);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			System.out.println("ERROR while saving this JSON to file "+filename);
 			System.out.println(ja);
 			e.printStackTrace();

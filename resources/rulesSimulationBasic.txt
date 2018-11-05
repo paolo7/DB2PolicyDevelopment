@@ -32,33 +32,21 @@ RDF           ?x example:maxAllowed ?y .
 END PREDICATE
 
 START PREDICATE 
-SIGNATURE     highLevel(?x,?y)
-LABEL         levels of ?x above ?y are high
-RDF           ?x example:highLevel ?y .
-END PREDICATE
-
-START PREDICATE 
-SIGNATURE     extremeLevel(?x,?y)
-LABEL         levels of ?x above ?y are extreme
-RDF           ?x example:extremeLevel ?y .
-END PREDICATE
-
-START PREDICATE 
-SIGNATURE     minAllowedNearHumans(?x,?y)
-LABEL         ?x should never be less than ?y when humans are nearby
-RDF           ?x example:minAllowed ?y .
-END PREDICATE
-
-*START PREDICATE 
-*SIGNATURE     dangerSituation()
-*LABEL         there is a danger
-*RDF           example:SituationFlag example:hasFlag example:Danger .
-*END PREDICATE
-
-START PREDICATE 
 SIGNATURE     >(?x,?y)
 LABEL         ?x is greater than ?y
 RDF           FILTER ( ?x > ?y )
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     <(?x,?y)
+LABEL         ?x is less than ?y
+RDF           FILTER ( ?x < ?y )
+END PREDICATE
+
+START PREDICATE 
+SIGNATURE     =(?x,?y)
+LABEL         ?x is equal to ?y
+RDF           FILTER ( ?x = ?y )
 END PREDICATE
 
 *** OWL predicates
@@ -79,25 +67,25 @@ END PREDICATE
 
 START PREDICATE 
 SIGNATURE     hasLocation(?x,?y)
-LABEL         ?x is at ?y
+LABEL         ?x is located at ?y
 RDF           ?x ogc3:hasGeometry ?y .
 END PREDICATE
 
 START PREDICATE 
 SIGNATURE     hasWKTLocation(?x,?y,?z)
-LABEL         ?x is at ?y WTK: ?z 
+LABEL         ?x is located at ?y with coordinates ?z 
 RDF           ?x ogc3:hasGeometry ?y . ?y ogc2:asWKT ?z .
 END PREDICATE
 
 START PREDICATE 
 SIGNATURE     inside(?x,?y)
-LABEL         ?x is inside1 ?y
+LABEL         ?x is situated inside ?y
 RDF           ?x example:inside ?y .
 END PREDICATE
 
 START PREDICATE 
 SIGNATURE     insideWKT(?x,?y, ?xWKT, ?yWKT)
-LABEL         ?x is inside2 ?y
+LABEL         ?x is situated inside ?y
 RDF           ?x ogc2:asWKT ?xWKT . ?y ogc2:asWKT ?yWKT . FILTER (geof:sfContains( ?yWKT , ?xWKT ) && !sameTerm( ?x , ?y ))
 END PREDICATE
 
@@ -105,25 +93,25 @@ END PREDICATE
 
 START PREDICATE 
 SIGNATURE     observation(?x)
-LABEL         observation ?x
+LABEL         ?x is an observation
 RDF           ?x rdf:type sosa:Observation .
 END PREDICATE
 
 START PREDICATE 
 SIGNATURE     sensor(?x)
-LABEL         sensor ?x
+LABEL         ?x is a sensor
 RDF           ?x rdf:type sosa:Sensor .
 END PREDICATE
 
 START PREDICATE 
 SIGNATURE     observableProperty(?x)
-LABEL         property ?x
+LABEL         ?x is an observable property
 RDF           ?x rdf:type sosa:ObservableProperty .
 END PREDICATE
 
 START PREDICATE 
 SIGNATURE     featureOfInterest(?x)
-LABEL         feature ?x
+LABEL         ?x is a feature of interest
 RDF           ?x rdf:type sosa:FeatureOfInterest .
 END PREDICATE
 
@@ -147,7 +135,7 @@ END PREDICATE
 
 START PREDICATE 
 SIGNATURE     featureOfObservation(?x,?y)
-LABEL         observation ?x was made on ?y
+LABEL         ?y is the subject of observation ?x 
 RDF           ?x sosa:hasFeatureOfInterest ?y . 
 END PREDICATE
 
@@ -167,7 +155,7 @@ END PREDICATE
 
 START PREDICATE 
 SIGNATURE     hasClass(?x,?y)
-LABEL         ?y ?x 
+LABEL         ?x is a ?y 
 RDF           ?x rdf:type ?y . 
 END PREDICATE
 
@@ -248,40 +236,19 @@ START RULE [?v0CO2]MeasuredIn[?v4Room](?x,?y) <--  measurementOfObservation(?o,?
 LABEL      ?v0CO2 measured in ?v4Room ?y is ?x
 END RULE
 
-*** dangers and max allowed near humans
-
-START RULE [?v0CO2]Danger(?v2, ?limit,   ?xHuman,?v4RoomClass,?v4Room) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0CO2) AND featureOfObservation(?v3,?v4Room) AND hasLocation(?v4Room,?xLroom) AND maxAllowedNearHumans(?v0CO2,?limit) AND hasLocation(?xHuman,?xLhuman) AND inside(?xLhuman,?xLroom) AND hasClass(?xHuman,example:Person) AND hasClass(?v4Room, ?v4RoomClass) AND >(?v2,?limit)
-LABEL      There is a danger near human ?xHuman in ?v4RoomClass ?v4Room the value of ?v0CO2 has been detected to be ?v2 , above the limit of ?limit
-END RULE
-
-START RULE High[?v0CO2]Alert(?v2, ?limit,   ?xHuman,?v4RoomClass,?v4Room) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0CO2) AND featureOfObservation(?v3,?v4Room) AND hasLocation(?v4Room,?xLroom) AND highLevel(?v0CO2,?limit) AND hasClass(?v4Room, ?v4RoomClass) AND >(?v2,?limit)
-LABEL      There is a high level of ?v0CO2 in ?v4RoomClass ?v4Room because the measured value ?v2 is more than ?limit
-END RULE
-
-START RULE Extreme[?v0CO2]Alert(?v2, ?limit,   ?xHuman,?v4RoomClass,?v4Room) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0CO2) AND featureOfObservation(?v3,?v4Room) AND hasLocation(?v4Room,?xLroom) AND extremeLevel(?v0CO2,?limit) AND hasClass(?v4Room, ?v4RoomClass) AND >(?v2,?limit)
-LABEL      There is an extreme level of ?v0CO2 in ?v4RoomClass ?v4Room because the measured value ?v2 is more than ?limit
-END RULE
 
 *************** AVAILABLE PREDICATES
 *************** These are the predicates that we assume are available from the start, i.e. the predicates that we can infer from a database
-
 
 ** Basic
 
 START AVAILABLE   featureOfObservation(?x,?y)
 START AVAILABLE   measurementOfObservation(?x,?y)
 START AVAILABLE   >(?x,?y)
+START AVAILABLE   <(?x,?y)
+START AVAILABLE   =(?x,?y)
 START AVAILABLE   person(?x)
 START AVAILABLE   insideWKT(?x,?y,?xl,?yl)
-
-START AVAILABLE ASSERTED   maxAllowedNearHumans(example:CO2concentration, 0)
-START AVAILABLE ASSERTED   maxAllowedNearHumans(example:Temperature, 0)
-
-START AVAILABLE ASSERTED   highLevel(example:CO2concentration, 35)
-START AVAILABLE ASSERTED   extremeLevel(example:CO2concentration, 70)
-
-START AVAILABLE ASSERTED   highLevel(example:Temperature, 30)
-START AVAILABLE ASSERTED   extremeLevel(example:Temperature, 40)
 
 START AVAILABLE ASSERTED   domain(sosa:madeObservation,sosa:Sensor)
 START AVAILABLE ASSERTED   range(sosa:madeObservation,sosa:Observation)
@@ -315,9 +282,9 @@ START AVAILABLE   mainTunnel(?x)
 
 ** Labels
 
-START AVAILABLE ASSERTED triple(example:CO2concentration,rdfs:label,"Carbon Dioxide CO2 concentration")
-START AVAILABLE ASSERTED triple(example:Temperature,rdfs:label,"Temperature")
-START AVAILABLE ASSERTED triple(example:Location,rdfs:label,"Location")
+START AVAILABLE ASSERTED triple(example:CO2concentration,rdfs:label,"carbon dioxide CO2 concentration")
+START AVAILABLE ASSERTED triple(example:Temperature,rdfs:label,"temperature")
+START AVAILABLE ASSERTED triple(example:Location,rdfs:label,"position")
 START AVAILABLE ASSERTED triple(example:Person,rdfs:label,"person")
 START AVAILABLE ASSERTED triple(example:Tunnel,rdfs:label,"tunnel")
 START AVAILABLE ASSERTED triple(example:Place,rdfs:label,"location")

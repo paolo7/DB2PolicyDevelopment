@@ -24,39 +24,39 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 	public class PredicateEvaluation {
 	
 		public static void evaluate(ExternalDB eDB, Set<PredicateInstantiation> predicates) {
+			Set<Predicate> alreadyVisualised = new HashSet<Predicate>();
 			for (PredicateInstantiation p: predicates) {
-				evaluate(eDB, p);
+				if(!alreadyVisualised.contains(p.getPredicate()) && !p.getPredicate().getName().matches("triple|location|hasLocation|hasWKTLocation|observation|sensor|featureOfInterest|madeObservationA|measurementOfObservation|timeOfObservation|featureOfObservation|propertyOfObservation|hasClass|domain|range")) {					
+					System.out.println("\nAVAILABLE PREDICATE: "+p+"\n----\n"+p.getPredicate()+"----");
+					evaluate(eDB, p.getPredicate());
+					alreadyVisualised.add(p.getPredicate());
+				}
+				
 			}
 		}
 		
-	public static void evaluate(ExternalDB eDB, PredicateInstantiation predicate) {
-	
+	public static void evaluate(ExternalDB eDB, Predicate predicate) {
+		
 		//System.out.println(predicate.hasVariables()+" >> "+predicate);
 		//if(!predicate.hasVariables()) return;
-		String SPARQLquery = RDFUtil.getSPARQLprefixes(eDB) + "SELECT * WHERE {" + predicate.getPredicate().toSPARQL() + "}";
+		String SPARQLquery = RDFUtil.getSPARQLprefixes(eDB) + "SELECT * WHERE {" + predicate.toSPARQL() + "}";
 		TupleQueryResult result = eDB.query(SPARQLquery);
-		if(predicate.getPredicate().getName().equals("HighCO2concentrationAlert"))
-			System.out.println(predicate.getPredicate().getName());
+		if(predicate.getName().equals("HighCO2concentrationAlert"))
+			System.out.println(predicate.getName());
 		while (result.hasNext()) {
 			BindingSet bindingSet = result.next();
 			String resultString = "";
-	    	for (TextTemplate tt: predicate.getPredicate().getTextLabel()) {
+	    	for (TextTemplate tt: predicate.getTextLabel()) {
 	    		if (tt.isText()) {
 	    			resultString += tt.getText()+" ";
 	    		} else {
-	    			Binding b = predicate.getBindings()[tt.getVar()];
-	    			if(b.isConstant()) {
-	    				resultString += RDFUtil.resolveLabelOfURI(b.getConstant().getLexicalValue())+" ";
-	    			} else {    				
-	    				Value v = bindingSet.getBinding("v"+b.getVar()).getValue(); 
-	    				resultString += RDFUtil.resolveLabelOfURI(v.stringValue())+" ";
-	    			}
-	    			
+	    			Value v = bindingSet.getBinding("v"+tt.getVar()).getValue(); 
+	    			resultString += RDFUtil.resolveLabelOfURI(v.stringValue())+" ";
+		
 	    		}
 	    	}
 	    	System.out.println(resultString);
-			
-			
+	    	
 	        /*BindingSet bindingSet = result.next();
 	        for(String name : bindingSet.getBindingNames()) {
 	        	Value v = bindingSet.getBinding(name).getValue();

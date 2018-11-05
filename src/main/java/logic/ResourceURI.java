@@ -14,6 +14,10 @@ public class ResourceURI extends ResourceAbstr {
 			return RDFUtil.prefixes.shortForm(URI);
 		else return URI;
 	}
+	
+	public String getURI() {
+		return URI;
+	}
 
 	@Override
 	public boolean isLiteral() {

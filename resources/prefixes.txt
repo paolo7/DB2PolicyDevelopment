@@ -1,6 +1,5 @@
 example http://example.com/
 blanknode http://blanknode.com/bd#
-e http://example.com/
 
 geo http://www.opengis.net/spec/geosparql/1
 ogc http://www.opengis.net/

@@ -28,14 +28,17 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	
 	private Map<String,String> RDFprefixes;
 	
+	private Model additionalVocabularies;
+	
 	private boolean debugPrint = true;
 	private boolean debugPrintOWLconsistencyChecks = false;
 	
 	private Map<Rule, Set<Map<String,RDFNode>>> inconsistentRuleApplications = new HashMap<Rule, Set<Map<String,RDFNode>>>();
 	
-	public PredicateExpansionBySPARQLquery(Set<Predicate> knownPredicates, Set<Rule> rules) {
+	public PredicateExpansionBySPARQLquery(Set<Predicate> knownPredicates, Set<Rule> rules, Model additionalVocabularies) {
 		this.knownPredicates = knownPredicates;
 		this.rules = rules;
+		this.additionalVocabularies = additionalVocabularies;
 	}
 	
 	public PredicateExpansionBySPARQLquery() {
@@ -53,7 +56,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	@Override
 	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates,
 			Set<Predicate> knownPredicates, Set<Rule> rules) {
-		PredicateExpansionBySPARQLquery expansion = new PredicateExpansionBySPARQLquery(knownPredicates,rules);
+		PredicateExpansionBySPARQLquery expansion = new PredicateExpansionBySPARQLquery(knownPredicates,rules, additionalVocabularies);
 		Set<PredicateInstantiation> expandedPredicates = expansion.expand(existingPredicates);
 		return expandedPredicates;
 	}
@@ -106,7 +109,10 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		
 		Set<PredicateInstantiation> newPredicates = new HashSet<PredicateInstantiation>();
 		Model basicModel = null;
-		if(consistencyCheck) basicModel = RDFUtil.generateBasicModel(existingPredicates,RDFprefixes);
+		if(consistencyCheck) {
+			basicModel = RDFUtil.generateBasicModel(existingPredicates,RDFprefixes);
+			basicModel.add(additionalVocabularies);
+		}
 		
 		// compute sandbox model for the Graph-Pattern evaluation over a Pattern-Constrained Graph (GPPG) 
 		Model sandboxModel = RDFUtil.generateGPPGSandboxModel(existingPredicates,RDFprefixes);
