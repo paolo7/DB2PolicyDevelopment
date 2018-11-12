@@ -12,4 +12,5 @@ public interface ConversionTriple {
 	public String toSPARQL();
 	public String toSPARQL_INSERT(Binding[] bindings, String baseBlank);
 	public Set<Integer> getNoLitVariables(Binding[] bindings);
+	public ConversionTriple applyBinding(Binding[] bindings);
 }

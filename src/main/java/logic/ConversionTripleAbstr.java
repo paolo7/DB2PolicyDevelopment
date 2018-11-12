@@ -72,6 +72,19 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 	}
 	
 	
+	
+	public ConversionTriple applyBinding(Binding[] bindings) {
+		return new ConversionTripleImpl(applyBindingHelper(bindings, getSubject()), 
+				applyBindingHelper(bindings, getPredicate()), 
+				applyBindingHelper(bindings, getObject()));
+	}
+	public Binding applyBindingHelper(Binding[] bindings, Binding binding) {
+		if(binding.isConstant()) return binding;
+		if(binding.getVar() < bindings.length) return bindings[binding.getVar()];
+		return binding;
+	}
+	
+	
 	@Override
 	public String toSPARQL(Binding[] bindings) {
 		String snippet = "";

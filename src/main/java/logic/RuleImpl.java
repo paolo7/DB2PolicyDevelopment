@@ -69,7 +69,7 @@ public class RuleImpl extends RuleAbstr{
 				for(PredicateInstantiation piExisting : existingPredicates) {
 					if(pi.compatible(piExisting, bindingsMap)) {					
 						compatiblenum++;
-						importedConstraints = piExisting.getAdditionalConstraints();
+						importedConstraints = piExisting.getAdditionalConstraints(pi.getBindings());
 					}
 				}
 				if (compatiblenum == 1) constraints.addAll(importedConstraints);

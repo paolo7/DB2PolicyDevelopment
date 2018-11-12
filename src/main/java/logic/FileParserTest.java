@@ -30,9 +30,28 @@ public class FileParserTest {
 	
 	public static void main(String[] args) throws Exception {
 		
+		String rulefile = System.getProperty("user.dir") + "/resources/rulesBasicTest2.txt";
+		String[] vocabularyFiles = new String[] {};
+		boolean evaluateDatabaseInstance = false;
+		
+		
+		/*
+		String rulefile = System.getProperty("user.dir") + "/resources/rulesBasic01.txt";
+		String[] vocabularyFiles = new String[] {
+				System.getProperty("user.dir") + "/resources/vocabularies/SSN.ttl",
+				System.getProperty("user.dir") + "/resources/vocabularies/rdf.ttl",
+				System.getProperty("user.dir") + "/resources/vocabularies/rdfs.ttl"
+		};
+		boolean evaluateDatabaseInstance = false;
+		*/
+		
+		////
 		setLoggingLevel(ch.qos.logback.classic.Level.ERROR);
 		
-		boolean evaluateDatabaseInstance = false;
+		
+		
+		//String[] vocabularyFiles = new String[] {};
+		
 		
 		// this implementation uses GraphDB as an external triplestore that is GeoSparql enabled.
 		// but any other triplestore that follows the rdf4j framework should be compatible
@@ -40,6 +59,9 @@ public class FileParserTest {
 		if(evaluateDatabaseInstance) {
 			eDB.loadRDF(new File(System.getProperty("user.dir")+"/resources/localRDF.ttl"), RDFFormat.TURTLE);
 			System.out.println("Loaded dataset with "+eDB.countTriples()+" triples.");
+		}
+		for(String filepath : vocabularyFiles) {
+			eDB.loadRDF(new File(filepath), RDFFormat.TURTLE);
 		}
 		
 		Map<String,String> prefixes = FileParser.parsePrefixes(System.getProperty("user.dir") + "/resources/prefixes.txt");
@@ -52,8 +74,7 @@ public class FileParserTest {
 		Set<PredicateInstantiation> existingPredicates = new HashSet<PredicateInstantiation>();
 		Set<PredicateInstantiation> printPredicates = new HashSet<PredicateInstantiation>();
 		
-		FileParser.parse(System.getProperty("user.dir") + "/resources/rulesBasic01.txt",
-				predicates, rules, existingPredicates, printPredicates, true, eDB);
+		FileParser.parse(rulefile, predicates, rules, existingPredicates, printPredicates, true, eDB);
 		if(evaluateDatabaseInstance) {
 			PredicateEvaluation.computeRuleClosure(eDB, rules, predicates);
 		}
@@ -63,21 +84,25 @@ public class FileParserTest {
 		RDFUtil.labelService = labelservice;
 		
 		
-		// additional ontologies:
-		Model ontologySSN = RDFUtil.loadModel(System.getProperty("user.dir") + "/resources/vocabularies/SSN.ttl");
+		// additional vocabularies:
+		Model additionalVocabularies = ModelFactory.createDefaultModel();
+		for(String filepath : vocabularyFiles) {
+			Model externalVocabulary = RDFUtil.loadModel(filepath);
+			RDFUtil.loadLabelsFromModel(externalVocabulary);
+			additionalVocabularies.add(externalVocabulary);
+		}
+		RDFUtil.addToDefaultPrefixes(prefixes);
+		RDFUtil.addToDefaultPrefixes(additionalVocabularies);
+		/*Model ontologySSN = RDFUtil.loadModel(System.getProperty("user.dir") + "/resources/vocabularies/SSN.ttl");
 		RDFUtil.loadLabelsFromModel(ontologySSN);
 		Model rdf = RDFUtil.loadModel(System.getProperty("user.dir") + "/resources/vocabularies/rdf.ttl");
 		RDFUtil.loadLabelsFromModel(rdf);
 		Model rdfs = RDFUtil.loadModel(System.getProperty("user.dir") + "/resources/vocabularies/rdfs.ttl");
-		RDFUtil.loadLabelsFromModel(rdfs);
+		RDFUtil.loadLabelsFromModel(rdfs);*/
 		
-		Model additionalVocabularies = ModelFactory.createDefaultModel();
-		additionalVocabularies.add(ontologySSN);
+		/*additionalVocabularies.add(ontologySSN);
 		additionalVocabularies.add(rdf);
-		additionalVocabularies.add(rdfs);
-		
-		RDFUtil.addToDefaultPrefixes(prefixes);
-		RDFUtil.addToDefaultPrefixes(additionalVocabularies);
+		additionalVocabularies.add(rdfs);*/
 		
 		System.out.println("*************** KNOWN PREDICATES\n" + 
 				"*************** These are the definitions of the predicates that we want to consider\n");
@@ -119,9 +144,9 @@ public class FileParserTest {
 		System.out.println("*************** INFERRED PREDICATES\n" + 
 				"*************** These are the predicates that we can derive from the ones that we assume to be available\n");
 		
-		/*for(PredicateInstantiation p: newPredicates) {
+		for(PredicateInstantiation p: newPredicates) {
 			System.out.println("AVAILABLE PREDICATE: "+p+"\n----\n"+p.getPredicate()+"----\n");
-		}*/
+		}
 		
 		if(evaluateDatabaseInstance) {			
 			PredicateEvaluation.computeRuleClosure(eDB, rules, predicates);

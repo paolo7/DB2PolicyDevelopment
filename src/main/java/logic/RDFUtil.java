@@ -33,7 +33,7 @@ public class RDFUtil {
 	
 	public static PrefixMapping prefixes = PrefixMapping.Factory.create();
 	
-	private static void generateRuleInstantiationModelHelper(Model model, PredicateInstantiation psi, ConversionTriple ct, Map<String,RDFNode> bindingsMap, Integer i) {
+	private static void generateRuleInstantiationModelHelper(Model model, PredicateInstantiation psi, ConversionTriple ct, Map<String,RDFNode> bindingsMap, Integer i, Binding[] newPredicateBindings) {
 		Resource subject = null;
 		Property predicate = null;
 		RDFNode object = null;
@@ -46,66 +46,92 @@ public class RDFUtil {
 			else 
 				object = ResourceFactory.createPlainLiteral(ct.getObject().getConstant().getLexicalValue());
 		}
+		Binding objS = ct.getSubject();
+		Binding objP = ct.getPredicate();
+		Binding objO = ct.getObject();
+		if(newPredicateBindings != null) {
+			if(ct.getSubject().isVar() && objS.getVar() < newPredicateBindings.length) objS = newPredicateBindings[objS.getVar()];
+			if(ct.getPredicate().isVar() && objP.getVar() < newPredicateBindings.length) objP = newPredicateBindings[objP.getVar()];
+			if(ct.getObject().isVar() && objO.getVar() < newPredicateBindings.length) objO = newPredicateBindings[objO.getVar()];
+		}
+		
 		// if element is variable mapped to constant		
-		if(ct.getSubject().isVar() && ct.getSubject().getVar() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar()).isConstant()) {
-			if(!psi.getBinding(ct.getSubject().getVar()).getConstant().isURI())
+		if(objS.isVar() && objS.getVar() < psi.getBindings().length && psi.getBinding(objS.getVar()).isConstant()) {
+			if(!psi.getBinding(objS.getVar()).getConstant().isURI())
 				throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
-			subject = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getSubject().getVar()).getConstant().getLexicalValue()));
+			subject = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(objS.getVar()).getConstant().getLexicalValue()));
 		}
-		if(ct.getPredicate().isVar() && ct.getPredicate().getVar() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar()).isConstant()) {
-			if(!psi.getBinding(ct.getPredicate().getVar()).getConstant().isURI())
+		if(objP.isVar() && objP.getVar() < psi.getBindings().length && psi.getBinding(objP.getVar()).isConstant()) {
+			if(!psi.getBinding(objP.getVar()).getConstant().isURI())
 				throw new RuntimeException("ERROR: the predicate of a triple cannot be a literal");
-			predicate = ResourceFactory.createProperty(model.expandPrefix(psi.getBinding(ct.getPredicate().getVar()).getConstant().getLexicalValue()));
+			predicate = ResourceFactory.createProperty(model.expandPrefix(psi.getBinding(objP.getVar()).getConstant().getLexicalValue()));
 		}
-		if(ct.getObject().isVar() && ct.getObject().getVar() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar()).isConstant()) {
-			if(psi.getBinding(ct.getObject().getVar()).getConstant().isURI())
-				object = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue()));
+		if(objO.isVar() && objO.getVar() < psi.getBindings().length && psi.getBinding(objO.getVar()).isConstant()) {
+			if(psi.getBinding(objO.getVar()).getConstant().isURI())
+				object = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(objO.getVar()).getConstant().getLexicalValue()));
 			else
-				object = ResourceFactory.createPlainLiteral(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue());
+				object = ResourceFactory.createPlainLiteral(psi.getBinding(objO.getVar()).getConstant().getLexicalValue());
 		}
 		// if element is variable mapped to variable	
-		if(ct.getSubject().isVar() && ct.getSubject().getVar() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar()).isVar()) {
-			RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getSubject().getVar()).getVar());
-			if(element != null && !element.isURIResource())
-				throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
-			if(element == null || element.asResource().getURI().equals(LAMBDAURI))
-				subject = ResourceFactory.createResource(LAMBDAURI+psi.getBinding(ct.getSubject().getVar()));
-			else
-				subject = element.asResource();
+		if(objS.isVar() && objS.getVar() < psi.getBindings().length && psi.getBinding(objS.getVar()).isVar()) {
+			if(bindingsMap.containsKey("v"+psi.getBinding(objS.getVar()).getVar())) {
+				RDFNode boundValue = bindingsMap.get("v"+psi.getBinding(objS.getVar()).getVar());
+				if(boundValue == null) {
+					RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getSubject().getVar()).getVar());
+					if(element != null && !element.isURIResource())
+						throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
+					if(element == null || element.asResource().getURI().equals(LAMBDAURI))
+						subject = ResourceFactory.createResource(LAMBDAURI+psi.getBinding(objS.getVar()));
+					else
+						subject = element.asResource();					
+				} else {
+					subject = boundValue.asResource();
+				}
+			}
 		}
-		if(ct.getPredicate().isVar() && ct.getPredicate().getVar() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar()).isVar()) {
-			RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getPredicate().getVar()).getVar());
-			if(element != null && !element.isURIResource())
-				throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
-			if(element == null || element.asResource().getURI().equals(LAMBDAURI))
-				predicate = ResourceFactory.createProperty(LAMBDAURI+psi.getBinding(ct.getPredicate().getVar()));
-			else
-				predicate = ResourceFactory.createProperty(model.expandPrefix(element.asResource().getLocalName()));
-			i++;
+		if(objP.isVar() && objP.getVar() < psi.getBindings().length && psi.getBinding(objP.getVar()).isVar() ) {
+			RDFNode boundValue = bindingsMap.get("v"+psi.getBinding(objP.getVar()).getVar());
+			if(boundValue == null) {
+				RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getPredicate().getVar()).getVar());
+				if(element != null && !element.isURIResource())
+					throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
+				if(element == null || element.asResource().getURI().equals(LAMBDAURI))
+					predicate = ResourceFactory.createProperty(LAMBDAURI+psi.getBinding(objP.getVar()));
+				else
+					predicate = ResourceFactory.createProperty(model.expandPrefix(element.asResource().getLocalName()));
+				i++;
+			} else {
+				predicate = ResourceFactory.createProperty(boundValue.asResource().getURI());
+			}
 		}
-		if(ct.getObject().isVar() && ct.getObject().getVar() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar()).isVar()) {
-			RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getObject().getVar()).getVar());
-			if(element == null || element.isURIResource() && element.asResource().getURI().equals(LAMBDAURI))
-				object = ResourceFactory.createResource(LAMBDAURI+psi.getBinding(ct.getObject().getVar()));
-			else 
-				object = element;
+		if(objO.isVar() && objO.getVar() < psi.getBindings().length && psi.getBinding(objO.getVar()).isVar()) {
+			RDFNode boundValue = bindingsMap.get("v"+psi.getBinding(objO.getVar()).getVar());
+			if(boundValue == null) {
+				RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getObject().getVar()).getVar());
+				if(element == null || element.isURIResource() && element.asResource().getURI().equals(LAMBDAURI))
+					object = ResourceFactory.createResource(LAMBDAURI+psi.getBinding(objO.getVar()));
+				else 
+					object = element;
+			} else {
+				object = boundValue.asResource();
+			}
 		}
-		if(subject == null)
+		/*if(subject == null)
 			subject = ResourceFactory.createResource();
 		if(predicate == null) {
-			predicate = ResourceFactory.createProperty(LAMBDAURI+i);
-			i++;			
+			predicate = ResourceFactory.createProperty(LAMBDAURI+h+1);
+			i++;
 		}
 		if(object == null)
 			object = ResourceFactory.createResource();
 		//
-		if(subject == null)
-			subject = ResourceFactory.createResource(LAMBDAURI+psi.getBinding(ct.getSubject().getVar()));
+*/		if(subject == null)
+			subject = ResourceFactory.createResource(LAMBDAURI+"?v"+objS.getVar());
 		if(predicate == null) {
-			predicate = ResourceFactory.createProperty(LAMBDAURI+psi.getBinding(ct.getPredicate().getVar()));
+			predicate = ResourceFactory.createProperty(LAMBDAURI+"?v"+objP.getVar());
 		}
 		if(object == null)
-			object = ResourceFactory.createResource(LAMBDAURI+psi.getBinding(ct.getObject().getVar()));
+			object = ResourceFactory.createResource(LAMBDAURI+"?v"+objO.getVar());
 		//
 		Statement s = ResourceFactory.createStatement(subject, predicate, object);
 		model.add(s);
@@ -120,20 +146,24 @@ public class RDFUtil {
 		
 		for(PredicateInstantiation psi : r.getAntecedent()) {
 			Set<ConversionTriple> translationPlusConsequences = new HashSet<ConversionTriple>();
-			if(psi.getPredicate().getRDFtranslation() != null)translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
+			if(psi.getPredicate().getRDFtranslation() != null) translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
 			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
+			Binding[] newB = r.getNewPredicateBasicBindings();
 			for(ConversionTriple ct: translationPlusConsequences) {
-				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
+				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i, null);	
 			}
 		}
+		// TODO fix, this part is not working as intended
 		for(PredicateInstantiation psi : inferrablePredicates) {
 			Set<ConversionTriple> translationPlusConsequences = new HashSet<ConversionTriple>();
 			translationPlusConsequences.addAll(psi.getPredicate().getRDFtranslation());
 			translationPlusConsequences.addAll(psi.getAdditionalConstraints());
 			for(ConversionTriple ct: translationPlusConsequences) {
-				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i);	
+				generateRuleInstantiationModelHelper(model, psi, ct, bindingsMap, i, r.getNewPredicateBasicBindings());	
 			}
 		}
+		
+		
 		//try {
 			//model.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphInstantiationModel.ttl")),"Turtle");
 			//} catch (FileNotFoundException e) {

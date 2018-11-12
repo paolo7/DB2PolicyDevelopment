@@ -21,6 +21,7 @@ public interface PredicateInstantiation {
 	public String toSPARQL_INSERT(String baseBlank);
 	public String toGPPGSPARQL();
 	public Pair<Set<ConversionTriple>,Set<ConversionFilter>> applyBinding(Map<String, RDFNode> bindingsMap, Binding[] newSignatureBindings);
+	public Set<ConversionTriple> getAdditionalConstraints(Binding[] bindings);
 	public Set<ConversionTriple> getAdditionalConstraints();
 	public Set<Integer> getNoLitVariables();
 	public boolean compatible(PredicateInstantiation other, Map<String, RDFNode> bindingsMap);

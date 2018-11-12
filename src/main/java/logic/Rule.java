@@ -17,4 +17,5 @@ public interface Rule {
 	public String getGPPGAntecedentSPARQL();
 	public Set<PredicateInstantiation> applyRule(Map<String,RDFNode> bindingsMap, Set<Predicate> predicates, Set<PredicateInstantiation> existingPredicates);
 	public Set<Integer> getNoLitVariables();
+	public Binding[] getNewPredicateBasicBindings();
 }

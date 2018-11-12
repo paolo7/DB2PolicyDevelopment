@@ -126,4 +126,14 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 		}
 		return true;
 	}
+	
+	@Override
+	public Set<ConversionTriple> getAdditionalConstraints(Binding[] bindings) {
+		Set<ConversionTriple> additional = getAdditionalConstraints();
+		Set<ConversionTriple> additionalTranslated = new HashSet<ConversionTriple>();
+		for(ConversionTriple ct : additional) {
+			additionalTranslated.add(ct.applyBinding(bindings));
+		}
+		return additionalTranslated;
+	}
 }

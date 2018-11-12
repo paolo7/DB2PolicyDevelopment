@@ -274,7 +274,7 @@ END RULE
 
 *** 3) Class-dependent property assignment. The predicate selects the measurements of a certain properties detected on members of a certain class.
 
-START RULE [?v0]Of[?v1](?v4,?v2) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0) AND featureOfObservation(?v3,?v4) AND hasClass(?v4,?v1)
+START RULE xxaaxx[?v0]Of[?v1](?v4,?v2) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0) AND featureOfObservation(?v3,?v4) AND hasClass(?v4,?v1)
 LABEL      ?v0 of ?v1 ?v4 is ?v2 
 END RULE
 
@@ -301,14 +301,14 @@ START AVAILABLE   >(?x,?y)
 START AVAILABLE   <(?x,?y)
 START AVAILABLE   =(?x,?y)
 
-*************** START AVAILABLE ASSERTED   domain(sosa:madeObservation,sosa:Sensor)
-*************** START AVAILABLE ASSERTED   range(sosa:madeObservation,sosa:Observation)
-*************** START AVAILABLE ASSERTED   domain(sosa:hasSimpleResult,sosa:Observation)
-*************** START AVAILABLE ASSERTED   domain(sosa:resultTime,sosa:Observation)
-*************** START AVAILABLE ASSERTED   domain(sosa:hasFeatureOfInterest,sosa:Observation)
-*************** START AVAILABLE ASSERTED   range(sosa:hasFeatureOfInterest,sosa:FeatureOfInterest)
-*************** START AVAILABLE ASSERTED   domain(sosa:observedProperty,sosa:Observation)
-*************** START AVAILABLE ASSERTED   range(sosa:observedProperty,sosa:ObservableProperty)
+START AVAILABLE ASSERTED   domain(sosa:madeObservation,sosa:Sensor)
+START AVAILABLE ASSERTED   range(sosa:madeObservation,sosa:Observation)
+START AVAILABLE ASSERTED   domain(sosa:hasSimpleResult,sosa:Observation)
+START AVAILABLE ASSERTED   domain(sosa:resultTime,sosa:Observation)
+START AVAILABLE ASSERTED   domain(sosa:hasFeatureOfInterest,sosa:Observation)
+START AVAILABLE ASSERTED   range(sosa:hasFeatureOfInterest,sosa:FeatureOfInterest)
+START AVAILABLE ASSERTED   domain(sosa:observedProperty,sosa:Observation)
+START AVAILABLE ASSERTED   range(sosa:observedProperty,sosa:ObservableProperty)
 
 START AVAILABLE ASSERTED   disjoint(sosa:Sensor,sosa:Observation)
 START AVAILABLE ASSERTED   disjoint(sosa:Sensor,sosa:ObservableProperty)
@@ -324,7 +324,7 @@ START AVAILABLE ASSERTED triple(example:Location,rdfs:label,"position")
 START AVAILABLE ASSERTED triple(example:Person,rdfs:label,"person")
 START AVAILABLE ASSERTED triple(example:Tunnel,rdfs:label,"tunnel")
 START AVAILABLE ASSERTED triple(example:Place,rdfs:label,"location")
-START AVAILABLE ASSERTED triple(example:MainTunnel,rdfs:label,"main tunnel")
+START AVAILABLE ASSERTED triple(example:MainTunnel,rdfs:label,"main escape tunnel")
 START AVAILABLE ASSERTED triple(example:Fire,rdfs:label,"fire")
 START AVAILABLE ASSERTED triple(example:Geofenced,rdfs:label,"geofenced area")
 
@@ -333,7 +333,7 @@ START AVAILABLE ASSERTED triple(example:Geofenced,rdfs:label,"geofenced area")
 START AVAILABLE ASSERTED   range(ogc:within,example:Place)
 START AVAILABLE ASSERTED   subClass(example:Geofenced,example:Place)
 START AVAILABLE ASSERTED   subClass(example:Tunnel,example:Place)
-START AVAILABLE ASSERTED   subClass(example:MainTunnel,example:Place)
+START AVAILABLE ASSERTED   subClass(example:MainTunnel,example:Tunnel)
 
 START AVAILABLE ASSERTED   disjoint(sosa:ObservableProperty,example:Person)
 START AVAILABLE ASSERTED   disjoint(sosa:ObservableProperty,example:Place)

@@ -111,4 +111,9 @@ public abstract class RuleAbstr implements Rule{
 		return result;
 	}
 	
+	public Binding[] getNewPredicateBasicBindings() {
+		PredicateTemplate pt = this.getConsequent().iterator().next();
+		return pt.getBindings();
+	}
+	
 }

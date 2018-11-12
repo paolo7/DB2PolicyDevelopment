@@ -56,15 +56,14 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	@Override
 	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates,
 			Set<Predicate> knownPredicates, Set<Rule> rules) {
-		PredicateExpansionBySPARQLquery expansion = new PredicateExpansionBySPARQLquery(knownPredicates,rules, additionalVocabularies);
-		Set<PredicateInstantiation> expandedPredicates = expansion.expand(existingPredicates);
+		//PredicateExpansionBySPARQLquery expansion = new PredicateExpansionBySPARQLquery(knownPredicates,rules, additionalVocabularies);
+		Set<PredicateInstantiation> expandedPredicates = expand(existingPredicates);
 		return expandedPredicates;
 	}
 	
 	public boolean checkOWLconsistency(Rule r, Map<String,RDFNode> bindingsMap, Model baseModel, Set<PredicateInstantiation> inferrablePredicates) {
 		overallConsistencyChecks++;
 		Reasoner reasoner = ReasonerRegistry.getOWLMiniReasoner();
-		reasoner = reasoner.bindSchema(baseModel);
 		
 		//try {
 		//	baseModel.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphXBASEMODEL.ttl")),"Turtle");
@@ -73,6 +72,8 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		//		}
 		
 		Model modelExpanded = RDFUtil.generateRuleInstantiationModel(r,bindingsMap,RDFprefixes, knownPredicates, inferrablePredicates).add(baseModel);
+		
+		reasoner = reasoner.bindSchema(modelExpanded);
 		//try {
 		//	modelExpanded.write(new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/outputgraphExpandedRule.ttl")),"Turtle");
 		//		} catch (FileNotFoundException e) {
@@ -128,6 +129,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    ResultSet rs = qe.execSelect();
 		    while (rs.hasNext())
 			{
+		    	/*if(r.getConsequent().iterator().next().getName().get(0).toString().equals("has")) {
+		    		System.out.println("xxaaxx");
+		    	}*/
 		    	QuerySolution binding = rs.nextSolution();
 		    	// the results of a GPPG evaluation, because of the Duplicate Empty Set assumption, might contain bindings without all the required variables
 		    	// these bindings can be ignored as they are semantic duplicates of other bindings that contain all the variables
@@ -153,6 +157,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    				value = null;
 		    			bindingsMap.put(var, value);
 		    		}
+		    		// just create an entry if it's not there, it contains no maps in the set
 		    		if(!inconsistentRuleApplications.containsKey(r))
 		    			inconsistentRuleApplications.put(r, new HashSet<Map<String,RDFNode>>());
 		    		Set<PredicateInstantiation> inferrablePredicates = null;
