@@ -30,12 +30,11 @@ public class FileParserTest {
 	
 	public static void main(String[] args) throws Exception {
 		
-		String rulefile = System.getProperty("user.dir") + "/resources/rulesBasicTest2.txt";
+		/*String rulefile = System.getProperty("user.dir") + "/resources/rulesBasic01.txt";
 		String[] vocabularyFiles = new String[] {};
-		boolean evaluateDatabaseInstance = false;
+		boolean evaluateDatabaseInstance = false;*/
 		
 		
-		/*
 		String rulefile = System.getProperty("user.dir") + "/resources/rulesBasic01.txt";
 		String[] vocabularyFiles = new String[] {
 				System.getProperty("user.dir") + "/resources/vocabularies/SSN.ttl",
@@ -43,7 +42,7 @@ public class FileParserTest {
 				System.getProperty("user.dir") + "/resources/vocabularies/rdfs.ttl"
 		};
 		boolean evaluateDatabaseInstance = false;
-		*/
+		
 		
 		////
 		setLoggingLevel(ch.qos.logback.classic.Level.ERROR);
@@ -55,7 +54,7 @@ public class FileParserTest {
 		
 		// this implementation uses GraphDB as an external triplestore that is GeoSparql enabled.
 		// but any other triplestore that follows the rdf4j framework should be compatible
-		ExternalDB eDB = new ExternalDB_GraphDB("http://152.78.64.224:7200/", "test", "temp");
+		ExternalDB eDB = new ExternalDB_GraphDB("http://10.22.15.92:7200/", "test", "temp");
 		if(evaluateDatabaseInstance) {
 			eDB.loadRDF(new File(System.getProperty("user.dir")+"/resources/localRDF.ttl"), RDFFormat.TURTLE);
 			System.out.println("Loaded dataset with "+eDB.countTriples()+" triples.");

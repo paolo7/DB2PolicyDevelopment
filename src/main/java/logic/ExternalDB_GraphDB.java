@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -99,7 +100,8 @@ public class ExternalDB_GraphDB implements ExternalDB{
 		remoteManager =
 		        new RemoteRepositoryManager( endpoint );
 		remoteManager.initialize();
-		remoteTempId = remoteManager.getNewRepositoryID(basename);
+		//remoteTempId = remoteManager.getNewRepositoryID(basename);
+		remoteTempId = basename+new Date().getTime();
 		// load a configuration file
 		TreeModel graph = new TreeModel();
 		RepositoryConfig config = remoteManager.getRepositoryConfig(defaultConfigRepo);

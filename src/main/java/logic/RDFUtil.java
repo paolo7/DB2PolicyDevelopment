@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.jena.graph.BlankNodeId;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.rdf.model.AnonId;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -81,7 +84,7 @@ public class RDFUtil {
 					if(element != null && !element.isURIResource())
 						throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
 					if(element == null || element.asResource().getURI().equals(LAMBDAURI))
-						subject = ResourceFactory.createResource(LAMBDAURI+psi.getBinding(objS.getVar()));
+						subject = model.createResource(new AnonId(LAMBDAURI+psi.getBinding(objS.getVar())));
 					else
 						subject = element.asResource();					
 				} else {
@@ -96,7 +99,8 @@ public class RDFUtil {
 				if(element != null && !element.isURIResource())
 					throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
 				if(element == null || element.asResource().getURI().equals(LAMBDAURI))
-					predicate = ResourceFactory.createProperty(LAMBDAURI+psi.getBinding(objP.getVar()));
+					throw new RuntimeException("ERROR: the predicate of a triple cannot be assigned a lambda value as it cannot be a blank node");
+					//predicate = model.createResource(new AnonId(LAMBDAURI+psi.getBinding(objP.getVar()));
 				else
 					predicate = ResourceFactory.createProperty(model.expandPrefix(element.asResource().getLocalName()));
 				i++;
@@ -109,7 +113,7 @@ public class RDFUtil {
 			if(boundValue == null) {
 				RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getObject().getVar()).getVar());
 				if(element == null || element.isURIResource() && element.asResource().getURI().equals(LAMBDAURI))
-					object = ResourceFactory.createResource(LAMBDAURI+psi.getBinding(objO.getVar()));
+					object = model.createResource(new AnonId(LAMBDAURI+psi.getBinding(objO.getVar())));
 				else 
 					object = element;
 			} else {
@@ -126,12 +130,13 @@ public class RDFUtil {
 			object = ResourceFactory.createResource();
 		//
 */		if(subject == null)
-			subject = ResourceFactory.createResource(LAMBDAURI+"?v"+objS.getVar());
+			subject = model.createResource(new AnonId(LAMBDAURI+"?v"+objS.getVar()));
 		if(predicate == null) {
-			predicate = ResourceFactory.createProperty(LAMBDAURI+"?v"+objP.getVar());
+			throw new RuntimeException("ERROR: the predicate of a triple cannot be assigned a lambda value as it cannot be a blank node");
+			//predicate = model.createResource(new AnonId(LAMBDAURI+"?v"+objP.getVar());
 		}
 		if(object == null)
-			object = ResourceFactory.createResource(LAMBDAURI+"?v"+objO.getVar());
+			object = model.createResource(new AnonId(LAMBDAURI+"?v"+objO.getVar()));
 		//
 		Statement s = ResourceFactory.createStatement(subject, predicate, object);
 		model.add(s);
@@ -456,6 +461,86 @@ public class RDFUtil {
 		if (baseNew == null)
 			return "_:b"+var;
 		else return "<"+baseNew+var+">";
+	}
+	
+	public static int filterRedundantPredicates(Set<PredicateInstantiation> set1, Set<PredicateInstantiation> set2, boolean strict) {
+		Set<PredicateInstantiation> toRemove = new HashSet<PredicateInstantiation>();
+		int before = set1.size() + set2.size();
+		for(PredicateInstantiation pi1: set1) {
+			for (PredicateInstantiation pi2: set1) {
+				if(!pi1.equals(pi2))
+					toRemove.add(getRedundant(pi1,pi2, strict));
+			}
+			for (PredicateInstantiation pi2: set2) {
+				toRemove.add(getRedundant(pi1,pi2, strict));
+			}
+		}
+		for(PredicateInstantiation pi1: set2) {
+			for (PredicateInstantiation pi2: set1) {
+				toRemove.add(getRedundant(pi1,pi2, strict));
+			}
+			for (PredicateInstantiation pi2: set2) {
+				if(!pi1.equals(pi2))
+					toRemove.add(getRedundant(pi1,pi2, strict));
+			}
+		}
+		toRemove.remove(null);
+		for(PredicateInstantiation pi2rm: toRemove) {
+			System.out.println("REMOVING "+pi2rm);
+			set1.remove(pi2rm);
+			set2.remove(pi2rm);
+		}
+		return before - (set1.size() + set2.size());
+	}
+	private static PredicateInstantiation getRedundant(PredicateInstantiation pi1, PredicateInstantiation pi2, boolean strict) {
+		if(isSubsumedBy(pi1,pi2, strict) && isSubsumedBy(pi2,pi1, strict)) {
+			// if the only difference is the additional constraints, return the one that has a subset of constraints compareed to the other
+			if(pi1.getAdditionalConstraints().containsAll(pi2.getAdditionalConstraints()))
+				return pi1;
+			if(pi2.getAdditionalConstraints().containsAll(pi1.getAdditionalConstraints()))
+				return pi2;
+			// if the set of constraints is different, then do not return either of them
+			if(strict) return null;
+			else {
+				return null;
+				/*if(pi1.getAdditionalConstraints().size() < pi2.getAdditionalConstraints().size()) 
+					return pi2;
+				else 
+					return pi1;*/
+			}
+		}
+		if(isSubsumedBy(pi1,pi2, strict)) 
+			return pi1;
+		if(isSubsumedBy(pi2,pi1, strict)) 
+			return pi2;
+		return null;
+	}
+	private static boolean isSubsumedBy(PredicateInstantiation pi1, PredicateInstantiation pi2, boolean strict) {
+		// instantiations of different predicates cannot subsume each other
+		if(! pi1.getPredicate().equals(pi2.getPredicate())) return false;
+		for(int i = 0; i < pi1.getBindings().length; i++) {
+			
+			if(pi1.getPredicate().getName().equals("GeometryInGeometry") && pi1.getBindings()[i].isConstant() && pi1.getBindings()[i].getConstant().isURI() && pi1.getBindings()[i].getConstant().getLexicalValueExpanded().equals("<http://example.com/COconcentration>")) {
+				System.out.println("");
+			}
+			
+			if(! varIsSubsumedBy(pi1.getBindings()[i], pi2.getBindings()[i], strict)) return false;
+		}
+		return true;
+	}
+	private static boolean varIsSubsumedBy(Binding b1, Binding b2, boolean strict) {
+		
+		// if they are the same, the first one subsumes the other
+		if(b1.equals(b2)) return true;
+		// a constant is subsumed by a variable
+		if(b1.isConstant() && b2.isVar()) return true;
+		if(strict) {
+			// different variables might result in different semantic interpretations
+			if(b1.isVar() && b2.isVar() && !b1.equals(b2)) return false;
+		} else {
+			if(b1.isVar() && b2.isVar()) return true;
+		}
+		return false;
 	}
 	
 }

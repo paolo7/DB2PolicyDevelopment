@@ -52,14 +52,6 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	private int overallConsistencyChecks;
 	private int rulesConsidered;
 	private int ruleApplicationConsidered;
-
-	@Override
-	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates,
-			Set<Predicate> knownPredicates, Set<Rule> rules) {
-		//PredicateExpansionBySPARQLquery expansion = new PredicateExpansionBySPARQLquery(knownPredicates,rules, additionalVocabularies);
-		Set<PredicateInstantiation> expandedPredicates = expand(existingPredicates);
-		return expandedPredicates;
-	}
 	
 	public boolean checkOWLconsistency(Rule r, Map<String,RDFNode> bindingsMap, Model baseModel, Set<PredicateInstantiation> inferrablePredicates) {
 		overallConsistencyChecks++;
@@ -70,6 +62,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		//		} catch (FileNotFoundException e) {
 		//			e.printStackTrace();
 		//		}
+		
+		// TODO this is not compatible yet with owl:DatatypeProperty
+		// to fix this we can just turn lambda nodes to blank nodes
 		
 		Model modelExpanded = RDFUtil.generateRuleInstantiationModel(r,bindingsMap,RDFprefixes, knownPredicates, inferrablePredicates).add(baseModel);
 		
@@ -129,7 +124,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    ResultSet rs = qe.execSelect();
 		    while (rs.hasNext())
 			{
-		    	/*if(r.getConsequent().iterator().next().getName().get(0).toString().equals("has")) {
+		    	/*if(r.getConsequent().iterator().next().getName().get(0).toString().equals("xxaaxx")) {
 		    		System.out.println("xxaaxx");
 		    	}*/
 		    	QuerySolution binding = rs.nextSolution();
@@ -178,13 +173,17 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    				statinconsistencycheck++;
 		    			}
 		    		}
-		    		if(validBinding) {					
+		    		if(validBinding) {	
 		    			newPredicates.addAll(inferrablePredicates);
 		    		}
 		    	}
 			}
 		}
 		newPredicates.removeAll(existingPredicates);
+		
+		int removed = RDFUtil.filterRedundantPredicates(existingPredicates,newPredicates, false);
+		if(debugPrint) 
+			System.out.println("Filtered out "+removed+" redundant predicate instantiations.");
 		
 		for(PredicateInstantiation pi : newPredicates) {
 			Predicate p = pi.getPredicate();

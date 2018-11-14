@@ -15,7 +15,7 @@ END PREDICATE
 
 START PREDICATE 
 SIGNATURE     mainTunnel(?x)
-LABEL         main tunnel ?x
+LABEL         main escape tunnel ?x
 RDF           ?x rdf:type example:MainTunnel .
 END PREDICATE
 
@@ -274,8 +274,8 @@ END RULE
 
 *** 3) Class-dependent property assignment. The predicate selects the measurements of a certain properties detected on members of a certain class.
 
-START RULE xxaaxx[?v0]Of[?v1](?v4,?v2) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0) AND featureOfObservation(?v3,?v4) AND hasClass(?v4,?v1)
-LABEL      ?v0 of ?v1 ?v4 is ?v2 
+START RULE [?v0]Of[?v1](?v4,?v2) <-- measurementOfObservation(?v3,?v2) AND propertyOfObservation(?v3,?v0) AND featureOfObservation(?v3,?v4) AND hasClass(?v4,?v1)
+LABEL      the ?v0 of ?v1 ?v4 is ?v2 
 END RULE
 
 *** 4) Class-dependent Geographical containment. This depends on an implementation-specific definition of “inside”. Here we use WKT coordinates and a geosparql engine
@@ -287,9 +287,9 @@ END RULE
 
 *** Measurement containment. Measurements inside other entities
 
-START RULE [?xC]MeasuredIn[?yC](?x,?y) <-- propertyOfObservation(?x,?xC) AND hasClass(?y,?yC) AND hasLocation(?x,?xL) AND hasLocation(?y,?yL) AND inside(?xL,?yL) AND place(?y)
-LABEL      ?xC ?x measured in ?yC ?y
-END RULE
+* START RULE [?xC]MeasuredIn[?yC](?x,?y) <-- propertyOfObservation(?x,?xC) AND hasClass(?y,?yC) AND hasLocation(?x,?xL) AND hasLocation(?y,?yL) AND inside(?xL,?yL) AND place(?y)
+* LABEL      ?xC ?x measured in ?yC ?y
+* END RULE
 
 
 *************** AVAILABLE PREDICATES
@@ -339,6 +339,7 @@ START AVAILABLE ASSERTED   disjoint(sosa:ObservableProperty,example:Person)
 START AVAILABLE ASSERTED   disjoint(sosa:ObservableProperty,example:Place)
 START AVAILABLE ASSERTED   disjoint(example:Person,example:Place)
 START AVAILABLE ASSERTED   disjoint(sosa:Observation,example:Place)
+START AVAILABLE ASSERTED   disjoint(ogc:Geometry,example:Place)
 START AVAILABLE ASSERTED   disjoint(sosa:Observation,example:Person)
 
 ** Domain specific sensor information

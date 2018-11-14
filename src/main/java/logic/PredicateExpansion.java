@@ -4,17 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface PredicateExpansion {
-
-	/**
-	 * This method returns the predicates can be inferred from existingPredicates given a set of known
-	 * predicates knownPredicates and the ruleset rules
-	 * @param existingPredicates
-	 * @param knownPredicates
-	 * @param rules
-	 * @return
-	 */
-	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates, Set<Predicate> knownPredicates, Set<Rule> rules);
-
+	
 	/**
 	 * This method returns the predicates that can be inferred from existingPredicates given the
 	 * internal set of knownPredicates and rules that can be obtained, respectively, by getPredicates()
