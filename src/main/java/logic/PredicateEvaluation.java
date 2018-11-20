@@ -69,7 +69,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 		}
 	
 	public static void computeRuleClosure(ExternalDB eDB, Set<Rule> rules, Set<Predicate> knownPredicates) {
-		System.out.println("Start) Triples in DB: "+eDB.countTriples());
+		//System.out.println("Start) Triples in DB: "+eDB.countTriples());
 		int iteration = 1;
 		boolean terminationReached = false;
 		while (!terminationReached) {
@@ -85,7 +85,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 					applyRule(eDB, r, knownPredicates);
 			}			
 			if(eDB.countTriples() == triples) terminationReached = true;
-			System.out.println(iteration++ + ") Triples in DB: "+eDB.countTriples());
+			//System.out.println(iteration++ + ") Triples in DB: "+eDB.countTriples());
 		}
 	    
 	}
