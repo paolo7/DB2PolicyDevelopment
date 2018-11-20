@@ -2,6 +2,7 @@ package logic;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Map;
 
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -13,6 +14,8 @@ public interface ExternalDB {
 
 	public void loadRDF(File file, RDFFormat dataFormat) throws RDFParseException, RepositoryException, IOException;
 
+	public void loadRDF(Reader reader, RDFFormat dataFormat) throws RDFParseException, RepositoryException, IOException;
+	
 	public void clearDB();
 	
 	public TupleQueryResult query(String queryString);
@@ -24,5 +27,6 @@ public interface ExternalDB {
 	public int countTriples();
 	
 	public void insertFullyInstantiatedPredicate(PredicateInstantiation pi, String baseBlank);
+
 
 }

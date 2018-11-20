@@ -12,11 +12,12 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 	@Override
 	public String toSPARQL() {
 		String snippet = "";
+		String freshVarPrefix = RDFUtil.getNewFreshVariablePrefix();
 		if (this.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
-			snippet += ct.toSPARQL(this.getBindings())+" .\n";
+			snippet += ct.toSPARQL(this.getBindings(), freshVarPrefix)+" .\n";
 		}
 		if (this.getPredicate().getRDFtranslationFilters() != null) for(ConversionFilter cf: this.getPredicate().getRDFtranslationFilters()) {
-			snippet += cf.toSPARQL(this.getBindings())+" .\n";
+			snippet += cf.toSPARQL(this.getBindings(), freshVarPrefix)+" .\n";
 		}
 		return snippet;
 	}

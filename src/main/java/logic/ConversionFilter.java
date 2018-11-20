@@ -10,13 +10,13 @@ public class ConversionFilter {
 		this.templates = templates;
 	}	
 	
-	public String toSPARQL(Binding[] bindings) {
+	public String toSPARQL(Binding[] bindings, String freshVarPrefix) {
 		String snippet = "";
 		for(TextTemplate tt : templates) {
 			if (tt.isText()) snippet += tt.getText()+" ";
 			else {
 				if (tt.getVar() >= bindings.length) {
-					snippet += "?v"+tt.getVar()+" ";
+					snippet += "?v"+tt.getVar()+freshVarPrefix+" ";
 				} else {
 					Binding b = bindings[tt.getVar()];
 					if(b.isConstant()) snippet += b.getConstant().getLexicalValue();

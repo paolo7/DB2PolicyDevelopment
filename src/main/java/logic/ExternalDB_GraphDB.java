@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
@@ -161,6 +162,12 @@ public class ExternalDB_GraphDB implements ExternalDB{
 	public void loadRDF(File file, RDFFormat dataFormat) throws RDFParseException, RepositoryException, IOException {
 		connection.begin();
 		connection.add(file, null, dataFormat);
+		connection.commit();
+	}
+	@Override
+	public void loadRDF(Reader reader, RDFFormat dataFormat) throws RDFParseException, RepositoryException, IOException {
+		connection.begin();
+		connection.add(reader, null, dataFormat);
 		connection.commit();
 	}
 	

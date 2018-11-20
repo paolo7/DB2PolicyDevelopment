@@ -36,6 +36,8 @@ public class RDFUtil {
 	
 	public static PrefixMapping prefixes = PrefixMapping.Factory.create();
 	
+	public static long freshVariablePrefix = 0;
+	
 	private static void generateRuleInstantiationModelHelper(Model model, PredicateInstantiation psi, ConversionTriple ct, Map<String,RDFNode> bindingsMap, Integer i, Binding[] newPredicateBindings) {
 		Resource subject = null;
 		Property predicate = null;
@@ -140,6 +142,11 @@ public class RDFUtil {
 		//
 		Statement s = ResourceFactory.createStatement(subject, predicate, object);
 		model.add(s);
+	}
+	
+	public static String getNewFreshVariablePrefix() {
+		freshVariablePrefix++;
+		return "f"+freshVariablePrefix;
 	}
 	
 	public static Model generateRuleInstantiationModel(Rule r, Map<String,RDFNode> bindingsMap, Map<String,String> prefixes, Set<Predicate> knownPredicates, Set<PredicateInstantiation> inferrablePredicates) {

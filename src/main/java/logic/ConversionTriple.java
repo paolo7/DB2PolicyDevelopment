@@ -8,7 +8,7 @@ public interface ConversionTriple {
 	public Binding getPredicate();
 	public Binding getObject();
 	public String toGPPGSPARQL(Binding[] bindings);
-	public String toSPARQL(Binding[] bindings);
+	public String toSPARQL(Binding[] bindings, String freshVarPrefix);
 	public String toSPARQL();
 	public String toSPARQL_INSERT(Binding[] bindings, String baseBlank);
 	public Set<Integer> getNoLitVariables(Binding[] bindings);
