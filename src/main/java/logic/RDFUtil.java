@@ -466,7 +466,7 @@ public class RDFUtil {
 	 
 	public static String getBlankNodeOrNewVarString(String baseNew, int var) {
 		if (baseNew == null)
-			return "_:b"+var;
+			return "?blank"+var;
 		else return "<"+baseNew+var+">";
 	}
 	

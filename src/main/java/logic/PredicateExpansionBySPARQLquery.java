@@ -87,7 +87,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 
 	@Override
 	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates) {
-		return expand(existingPredicates,true);
+		return expand(existingPredicates,false);
 	}
 	
 	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck) {
@@ -156,21 +156,23 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    		if(!inconsistentRuleApplications.containsKey(r))
 		    			inconsistentRuleApplications.put(r, new HashSet<Map<String,RDFNode>>());
 		    		Set<PredicateInstantiation> inferrablePredicates = null;
-		    		if(validBinding && consistencyCheck) {
-		    			if(inconsistentRuleApplications.get(r).contains(bindingsMap)) {
-		    				if(debugPrintOWLconsistencyChecks) System.out.print("@");						
-		    				validBinding = false;
-		    				statinconsistencycheckreused++;
+		    		if(validBinding) {
+		    			if(consistencyCheck) {		    				
+		    				if(inconsistentRuleApplications.get(r).contains(bindingsMap)) {
+		    					if(debugPrintOWLconsistencyChecks) System.out.print("@");						
+		    					validBinding = false;
+		    					statinconsistencycheckreused++;
+		    				}
 		    			}
 		    			else {
 		    				inferrablePredicates = r.applyRule(bindingsMap, knownPredicates, existingPredicates);
-		    				if (!checkOWLconsistency(r,bindingsMap, basicModel, inferrablePredicates)) {
+		    				if (consistencyCheck && !checkOWLconsistency(r,bindingsMap, basicModel, inferrablePredicates)) {
 		    					validBinding = false;
 		    					inconsistentRuleApplications.get(r).add(bindingsMap);
 		    					if(debugPrintOWLconsistencyChecks) System.out.print("#");
 		    					statinconsistencycheckfound++;
+		    					statinconsistencycheck++;
 		    				}
-		    				statinconsistencycheck++;
 		    			}
 		    		}
 		    		if(validBinding) {	

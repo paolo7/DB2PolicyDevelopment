@@ -245,18 +245,23 @@ public class FileParser {
 				tt.add(new TextTemplateImpl(t));
 			}
 	    }
-	    List<Integer> variablesID = new LinkedList<Integer>();
+	    List<Binding> variablesID = new LinkedList<Binding>();
 	    for(String t : variableTokens) {
-	    	t = t.replaceFirst("\\?","").trim();
-	    	if(! varNameMap.containsKey(t)) {					
-				varNameMap.put(t, varNameMap.size());
-			}
-	    	variablesID.add(varNameMap.get(t));
+	    	if(t.startsWith("?")) {
+	    		t = t.replaceFirst("\\?","").trim();
+	    		if(! varNameMap.containsKey(t)) {					
+	    			varNameMap.put(t, varNameMap.size());
+	    		}
+	    		variablesID.add(new BindingImpl(varNameMap.get(t).intValue()));	    		
+	    	}
+	    	else {
+	    		variablesID.add(new BindingImpl(new ResourceURI(t.trim())));
+	    	}
 	    }
 	    Binding[] binding = new Binding[variablesID.size()];
 	    for (int i=0; i < binding.length; i++)
 	    {
-	    	binding[i] = new BindingImpl(variablesID.get(i).intValue());
+	    	binding[i] = variablesID.get(i);
 	    }
 	    return new PredicateTemplateImpl(tt,binding);	    
 	}
