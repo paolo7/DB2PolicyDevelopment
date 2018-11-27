@@ -19,6 +19,7 @@ import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 
 	public class PredicateEvaluation {
@@ -69,8 +70,8 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 		}
 	
 	public static void computeRuleClosure(ExternalDB eDB, Set<Rule> rules, Set<Predicate> knownPredicates) {
+		
 		//System.out.println("Start) Triples in DB: "+eDB.countTriples());
-		int iteration = 1;
 		boolean terminationReached = false;
 		while (!terminationReached) {
 			int triples = eDB.countTriples();
@@ -95,25 +96,31 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 		if(rule.createsNewPredicate()) throw new RuntimeException("Error, cannot apply rule to dataset because it is a predicate creation rule: \n"+rule.toString());
 		String SPARQLquery = RDFUtil.getSPARQLdefaultPrefixes()+rule.getAntecedentSPARQL();
 		TupleQueryResult result = eDB.query(SPARQLquery);
-		//System.out.println(predicate.getPredicate().getName());
-		while (result.hasNext()) {
-			Set<PredicateInstantiation> pis =  new HashSet<PredicateInstantiation>();
-			BindingSet bindingSet = result.next();
-			Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
-			for(String var :  bindingSet.getBindingNames()) {
-    			Value value = bindingSet.getValue(var);
-    			//if(value.getClass() == BNode.class) value = null;
-    			bindingsMap.put(var, RDFUtil.asJenaNode(value));
-    		}
+
+		//try {
+			while (result.hasNext()) {
+				Set<PredicateInstantiation> pis =  new HashSet<PredicateInstantiation>();
+				BindingSet bindingSet = result.next();
+				Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
+				for(String var :  bindingSet.getBindingNames()) {
+					Value value = bindingSet.getValue(var);
+					//if(value.getClass() == BNode.class) value = null;
+					bindingsMap.put(var, RDFUtil.asJenaNode(value));
+				}
+				
+				for(PredicateTemplate pt: rule.getConsequent()) {
+					//Predicate predicate = PredicateUtil.get(predicateName, bindings.length, predicates);
+					pis.add(pt.applyRule(bindingsMap, knownPredicates, null, null, null));
+				}
+				String baseNew = RDFUtil.getBlankNodeBaseURI();
+				for(PredicateInstantiation pi : pis) {
+					eDB.insertFullyInstantiatedPredicate(pi,baseNew);
+				}
+			}
 			
-			for(PredicateTemplate pt: rule.getConsequent()) {
-				//Predicate predicate = PredicateUtil.get(predicateName, bindings.length, predicates);
-				pis.add(pt.applyRule(bindingsMap, knownPredicates, null, null, null));
-			}
-			String baseNew = RDFUtil.getBlankNodeBaseURI();
-			for(PredicateInstantiation pi : pis) {
-				eDB.insertFullyInstantiatedPredicate(pi,baseNew);
-			}
-	    }
+		/*} catch (QueryEvaluationException e) {
+			System.out.println("+ "+e.getMessage());
+		}*/
+		result.close();
 	}
 }
