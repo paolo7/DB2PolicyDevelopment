@@ -35,6 +35,12 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	
 	private Map<Rule, Set<Map<String,RDFNode>>> inconsistentRuleApplications = new HashMap<Rule, Set<Map<String,RDFNode>>>();
 	
+	public PredicateExpansionBySPARQLquery(Set<Predicate> knownPredicates, Set<Rule> rules) {
+		this.knownPredicates = knownPredicates;
+		this.rules = rules;
+		this.additionalVocabularies = null;
+	}
+	
 	public PredicateExpansionBySPARQLquery(Set<Predicate> knownPredicates, Set<Rule> rules, Model additionalVocabularies) {
 		this.knownPredicates = knownPredicates;
 		this.rules = rules;

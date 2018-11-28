@@ -470,6 +470,9 @@ public class RDFUtil {
 		else return "<"+baseNew+var+">";
 	}
 	
+	public static int filterRedundantPredicates(Set<PredicateInstantiation> set, boolean strict) {
+		return filterRedundantPredicates(set, new HashSet<PredicateInstantiation>(), strict);
+	}
 	public static int filterRedundantPredicates(Set<PredicateInstantiation> set1, Set<PredicateInstantiation> set2, boolean strict) {
 		Set<PredicateInstantiation> toRemove = new HashSet<PredicateInstantiation>();
 		int before = set1.size() + set2.size();
@@ -493,12 +496,13 @@ public class RDFUtil {
 		}
 		toRemove.remove(null);
 		for(PredicateInstantiation pi2rm: toRemove) {
-			System.out.println("REMOVING "+pi2rm);
+			//System.out.println("REMOVING "+pi2rm);
 			set1.remove(pi2rm);
 			set2.remove(pi2rm);
 		}
 		return before - (set1.size() + set2.size());
 	}
+	
 	private static PredicateInstantiation getRedundant(PredicateInstantiation pi1, PredicateInstantiation pi2, boolean strict) {
 		if(isSubsumedBy(pi1,pi2, strict) && isSubsumedBy(pi2,pi1, strict)) {
 			// if the only difference is the additional constraints, return the one that has a subset of constraints compareed to the other
