@@ -13,6 +13,7 @@ public class RuleImpl extends RuleAbstr{
 	Set<PredicateTemplate> consequent;
 	boolean createsNewPredicate;
 	List<TextTemplate> label;
+
 	
 	public RuleImpl(Set<PredicateInstantiation> antecedent, Set<PredicateTemplate> consequent) {
 		this.antecedent = antecedent;
@@ -75,6 +76,7 @@ public class RuleImpl extends RuleAbstr{
 				if (compatiblenum == 1) constraints.addAll(importedConstraints);
 				//if (compatiblenum == 2) System.out.println("Warning. Multiple predicate instantiations found for the antecedents of a rule. OWL-consistency not guaranteed.");
 			}
+			if(RDFUtil.ignoreConstraints) constraints = new HashSet<ConversionTriple>();
 			newpredicates.add(pt.applyRule(bindingsMap, predicates, label, antecedent, constraints));
 		}
 		

@@ -22,10 +22,10 @@ import GraphDB.QueryUtil;
 public class FileParserTest {
 
 	
-	public static void setLoggingLevel(ch.qos.logback.classic.Level level) {
+	/*public static void setLoggingLevel(ch.qos.logback.classic.Level level) {
 	    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 	    root.setLevel(level);
-	}	
+	}	*/
 
 
 	
@@ -46,7 +46,7 @@ public class FileParserTest {
 		
 		
 		////
-		setLoggingLevel(ch.qos.logback.classic.Level.ERROR);
+		//setLoggingLevel(ch.qos.logback.classic.Level.ERROR);
 		
 		
 		
@@ -138,7 +138,7 @@ public class FileParserTest {
 		System.out.println("*************** APPLYING EXPANSION\n");
 		PredicateExpansion expansion = new PredicateExpansionBySPARQLquery(predicates, rules, additionalVocabularies);
 		expansion.setPrefixes(prefixes);
-		Set<PredicateInstantiation> newPredicates = expansion.expand(existingPredicates);
+		Set<PredicateInstantiation> newPredicates = expansion.expand(0,existingPredicates);
 		predicates = expansion.getPredicates();
 		
 		System.out.println("*************** INFERRED PREDICATES\n" + 

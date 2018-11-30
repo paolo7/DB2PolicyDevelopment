@@ -30,6 +30,20 @@
   		<groupId>com.ontotext.graphdb</groupId>
   		<artifactId>graphdb-free-runtime</artifactId>
   		<version>8.7.0</version>
+  		<exclusions>
+  			<exclusion>
+  				<groupId>ch.qos.logback</groupId>
+  				<artifactId>logback-classic</artifactId>
+  			</exclusion>
+  			<exclusion>
+  				<groupId>ch.qos.logback</groupId>
+  				<artifactId>logback-core</artifactId>
+  			</exclusion>
+  			<exclusion>
+  				<groupId>commons-logging</groupId>
+  				<artifactId>commons-logging</artifactId>
+  			</exclusion>
+  		</exclusions>
   	</dependency>
   </dependencies>
 </project>

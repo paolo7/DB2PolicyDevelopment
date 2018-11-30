@@ -13,7 +13,7 @@ public interface PredicateExpansion {
 	 * @param existingPredicates
 	 * @return
 	 */
-	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates);
+	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates);
 	
 	public Set<Rule> getRules();
 	

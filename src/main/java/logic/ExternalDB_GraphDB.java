@@ -44,10 +44,10 @@ import GraphDB.UpdateUtil;
 
 public class ExternalDB_GraphDB implements ExternalDB{
 
-	public static void setLoggingLevelToError() {
+	/*public static void setLoggingLevelToError() {
 	    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 	    root.setLevel(ch.qos.logback.classic.Level.ERROR);
-	}
+	}*/
 	
 	RepositoryConnection connection;
 	

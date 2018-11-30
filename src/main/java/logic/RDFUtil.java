@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.jena.graph.BlankNodeId;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.AnonId;
@@ -37,6 +39,8 @@ public class RDFUtil {
 	public static PrefixMapping prefixes = PrefixMapping.Factory.create();
 	
 	public static long freshVariablePrefix = 0;
+	
+	public static boolean ignoreConstraints = false;
 	
 	private static void generateRuleInstantiationModelHelper(Model model, PredicateInstantiation psi, ConversionTriple ct, Map<String,RDFNode> bindingsMap, Integer i, Binding[] newPredicateBindings) {
 		Resource subject = null;
@@ -249,6 +253,166 @@ public class RDFUtil {
 	}
 	public static void addToDefaultPrefixes(Model additionalVocabularies) {
 		prefixes.setNsPrefixes(additionalVocabularies).getNsPrefixMap();
+	}
+	
+	public static Model generateCriticalInstanceModel(Set<PredicateInstantiation> predicates, Map<String,String> prefixes, Rule r) {
+		Property lambda = ResourceFactory.createProperty(LAMBDAURI);
+		Model model = ModelFactory.createDefaultModel();
+		// GATHER ALL CONSTANTS
+		Set<String> constants = gatherAllConstants(r);
+		for(PredicateInstantiation pi: predicates) {
+			constants.addAll(gatherAllConstants(pi));
+		}
+		constants.add(null);
+		// INSTANTIATE THE CRITICAL INSTANCE
+		for(PredicateInstantiation psi: predicates) {
+			for(ConversionTriple ct: psi.getPredicate().getRDFtranslation()) {
+				Resource subject = lambda;
+				Property predicate = lambda;
+				RDFNode object = lambda;				
+				if(ct.getSubject().isConstant()) subject = ResourceFactory.createResource(RDFUtil.expandPrefix(ct.getSubject().getConstant().getLexicalValue()));
+				if(ct.getPredicate().isConstant()) 
+					predicate = ResourceFactory.createProperty(RDFUtil.expandPrefix(ct.getPredicate().getConstant().getLexicalValue()));
+				if(ct.getObject().isConstant()) {
+					if(ct.getObject().getConstant().isURI())
+						object = ResourceFactory.createResource(RDFUtil.expandPrefix(ct.getObject().getConstant().getLexicalValue()));
+					else 
+						object = ResourceFactory.createPlainLiteral(ct.getObject().getConstant().getLexicalValue());
+				}
+				
+				if(ct.getSubject().isVar() && ct.getSubject().getVar() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar()).isConstant()) {
+					if(!psi.getBinding(ct.getSubject().getVar()).getConstant().isURI())
+						throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
+					subject = ResourceFactory.createResource(RDFUtil.expandPrefix(psi.getBinding(ct.getSubject().getVar()).getConstant().getLexicalValue()));
+				}
+				if(ct.getPredicate().isVar() && ct.getPredicate().getVar() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar()).isConstant()) {
+					if(!psi.getBinding(ct.getPredicate().getVar()).getConstant().isURI())
+						throw new RuntimeException("ERROR: the predicate of a triple cannot be a literal");
+					predicate = ResourceFactory.createProperty(RDFUtil.expandPrefix(psi.getBinding(ct.getPredicate().getVar()).getConstant().getLexicalValue()));
+				}
+				if(ct.getObject().isVar() && ct.getObject().getVar() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar()).isConstant()) {
+					if(psi.getBinding(ct.getObject().getVar()).getConstant().isURI())
+						object = ResourceFactory.createResource(RDFUtil.expandPrefix(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue()));
+					else
+						object = ResourceFactory.createPlainLiteral(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue());
+				}
+				
+				int variables = 0;
+				if(subject.isURIResource() && subject.asResource().getURI().equals(LAMBDAURI)) variables++;
+				if(predicate.isURIResource() && predicate.asResource().getURI().equals(LAMBDAURI)) variables++;
+				if(object.isURIResource() && object.asResource().getURI().equals(LAMBDAURI)) variables++;
+				if(variables == 0) {
+					Statement base = ResourceFactory.createStatement(subject, predicate, object);
+					model.add(base);
+				} else if(variables == 1) {
+					for(String c: constants) {
+						Triple<Resource,Property,RDFNode> newTriple = substituteFirstLambdaWithConstant(model,subject, predicate, object, c);
+						Statement s = ResourceFactory.createStatement(newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight());
+						model.add(s);
+					}
+				} else if(variables == 2) {
+					for(String c: constants) {
+						Triple<Resource,Property,RDFNode> newTriple = substituteFirstLambdaWithConstant(model,subject, predicate, object, c);
+						Statement s = ResourceFactory.createStatement(newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight());
+						model.add(s);
+						for(String c2: constants) {
+							Triple<Resource,Property,RDFNode> newTriple2 = substituteFirstLambdaWithConstant(model,newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight(), c2);
+							Statement s2 = ResourceFactory.createStatement(newTriple2.getLeft(), newTriple2.getMiddle(), newTriple2.getRight());
+							model.add(s2);
+						}
+					}
+				}
+				
+				
+				if(variables == 1) {
+					for(String c: constants) {
+						Triple<Resource,Property,RDFNode> newTriple = substituteLastLambdaWithConstant(model,subject, predicate, object, c);
+						Statement s = ResourceFactory.createStatement(newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight());
+						model.add(s);
+					}
+				} else if(variables == 2) {
+					for(String c: constants) {
+						Triple<Resource,Property,RDFNode> newTriple = substituteLastLambdaWithConstant(model,subject, predicate, object, c);
+						Statement s = ResourceFactory.createStatement(newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight());
+						model.add(s);
+						for(String c2: constants) {
+							Triple<Resource,Property,RDFNode> newTriple2 = substituteLastLambdaWithConstant(model,newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight(), c2);
+							Statement s2 = ResourceFactory.createStatement(newTriple2.getLeft(), newTriple2.getMiddle(), newTriple2.getRight());
+							model.add(s2);
+						}
+					}
+				}
+				
+			}
+		}
+		return model;
+	}
+	private static Triple<Resource,Property,RDFNode> substituteLastLambdaWithConstant(Model model, Resource subject, Property predicate, RDFNode object, String constant) {
+		if(constant == null) return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,object);
+		
+		if(object.isURIResource() && object.asResource().getURI().equals(LAMBDAURI)) {
+			return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,
+					ResourceFactory.createResource(RDFUtil.expandPrefix(constant))
+					);
+		}
+		if(predicate.isURIResource() && predicate.asResource().getURI().equals(LAMBDAURI)) {
+			return new ImmutableTriple<Resource,Property,RDFNode>(subject,
+					ResourceFactory.createProperty(RDFUtil.expandPrefix(constant)),
+					object);
+		}
+		if(subject.isURIResource() && subject.asResource().getURI().equals(LAMBDAURI)) {
+			return new ImmutableTriple<Resource,Property,RDFNode>(
+					ResourceFactory.createResource(RDFUtil.expandPrefix(constant))
+					,predicate,object);
+		}
+		return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,object);
+	}
+	private static Triple<Resource,Property,RDFNode> substituteFirstLambdaWithConstant(Model model, Resource subject, Property predicate, RDFNode object, String constant) {
+		if(constant == null) return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,object);
+		if(subject.isURIResource() && subject.asResource().getURI().equals(LAMBDAURI)) {
+			return new ImmutableTriple<Resource,Property,RDFNode>(
+					ResourceFactory.createResource(RDFUtil.expandPrefix(constant))
+					,predicate,object);
+		}
+		if(predicate.isURIResource() && predicate.asResource().getURI().equals(LAMBDAURI)) {
+			return new ImmutableTriple<Resource,Property,RDFNode>(subject,
+					ResourceFactory.createProperty(RDFUtil.expandPrefix(constant)),
+					object);
+		}
+		if(object.isURIResource() && object.asResource().getURI().equals(LAMBDAURI)) {
+			return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,
+					ResourceFactory.createResource(RDFUtil.expandPrefix(constant))
+					);
+		}
+		return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,object);
+	}
+
+	private static Set<String> gatherAllConstants(Rule r){
+		Set<String> constants = new HashSet<String>();
+		for(PredicateInstantiation pi: r.getAntecedent()) {
+			constants.addAll(gatherAllConstants(pi));
+		}
+		return constants;
+	}
+	
+	private static Set<String> gatherAllConstants(PredicateInstantiation pi){
+		Set<String> constants = new HashSet<String>();
+		// gather constants from the bindings
+		for(Binding b: pi.getBindings()) {
+			constants.add(getConstantFromBinding(b));
+		}
+		// gather constants from the triples of the predicate
+		for(ConversionTriple ct : pi.getPredicate().getRDFtranslation()) {
+			constants.add(getConstantFromBinding(ct.getSubject()));
+			constants.add(getConstantFromBinding(ct.getPredicate()));
+			constants.add(getConstantFromBinding(ct.getObject()));
+		}
+		return constants;
+	}
+	
+	private static String getConstantFromBinding(Binding b) {
+		if(b.isConstant()) return b.getConstant().getLexicalValue();
+		return null;
 	}
 	
 	public static Model generateGPPGSandboxModel(Set<PredicateInstantiation> predicates, Map<String,String> prefixes) {
@@ -470,28 +634,32 @@ public class RDFUtil {
 		else return "<"+baseNew+var+">";
 	}
 	
-	public static int filterRedundantPredicates(Set<PredicateInstantiation> set, boolean strict) {
-		return filterRedundantPredicates(set, new HashSet<PredicateInstantiation>(), strict);
+	public static boolean disableRedundancyCheck = false;
+	
+	public static int filterRedundantPredicates(Set<PredicateInstantiation> set, boolean strict, boolean onlyConstraintRedundant) {
+		return filterRedundantPredicates(set, new HashSet<PredicateInstantiation>(), strict, onlyConstraintRedundant);
 	}
-	public static int filterRedundantPredicates(Set<PredicateInstantiation> set1, Set<PredicateInstantiation> set2, boolean strict) {
+	
+	public static int filterRedundantPredicates(Set<PredicateInstantiation> set1, Set<PredicateInstantiation> set2, boolean strict, boolean onlyConstraintRedundant) {
+		
 		Set<PredicateInstantiation> toRemove = new HashSet<PredicateInstantiation>();
 		int before = set1.size() + set2.size();
 		for(PredicateInstantiation pi1: set1) {
 			for (PredicateInstantiation pi2: set1) {
 				if(!pi1.equals(pi2))
-					toRemove.add(getRedundant(pi1,pi2, strict));
+					toRemove.add(getRedundant(pi1,pi2, strict, onlyConstraintRedundant));
 			}
 			for (PredicateInstantiation pi2: set2) {
-				toRemove.add(getRedundant(pi1,pi2, strict));
+				toRemove.add(getRedundant(pi1,pi2, strict, onlyConstraintRedundant));
 			}
 		}
 		for(PredicateInstantiation pi1: set2) {
 			for (PredicateInstantiation pi2: set1) {
-				toRemove.add(getRedundant(pi1,pi2, strict));
+				toRemove.add(getRedundant(pi1,pi2, strict, onlyConstraintRedundant));
 			}
 			for (PredicateInstantiation pi2: set2) {
 				if(!pi1.equals(pi2))
-					toRemove.add(getRedundant(pi1,pi2, strict));
+					toRemove.add(getRedundant(pi1,pi2, strict, onlyConstraintRedundant));
 			}
 		}
 		toRemove.remove(null);
@@ -503,7 +671,7 @@ public class RDFUtil {
 		return before - (set1.size() + set2.size());
 	}
 	
-	private static PredicateInstantiation getRedundant(PredicateInstantiation pi1, PredicateInstantiation pi2, boolean strict) {
+	private static PredicateInstantiation getRedundant(PredicateInstantiation pi1, PredicateInstantiation pi2, boolean strict, boolean onlyConstraintRedundant) {
 		if(isSubsumedBy(pi1,pi2, strict) && isSubsumedBy(pi2,pi1, strict)) {
 			// if the only difference is the additional constraints, return the one that has a subset of constraints compareed to the other
 			if(pi1.getAdditionalConstraints().containsAll(pi2.getAdditionalConstraints()))
@@ -513,20 +681,24 @@ public class RDFUtil {
 			// if the set of constraints is different, then do not return either of them
 			if(strict) return null;
 			else {
-				return null;
-				/*if(pi1.getAdditionalConstraints().size() < pi2.getAdditionalConstraints().size()) 
-					return pi2;
-				else 
-					return pi1;*/
+				//if(onlyConstraintRedundant) {
+					if(pi1.getAdditionalConstraints().size() < pi2.getAdditionalConstraints().size()) 
+						return pi1;
+					else 
+						return pi2;
+				/*} else {
+					return null;
+				}*/
 			}
 		}
+		if(onlyConstraintRedundant) return null;
 		if(isSubsumedBy(pi1,pi2, strict)) 
 			return pi1;
 		if(isSubsumedBy(pi2,pi1, strict)) 
 			return pi2;
 		return null;
 	}
-	private static boolean isSubsumedBy(PredicateInstantiation pi1, PredicateInstantiation pi2, boolean strict) {
+	public static boolean isSubsumedBy(PredicateInstantiation pi1, PredicateInstantiation pi2, boolean strict) {
 		// instantiations of different predicates cannot subsume each other
 		if(! pi1.getPredicate().equals(pi2.getPredicate())) return false;
 		for(int i = 0; i < pi1.getBindings().length; i++) {

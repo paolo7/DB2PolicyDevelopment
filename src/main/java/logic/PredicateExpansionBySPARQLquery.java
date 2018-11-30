@@ -30,7 +30,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	
 	private Model additionalVocabularies;
 	
-	private boolean debugPrint = true;
+	private boolean debugPrint = false;
 	private boolean debugPrintOWLconsistencyChecks = false;
 	
 	private Map<Rule, Set<Map<String,RDFNode>>> inconsistentRuleApplications = new HashMap<Rule, Set<Map<String,RDFNode>>>();
@@ -92,11 +92,46 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	}
 
 	@Override
-	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates) {
-		return expand(existingPredicates,false);
+	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates) {
+		return expand(approach, existingPredicates,false);
 	}
 	
-	public Set<PredicateInstantiation> expand(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck) {
+	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck) {
+		if(approach == 0) return expandGPPG(existingPredicates, consistencyCheck);
+		else if (approach == 1) return expandCritical(existingPredicates, consistencyCheck);
+		throw new RuntimeException("ERROR, approach ID must be either 1 or 0");
+	}
+	
+	public Set<PredicateInstantiation> expandCritical(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck) {
+		Set<PredicateInstantiation> newPredicates = new HashSet<PredicateInstantiation>();
+		for(Rule r: rules) {
+			Model sandboxModel = RDFUtil.generateCriticalInstanceModel(existingPredicates,RDFprefixes,r);
+			sandboxModel.getNsPrefixMap().put("e", "http://example.com/");
+			sandboxModel.getNsPrefixMap().put("ex", "http://example.com/");
+			String SPARQLquery = RDFUtil.getSPARQLprefixes(sandboxModel)+"\n PREFIX e:   <http://example.com/> \n PREFIX ex:   <http://example.com/> \n"+r.getAntecedentSPARQL();
+			Query query = QueryFactory.create(SPARQLquery) ;
+			QueryExecution qe = QueryExecutionFactory.create(query, sandboxModel);
+		    ResultSet rs = qe.execSelect();
+		    while (rs.hasNext())
+			{
+		    	QuerySolution binding = rs.nextSolution();
+		    	Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
+		    	for(Iterator<String> i = binding.varNames(); i.hasNext();) {
+		    		String var =  i.next();
+		    		RDFNode value = binding.get(var);
+	    			if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI))
+		    				value = null;
+		    		bindingsMap.put(var, value);
+		    		}
+		    	Set<PredicateInstantiation> inferrablePredicates = null;
+		    	inferrablePredicates = r.applyRule(bindingsMap, knownPredicates, existingPredicates);
+		    	newPredicates.addAll(inferrablePredicates);
+			}
+		}
+		return newPredicates;
+	}
+	
+	public Set<PredicateInstantiation> expandGPPG(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck) {
 		statinconsistencycheck = 0;
 		statinconsistencycheckfound = 0;
 		statinconsistencycheckreused = 0;
@@ -189,7 +224,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		}
 		newPredicates.removeAll(existingPredicates);
 		
-		int removed = RDFUtil.filterRedundantPredicates(existingPredicates,newPredicates, false);
+		int removed = RDFUtil.filterRedundantPredicates(existingPredicates,newPredicates, false, false);
 		if(debugPrint) 
 			System.out.println("Filtered out "+removed+" redundant predicate instantiations.");
 		
@@ -210,7 +245,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
 		newKnownPredicates.addAll(existingPredicates);
 		newKnownPredicates.addAll(newPredicates);
-		newPredicates.addAll(expand(newKnownPredicates));
+		newPredicates.addAll(expandGPPG(newKnownPredicates,consistencyCheck));
 		
 		
 		return newPredicates;
