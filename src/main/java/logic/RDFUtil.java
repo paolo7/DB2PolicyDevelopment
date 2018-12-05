@@ -395,6 +395,8 @@ public class RDFUtil {
 		return constants;
 	}
 	
+	public static boolean excludePredicatesFromCriticalInstanceConstants = false;
+	
 	private static Set<String> gatherAllConstants(PredicateInstantiation pi){
 		Set<String> constants = new HashSet<String>();
 		// gather constants from the bindings
@@ -404,7 +406,7 @@ public class RDFUtil {
 		// gather constants from the triples of the predicate
 		for(ConversionTriple ct : pi.getPredicate().getRDFtranslation()) {
 			constants.add(getConstantFromBinding(ct.getSubject()));
-			constants.add(getConstantFromBinding(ct.getPredicate()));
+			if(!excludePredicatesFromCriticalInstanceConstants) constants.add(getConstantFromBinding(ct.getPredicate()));
 			constants.add(getConstantFromBinding(ct.getObject()));
 		}
 		return constants;

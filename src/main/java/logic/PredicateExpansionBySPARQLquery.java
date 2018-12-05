@@ -1,5 +1,6 @@
 package logic;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -93,18 +94,23 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 
 	@Override
 	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates) {
-		return expand(approach, existingPredicates,false);
+		return expand(approach, existingPredicates,false, null);
 	}
 	
-	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck) {
-		if(approach == 0) return expandGPPG(existingPredicates, consistencyCheck);
-		else if (approach == 1) return expandCritical(existingPredicates, consistencyCheck);
+	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, StatRecorder sr) {
+		return expand(approach, existingPredicates,false, sr);
+	}
+	
+	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
+		if(approach == 0) return expandGPPG(existingPredicates, consistencyCheck, sr);
+		else if (approach == 1) return expandCritical(existingPredicates, consistencyCheck, sr);
 		throw new RuntimeException("ERROR, approach ID must be either 1 or 0");
 	}
 	
-	public Set<PredicateInstantiation> expandCritical(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck) {
+	public Set<PredicateInstantiation> expandCritical(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
 		Set<PredicateInstantiation> newPredicates = new HashSet<PredicateInstantiation>();
 		for(Rule r: rules) {
+			long time1 = new Date().getTime();
 			Model sandboxModel = RDFUtil.generateCriticalInstanceModel(existingPredicates,RDFprefixes,r);
 			sandboxModel.getNsPrefixMap().put("e", "http://example.com/");
 			sandboxModel.getNsPrefixMap().put("ex", "http://example.com/");
@@ -127,11 +133,35 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    	inferrablePredicates = r.applyRule(bindingsMap, knownPredicates, existingPredicates);
 		    	newPredicates.addAll(inferrablePredicates);
 			}
+		    long time2 = new Date().getTime();
+		    if(sr != null) {
+		    	sr.avgTimeRuleApplication.add((double)time2-time1);
+		    }
 		}
+		newPredicates.removeAll(existingPredicates);
+		
+		int removed = RDFUtil.filterRedundantPredicates(existingPredicates,newPredicates, false, false);
+		if(debugPrint) 
+			System.out.println("Filtered out "+removed+" redundant predicate instantiations.");
+		
+		for(PredicateInstantiation pi : newPredicates) {
+			Predicate p = pi.getPredicate();
+			if(PredicateUtil.containsOne(p.getName(), p.getVarnum(), knownPredicates)) {
+				knownPredicates.add(p);
+			}
+
+		}
+		if(newPredicates.size() == 0) return newPredicates;
+		
+		Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
+		newKnownPredicates.addAll(existingPredicates);
+		newKnownPredicates.addAll(newPredicates);
+		newPredicates.addAll(expandGPPG(newKnownPredicates,consistencyCheck,sr));
+		
 		return newPredicates;
 	}
 	
-	public Set<PredicateInstantiation> expandGPPG(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck) {
+	public Set<PredicateInstantiation> expandGPPG(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
 		statinconsistencycheck = 0;
 		statinconsistencycheckfound = 0;
 		statinconsistencycheckreused = 0;
@@ -154,6 +184,8 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		// compute sandbox model for the Graph-Pattern evaluation over a Pattern-Constrained Graph (GPPG) 
 		Model sandboxModel = RDFUtil.generateGPPGSandboxModel(existingPredicates,RDFprefixes);
 		for(Rule r: rules) {
+			long time1 = new Date().getTime();
+		    if(sr != null) sandboxModel = RDFUtil.generateGPPGSandboxModel(existingPredicates,RDFprefixes);
 			rulesConsidered++;
 			// Perform GPPG
 			// Compute query expansion
@@ -221,6 +253,10 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    		}
 		    	}
 			}
+		    long time2 = new Date().getTime();
+		    if(sr != null) {
+		    	sr.avgTimeRuleApplication.add((double)time2-time1);
+		    }
 		}
 		newPredicates.removeAll(existingPredicates);
 		
@@ -245,7 +281,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
 		newKnownPredicates.addAll(existingPredicates);
 		newKnownPredicates.addAll(newPredicates);
-		newPredicates.addAll(expandGPPG(newKnownPredicates,consistencyCheck));
+		newPredicates.addAll(expandGPPG(newKnownPredicates,consistencyCheck,sr));
 		
 		
 		return newPredicates;
