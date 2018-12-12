@@ -13,39 +13,77 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 	public Set<Integer> getNoLitVariables(Binding[] bindings){
 		Set<Integer> noLitVars = new HashSet<Integer>();
 		if(this.getSubject().isVar()) {
-			Binding b = bindings[this.getSubject().getVar()];
-			if(b.isVar()) noLitVars.add(new Integer(b.getVar()));
+			Binding b = bindings[this.getSubject().getVar().getVarNum()];
+			if(b.isVar()) noLitVars.add(new Integer(b.getVar().getVarNum()));
 		}
 		if(this.getPredicate().isVar()) {
-			Binding b = bindings[this.getPredicate().getVar()];
-			if(b.isVar()) noLitVars.add(new Integer(b.getVar()));
+			Binding b = bindings[this.getPredicate().getVar().getVarNum()];
+			if(b.isVar()) noLitVars.add(new Integer(b.getVar().getVarNum()));
+		}
+		return noLitVars;
+	}
+	@Override
+	public Set<Integer> getNoLitVariables(){
+		Set<Integer> noLitVars = new HashSet<Integer>();
+		if(this.getSubject().isVar()) {
+			noLitVars.add(new Integer(this.getSubject().getVar().getVarNum()));
+		}
+		if(this.getPredicate().isVar()) {
+			noLitVars.add(new Integer(this.getPredicate().getVar().getVarNum()));
 		}
 		return noLitVars;
 	}
 	
 	@Override
 	public String toGPPGSPARQL(Binding[] bindings) {
+		return toGPPGSPARQL(0,null,bindings);
+	}
+	@Override
+	public String toGPPGSPARQL(int variant, Set<Integer> noLitVars, Binding[] bindings) {
 		String snippet = " {";
-		snippet += toGPPGSPARQL(bindings,false,false,false);
-		snippet += " UNION "+toGPPGSPARQL(bindings,true,false,false);
-		snippet += " UNION "+toGPPGSPARQL(bindings,false,true,false);
-		snippet += " UNION "+toGPPGSPARQL(bindings,false,false,true);
-		snippet += " UNION "+toGPPGSPARQL(bindings,true,true,false);
-		snippet += " UNION "+toGPPGSPARQL(bindings,true,false,true);
-		snippet += " UNION "+toGPPGSPARQL(bindings,false,true,true);
-		snippet += " UNION "+toGPPGSPARQL(bindings,true,true,true);
+		snippet += "       {"+toGPPGSPARQL(bindings,false,false,false) + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,true,false,false) + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,false,true,false) + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,false,false,true) + (variant == 1 ? getFilterMustBeURI(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,true,true,false) + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,true,false,true) + (variant == 1 ? getFilterMustBeURI(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,false,true,true) + (variant == 1 ? getFilterMustBeURI(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,true,true,true) + (variant == 1 ? getFilterMustBeURI(bindings) : "") + "}";
+		if(variant == 1) {
+			//only add extra literal lambdas if there is a variable in the object position which can be a literal
+			if(this.getObject().isVar() && bindings[this.getObject().getVar().getVarNum()].isVar()) {
+				if(!noLitVars.contains(new Integer(bindings[this.getObject().getVar().getVarNum()].getVar().getVarNum()))) {
+					snippet += " UNION {"+toGPPGSPARQL(1,bindings,false,false,true) + "}";
+					snippet += " UNION {"+toGPPGSPARQL(1,bindings,true,false,true) + "}";
+					snippet += " UNION {"+toGPPGSPARQL(1,bindings,false,true,true) + "}";
+					snippet += " UNION {"+toGPPGSPARQL(1,bindings,true,true,true) + "}";
+				}
+			}
+		}
 		return snippet+"}\n";
 	}
 	
+	private String getFilterMustBeURI(Binding[] bindings) {
+		
+		if(this.getObject().isVar()) {
+			Binding b = bindings[this.getObject().getVar().getVarNum()];
+			if(b.isVar()) return "FILTER isIRI(?v"+b.getVar().getVarNum()+")";
+		}
+		return "";
+	}
+	
 	public String toGPPGSPARQL(Binding[] bindings, boolean lambdaS, boolean lambdaP, boolean lambdaO) {
-		String snippet = " {";
+		return toGPPGSPARQL(0, bindings, lambdaS, lambdaP, lambdaO);
+	}
+	public String toGPPGSPARQL(int variant, Binding[] bindings, boolean lambdaS, boolean lambdaP, boolean lambdaO) {
+		String snippet = " ";
 		if (lambdaS) snippet += "<"+RDFUtil.LAMBDAURI+">";
 		else {
 			if(this.getSubject().isConstant()) snippet += this.getSubject().getConstant().getLexicalValue();
 			else {
-				Binding b = bindings[this.getSubject().getVar()];
+				Binding b = bindings[this.getSubject().getVar().getVarNum()];
 				if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
-				else snippet += "?v"+b.getVar();
+				else snippet += "?v"+b.getVar().getVarNum();
 			}
 		}
 		snippet += " ";
@@ -53,22 +91,25 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 		else {
 			if(this.getPredicate().isConstant()) snippet += this.getPredicate().getConstant().getLexicalValue();
 			else {
-				Binding b = bindings[this.getPredicate().getVar()];
+				Binding b = bindings[this.getPredicate().getVar().getVarNum()];
 				if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
-				else snippet += "?v"+b.getVar();
+				else snippet += "?v"+b.getVar().getVarNum();
 			}
 		}
 		snippet += " ";
-		if (lambdaO) snippet += "<"+RDFUtil.LAMBDAURI+">";
+		if (lambdaO) {
+			if(variant == 0) snippet += "<"+RDFUtil.LAMBDAURI+">";
+			else if(variant == 1) snippet += "<"+RDFUtil.LAMBDAURILit+">";
+		}
 		else {
 			if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValue();
 			else {
-				Binding b = bindings[this.getObject().getVar()];
+				Binding b = bindings[this.getObject().getVar().getVarNum()];
 				if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
-				else snippet += "?v"+b.getVar();
+				else snippet += "?v"+b.getVar().getVarNum();
 			}
 		}
-		return snippet+"}\n";
+		return snippet+"\n";
 	}
 	
 	
@@ -80,7 +121,7 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 	}
 	public Binding applyBindingHelper(Binding[] bindings, Binding binding) {
 		if(binding.isConstant()) return binding;
-		if(binding.getVar() < bindings.length) return bindings[binding.getVar()];
+		if(binding.getVar().getVarNum() < bindings.length) return bindings[binding.getVar().getVarNum()];
 		return binding;
 	}
 	
@@ -89,28 +130,28 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 	public String toSPARQL(Binding[] bindings, String freshVarPrefix) {
 		String snippet = "";
 		if(this.getSubject().isConstant()) snippet += this.getSubject().getConstant().getLexicalValue();
-		else if (this.getSubject().getVar() >= bindings.length) {
+		else if (this.getSubject().getVar().getVarNum() >= bindings.length) {
 			snippet += "?v"+this.getSubject().getVar()+freshVarPrefix;
 		} else {
-			Binding b = bindings[this.getSubject().getVar()];
+			Binding b = bindings[this.getSubject().getVar().getVarNum()];
 			if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
 			else snippet += "?v"+b.getVar();
 		}
 		snippet += " ";
 		if(this.getPredicate().isConstant()) snippet += this.getPredicate().getConstant().getLexicalValue();
-		else if (this.getPredicate().getVar() >= bindings.length) {
+		else if (this.getPredicate().getVar().getVarNum() >= bindings.length) {
 			snippet += "?v"+this.getPredicate().getVar()+freshVarPrefix;
 		} else {
-			Binding b = bindings[this.getPredicate().getVar()];
+			Binding b = bindings[this.getPredicate().getVar().getVarNum()];
 			if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
 			else snippet += "?v"+b.getVar();
 		}
 		snippet += " ";
 		if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValue();
-		else if (this.getObject().getVar() >= bindings.length) {
+		else if (this.getObject().getVar().getVarNum() >= bindings.length) {
 			snippet += "?v"+this.getObject().getVar()+freshVarPrefix;
 		} else {
-			Binding b = bindings[this.getObject().getVar()];
+			Binding b = bindings[this.getObject().getVar().getVarNum()];
 			if(b.isConstant()) {
 				if(b.getConstant().isLiteral() && RDFUtil.isNumericDatatypeIRI(((ResourceLiteral) b.getConstant()).getLiteralTypeIRI()))
 					snippet += b.getConstant().getLexicalValue();
@@ -148,34 +189,34 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 	public String toSPARQL_INSERT(Binding[] bindings, String baseNew) {
 		String snippet = "";
 		if(this.getSubject().isConstant()) snippet += this.getSubject().getConstant().getLexicalValueExpanded();
-		else if (this.getSubject().getVar() >= bindings.length) {
-			snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,this.getSubject().getVar());
+		else if (this.getSubject().getVar().getVarNum() >= bindings.length) {
+			snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,this.getSubject().getVar().getVarNum());
 		} else {
-			Binding b = bindings[this.getSubject().getVar()];
+			Binding b = bindings[this.getSubject().getVar().getVarNum()];
 			if(b.isConstant()) snippet += b.getConstant().getLexicalValueExpanded();
-			else snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,b.getVar());
+			else snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,b.getVar().getVarNum());
 		}
 		snippet += " ";
 		if(this.getPredicate().isConstant()) snippet += this.getPredicate().getConstant().getLexicalValueExpanded();
-		else if (this.getPredicate().getVar() >= bindings.length) {
-			snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,this.getPredicate().getVar());
+		else if (this.getPredicate().getVar().getVarNum() >= bindings.length) {
+			snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,this.getPredicate().getVar().getVarNum());
 		} else {
-			Binding b = bindings[this.getPredicate().getVar()];
+			Binding b = bindings[this.getPredicate().getVar().getVarNum()];
 			if(b.isConstant()) snippet += b.getConstant().getLexicalValueExpanded();
-			else snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,b.getVar());
+			else snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,b.getVar().getVarNum());
 		}
 		snippet += " ";
 		if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValueExpanded();
-		else if (this.getObject().getVar() >= bindings.length) {
-			snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,this.getObject().getVar());
+		else if (this.getObject().getVar().getVarNum() >= bindings.length) {
+			snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,this.getObject().getVar().getVarNum());
 		} else {
-			Binding b = bindings[this.getObject().getVar()];
+			Binding b = bindings[this.getObject().getVar().getVarNum()];
 			if(b.isConstant()) {
 				if(b.getConstant().isLiteral() && RDFUtil.isNumericDatatypeIRI(((ResourceLiteral) b.getConstant()).getLiteralTypeIRI()))
 					snippet += b.getConstant().getLexicalValue();
 				else snippet += b.getConstant().getLexicalValueExpanded();
 			}
-			else snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,b.getVar());
+			else snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,b.getVar().getVarNum());
 		}
 		return snippet;
 	}
@@ -199,7 +240,7 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 	
 	@Override
 	public String toString() {
-		return this.getSubject()+" "+this.getPredicate()+" "+this.getObject();
+		return this.getSubject().prettyPrint()+" "+this.getPredicate().prettyPrint()+" "+this.getObject().prettyPrint();
 	}
 	
 	@Override

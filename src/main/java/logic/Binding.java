@@ -4,6 +4,7 @@ public interface Binding {
 
 	public boolean isVar();
 	public boolean isConstant();
-	public int getVar();
+	public Variable getVar();
 	public Resource getConstant();
+	public String prettyPrint();
 }

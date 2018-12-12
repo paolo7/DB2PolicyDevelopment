@@ -1,5 +1,6 @@
 package logic;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class PredicateUtil {
@@ -49,4 +50,30 @@ public class PredicateUtil {
 		else
 			return false;
 	}
+	
+	public static boolean variableCanBeLiteralInPosition(Predicate p, int position) {
+		if(position < 0 || position >= p.getVarnum()) throw new RuntimeException("ERROR: wrong index for bindings");
+		for(ConversionTriple ct : p.getRDFtranslation()) {
+			if(ct.getNoLitVariables().contains(new Integer(position))) return false;
+		}
+		return true;
+	}
+	
+	public static Set<PredicateInstantiation> trimConsequences(Set<PredicateInstantiation> pis) {
+		Set<PredicateInstantiation> newPis = new HashSet<PredicateInstantiation>();
+		/*for(PredicateInstantiation pi : pis) {
+			pi.getAdditionalConstraints().clear();
+		}*/
+		for(PredicateInstantiation pi : pis) {
+			newPis.add(new PredicateInstantiationImpl(pi.getPredicate(), pi.getBindings()));
+		}
+		/*for(PredicateInstantiation p1 : newPis) {
+			for(PredicateInstantiation p2 : newPis) {
+				if(p1.equals(p2) && p1.hashCode() != p2.hashCode())
+					System.out.println(p1.equals(p2));
+			}
+		}*/
+		return newPis;
+	}
+	
 }

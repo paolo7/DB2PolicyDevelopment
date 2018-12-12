@@ -36,12 +36,13 @@ public class FileParserTest {
 		boolean evaluateDatabaseInstance = false;*/
 		
 		
-		String rulefile = System.getProperty("user.dir") + "/resources/rulesBasic01.txt";
-		String[] vocabularyFiles = new String[] {
+		String rulefile = System.getProperty("user.dir") + "/resources/rulesLiteral.txt";
+		String[] vocabularyFiles = new String[] {};
+		/*vocabularyFiles = new String[] {
 				System.getProperty("user.dir") + "/resources/vocabularies/SSN.ttl",
 				System.getProperty("user.dir") + "/resources/vocabularies/rdf.ttl",
 				System.getProperty("user.dir") + "/resources/vocabularies/rdfs.ttl"
-		};
+		};*/
 		boolean evaluateDatabaseInstance = false;
 		
 		
@@ -138,7 +139,7 @@ public class FileParserTest {
 		System.out.println("*************** APPLYING EXPANSION\n");
 		PredicateExpansion expansion = new PredicateExpansionBySPARQLquery(predicates, rules, additionalVocabularies);
 		expansion.setPrefixes(prefixes);
-		Set<PredicateInstantiation> newPredicates = expansion.expand(0,existingPredicates);
+		Set<PredicateInstantiation> newPredicates = expansion.expand(2,existingPredicates);
 		predicates = expansion.getPredicates();
 		
 		System.out.println("*************** INFERRED PREDICATES\n" + 

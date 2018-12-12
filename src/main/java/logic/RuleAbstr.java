@@ -46,9 +46,14 @@ public abstract class RuleAbstr implements Rule{
 	
 	@Override
 	public String getGPPGAntecedentSPARQL() {
+		return getGPPGAntecedentSPARQL(0);
+	}
+	
+	@Override
+	public String getGPPGAntecedentSPARQL(int variant) {
 		String SPARQL = "SELECT DISTINCT * WHERE {\n";
 		for(PredicateInstantiation ep : this.getAntecedent()) {
-			SPARQL += ep.toGPPGSPARQL();
+			SPARQL += ep.toGPPGSPARQL(variant);
 		}
 		return SPARQL + "}";
 	}

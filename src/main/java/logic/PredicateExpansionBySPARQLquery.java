@@ -104,6 +104,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
 		if(approach == 0) return expandGPPG(existingPredicates, consistencyCheck, sr);
 		else if (approach == 1) return expandCritical(existingPredicates, consistencyCheck, sr);
+		else if (approach == 2) return expandGPPG2(existingPredicates, consistencyCheck, sr);
 		throw new RuntimeException("ERROR, approach ID must be either 1 or 0");
 	}
 	
@@ -282,6 +283,134 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		newKnownPredicates.addAll(existingPredicates);
 		newKnownPredicates.addAll(newPredicates);
 		newPredicates.addAll(expandGPPG(newKnownPredicates,consistencyCheck,sr));
+		
+		
+		return newPredicates;
+	}
+
+	
+
+	public Set<PredicateInstantiation> expandGPPG2(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
+		statinconsistencycheck = 0;
+		statinconsistencycheckfound = 0;
+		statinconsistencycheckreused = 0;
+		overallConsistencyChecks = 0;
+		rulesConsidered = 0;
+		ruleApplicationConsidered = 0;
+		
+		if(debugPrint) System.out.println("*************** Expansion Iteration");
+		if(debugPrint) System.out.println("***************   Num. of known predicates "+knownPredicates.size()+"");
+		if(debugPrint) System.out.println("***************   Num. of rules "+rules.size()+"\n");
+		if(debugPrint) System.out.println("***************   Num. of available predicates "+existingPredicates.size()+"");
+		
+		Set<PredicateInstantiation> newPredicates = new HashSet<PredicateInstantiation>();
+		Model basicModel = null;
+		if(consistencyCheck) {
+			basicModel = RDFUtil.generateBasicModel(existingPredicates,RDFprefixes);
+			basicModel.add(additionalVocabularies);
+		}
+		
+		// compute sandbox model for the Graph-Pattern evaluation over a Pattern-Constrained Graph (GPPG) 
+		Model sandboxModel = RDFUtil.generateGPPGSandboxModel(1,existingPredicates,RDFprefixes);
+		for(Rule r: rules) {
+			long time1 = new Date().getTime();
+		    if(sr != null) sandboxModel = RDFUtil.generateGPPGSandboxModel(1,existingPredicates,RDFprefixes);
+			rulesConsidered++;
+			// Perform GPPG
+			// Compute query expansion
+			String SPARQLquery = RDFUtil.getSPARQLprefixes(sandboxModel)+r.getGPPGAntecedentSPARQL(1);
+			Set<Integer> varsNoLit = r.getNoLitVariables();
+			// Evaluate query over the sandbox graph
+			Query query = QueryFactory.create(SPARQLquery) ;
+			QueryExecution qe = QueryExecutionFactory.create(query, sandboxModel);
+		    ResultSet rs = qe.execSelect();
+		    while (rs.hasNext())
+			{
+		    	/*if(r.getConsequent().iterator().next().getName().get(0).toString().equals("xxaaxx")) {
+		    		System.out.println("xxaaxx");
+		    	}*/
+		    	QuerySolution binding = rs.nextSolution();
+		    	// the results of a GPPG evaluation, because of the Duplicate Empty Set assumption, might contain bindings without all the required variables
+		    	// these bindings can be ignored as they are semantic duplicates of other bindings that contain all the variables
+		    	boolean completeResultSet = true;
+		    	for(String var : query.getResultVars()) 
+		    		if (!binding.contains(var)) 
+		    			completeResultSet = false;
+		    	if(completeResultSet) {		
+		    		ruleApplicationConsidered++;
+		    		Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
+		    		// Perform delta filtering
+		    		boolean validBinding = true;
+		    		for(Iterator<String> i = binding.varNames(); i.hasNext();) {
+		    			String var =  i.next();
+		    			RDFNode value = binding.get(var);
+		    			if(value.isResource() && value.isAnon()) value = null;
+		    			if(value.isLiteral() || (value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURILit) )) {
+		    				// remove assignments from variables to literals if such variables are used in subj or pred position in the antecedent
+		    				if(varsNoLit.contains(new Integer(var.replaceFirst("v", ""))))
+		    					validBinding = false;
+		    			}
+		    			//else if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI))
+		    			//	value = null;
+		    			bindingsMap.put(var, value);
+		    		}
+		    		// just create an entry if it's not there, it contains no maps in the set
+		    		if(!inconsistentRuleApplications.containsKey(r))
+		    			inconsistentRuleApplications.put(r, new HashSet<Map<String,RDFNode>>());
+		    		Set<PredicateInstantiation> inferrablePredicates = null;
+		    		if(validBinding) {
+		    			if(consistencyCheck) {		    				
+		    				if(inconsistentRuleApplications.get(r).contains(bindingsMap)) {
+		    					if(debugPrintOWLconsistencyChecks) System.out.print("@");						
+		    					validBinding = false;
+		    					statinconsistencycheckreused++;
+		    				}
+		    			}
+		    			else {
+		    				inferrablePredicates = r.applyRule(bindingsMap, knownPredicates, existingPredicates);
+		    				if (consistencyCheck && !checkOWLconsistency(r,bindingsMap, basicModel, inferrablePredicates)) {
+		    					validBinding = false;
+		    					inconsistentRuleApplications.get(r).add(bindingsMap);
+		    					if(debugPrintOWLconsistencyChecks) System.out.print("#");
+		    					statinconsistencycheckfound++;
+		    					statinconsistencycheck++;
+		    				}
+		    			}
+		    		}
+		    		if(validBinding) {	
+		    			newPredicates.addAll(inferrablePredicates);
+		    		}
+		    	}
+			}
+		    long time2 = new Date().getTime();
+		    if(sr != null) {
+		    	sr.avgTimeRuleApplication.add((double)time2-time1);
+		    }
+		}
+		newPredicates = PredicateUtil.trimConsequences(newPredicates); 
+		newPredicates.removeAll(existingPredicates);
+		int removed = RDFUtil.filterRedundantPredicates(existingPredicates,newPredicates, false, false);
+		if(debugPrint) 
+			System.out.println("Filtered out "+removed+" redundant predicate instantiations.");
+		
+		for(PredicateInstantiation pi : newPredicates) {
+			Predicate p = pi.getPredicate();
+			if(PredicateUtil.containsOne(p.getName(), p.getVarnum(), knownPredicates)) {
+				knownPredicates.add(p);
+			}
+
+		}
+		
+		if(debugPrint) System.out.println("\n*************** **** Considered "+rulesConsidered+" rules, for a total of "+ruleApplicationConsidered+" combinations.");
+		if(debugPrint) System.out.println("*************** **** Consistency checks made "+overallConsistencyChecks);
+		if(debugPrint) System.out.println("*************** **** "+statinconsistencycheck+" OWL reasoning checks, of which "+statinconsistencycheckfound+" found an inconsistency. Previous results were reused "+statinconsistencycheckreused+" times.");
+		
+		
+		if(newPredicates.size() == 0) return newPredicates;
+		Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
+		newKnownPredicates.addAll(existingPredicates);
+		newKnownPredicates.addAll(newPredicates);
+		newPredicates.addAll(expandGPPG2(newKnownPredicates,consistencyCheck,sr));
 		
 		
 		return newPredicates;

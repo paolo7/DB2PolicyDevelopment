@@ -46,8 +46,10 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 		}
 		Predicate predicate = null;
 		if(PredicateUtil.containsOne(predicateName, bindings.length, predicates)) {
+			// reuse an existing predicate
 			predicate = PredicateUtil.get(predicateName, bindings.length, predicates);
 		} else {
+			// or create one, in this case this would be a predicate creation rule
 			Set<ConversionTriple> translationToRDF = new HashSet<ConversionTriple>();
 			Set<ConversionFilter> translationToRDFFilters = new HashSet<ConversionFilter>();
 			for(PredicateInstantiation pi: antecedent) {
@@ -68,7 +70,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 					} else {
 						int found = -1;
 						for(int i = 0; i < bindings.length; i++) {
-							if(bindings[i].isVar() && bindings[i].getVar() == tt.getVar())
+							if(bindings[i].isVar() && bindings[i].getVar().getVarNum() == tt.getVar())
 								found = i;
 						}
 						if(found != -1) textLabel.add(new TextTemplateImpl(found));
@@ -80,7 +82,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 			predicate = new PredicateImpl(predicateName, bindings.length, translationToRDF, translationToRDFFilters, textLabel);
 			predicates.add(predicate);
 		}
-		Binding[] newBindings = new Binding[bindings.length];
+		Binding[] newBindings = new Binding[bindings.length]; 
 		for(int i = 0; i < newBindings.length; i++) {
 			if(bindings[i].isVar()) {
 				// if the predicate template variables are not constant, check what they are bound to with this new binding
@@ -89,9 +91,14 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 					if(newBinding.isLiteral()) {
 						newBindings[i] = new BindingImpl(new ResourceLiteral(newBinding.asLiteral().getLexicalForm(), newBinding.asLiteral().getDatatypeURI()));
 					} else {
-						newBindings[i] = new BindingImpl(new ResourceURI(newBinding.asResource().getURI()));
+						if(newBinding.asResource().getURI().equals(RDFUtil.LAMBDAURILit)) {
+							// this variable matches any uri and literals, if a literal can be placed in this position, then this variable in the schema can be matched to any uri and literals
+							newBindings[i] = new BindingImpl(new VariableImpl(  bindings[i].getVar().getVarNum(), PredicateUtil.variableCanBeLiteralInPosition(predicate, i)  ));
+						} else if(newBinding.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {
+							newBindings[i] = new BindingImpl(new VariableImpl(  bindings[i].getVar().getVarNum(), false ));
+						} else newBindings[i] = new BindingImpl(new ResourceURI(newBinding.asResource().getURI()));
 					}
-				} else newBindings[i] = bindings[i];
+				} else throw new RuntimeException("ERROR, there should not be a mapping to a null or anon value.");//newBindings[i] = bindings[i];
 			} else {
 				newBindings[i] = bindings[i];
 			}
@@ -101,7 +108,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 		for(int i = 0; i < newBindings.length; i++) {
 			if(newBindings[i].isVar()) {
 				if(!shiftOrder.containsKey(newBindings[i])) {
-					shiftOrder.put(newBindings[i], new BindingImpl(order));
+					shiftOrder.put(newBindings[i], new BindingImpl(new VariableImpl(order,newBindings[i].getVar().areLiteralsAllowed())));
 					order++;
 				}
 				newBindings[i] = shiftOrder.get(newBindings[i]);

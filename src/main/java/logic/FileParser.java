@@ -189,7 +189,7 @@ public class FileParser {
 	    		if(! varNameMap.containsKey(t)) {					
 	    			varNameMap.put(t, varNameMap.size());
 	    		}
-	    		bindingList.add(new BindingImpl(varNameMap.get(t)));
+	    		bindingList.add(new BindingImpl(new VariableImpl(varNameMap.get(t))));
 	    	} else {
 	    		if(t.startsWith("\"") && t.endsWith("\""))
 	    			bindingList.add(new BindingImpl(new ResourceLiteral(t.substring(1, t.length()-1), XMLSchema.STRING) ));
@@ -202,14 +202,31 @@ public class FileParser {
 	    		//bindingList.add(new BindingImpl(new ResourceURI(t)));
 	    	}
 	    }
+	    
 	    Binding[] binding = new Binding[bindingList.size()];
+	    
+	    Predicate p = PredicateUtil.get(predicatename, bindingList.size(), predicates);
+	    
 	    for (int i=0; i < binding.length; i++)
 	    {
-	    	binding[i] = bindingList.get(i);
+	    	if(bindingList.get(i).isVar()) {
+	    		Variable v;
+	    		if(PredicateUtil.variableCanBeLiteralInPosition(p, i)) {
+	    			// literals allowed
+	    			v = new VariableImpl(bindingList.get(i).getVar().getVarNum(),true);
+	    		} else {
+	    			// literals not allowed
+	    			v = new VariableImpl(bindingList.get(i).getVar().getVarNum(),false);	    			
+	    		}
+	    		binding[i] = new BindingImpl(v);
+	    	} else {
+	    		binding[i] = bindingList.get(i);
+	    	}
 	    }
-	    Predicate p = PredicateUtil.get(predicatename, bindingList.size(), predicates);
 	    return new PredicateInstantiationImpl(p,binding);	    
 	}
+	
+	
 	
 	public static boolean isNumeric(String strNum) {
 	    try {
@@ -247,12 +264,13 @@ public class FileParser {
 	    }
 	    List<Binding> variablesID = new LinkedList<Binding>();
 	    for(String t : variableTokens) {
+	    	t = t.trim();
 	    	if(t.startsWith("?")) {
 	    		t = t.replaceFirst("\\?","").trim();
 	    		if(! varNameMap.containsKey(t)) {					
 	    			varNameMap.put(t, varNameMap.size());
 	    		}
-	    		variablesID.add(new BindingImpl(varNameMap.get(t).intValue()));	    		
+	    		variablesID.add(new BindingImpl(new VariableImpl(varNameMap.get(t).intValue())));	    		
 	    	}
 	    	else {
 	    		variablesID.add(new BindingImpl(new ResourceURI(t.trim())));
@@ -335,7 +353,7 @@ public class FileParser {
 							if(!varnamemap.containsKey(t)) {
 								throw new RuntimeException("ERROR: trying to parse a triple with variable '"+t+"' but this variable is not defined in the predicate signature.");
 							}
-							newBinding = new BindingImpl(varnamemap.get(t));
+							newBinding = new BindingImpl(new VariableImpl(varnamemap.get(t)));
 						}
 						else {
 							if(t.startsWith("\"") && t.endsWith("\""))

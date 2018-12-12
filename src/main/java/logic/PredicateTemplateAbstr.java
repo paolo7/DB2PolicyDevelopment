@@ -31,7 +31,7 @@ public abstract class PredicateTemplateAbstr implements PredicateTemplate{
 		for(int i = 0; i < this.getBindings().length; i++) {
 			if(first) first = false;
 			else s += ", ";
-			s += this.getBindings()[i].toString();
+			s += this.getBindings()[i].prettyPrint();
 		}
 		return s+")";
 	}

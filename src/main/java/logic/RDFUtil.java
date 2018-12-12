@@ -32,6 +32,7 @@ import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 public class RDFUtil {
 	
 	public static String LAMBDAURI = "http://w3id.org/prohow/GPPG#LAMBDA"+new java.util.Date().getTime();
+	public static String LAMBDAURILit = "http://w3id.org/prohow/GPPG#LAMBDA"+new java.util.Date().getTime()+"LIT";
 	public static LabelService labelService;
 	
 	private static final Model mInternalModel = ModelFactory.createDefaultModel(); 
@@ -59,38 +60,38 @@ public class RDFUtil {
 		Binding objP = ct.getPredicate();
 		Binding objO = ct.getObject();
 		if(newPredicateBindings != null) {
-			if(ct.getSubject().isVar() && objS.getVar() < newPredicateBindings.length) objS = newPredicateBindings[objS.getVar()];
-			if(ct.getPredicate().isVar() && objP.getVar() < newPredicateBindings.length) objP = newPredicateBindings[objP.getVar()];
-			if(ct.getObject().isVar() && objO.getVar() < newPredicateBindings.length) objO = newPredicateBindings[objO.getVar()];
+			if(ct.getSubject().isVar() && objS.getVar().getVarNum() < newPredicateBindings.length) objS = newPredicateBindings[objS.getVar().getVarNum()];
+			if(ct.getPredicate().isVar() && objP.getVar().getVarNum() < newPredicateBindings.length) objP = newPredicateBindings[objP.getVar().getVarNum()];
+			if(ct.getObject().isVar() && objO.getVar().getVarNum() < newPredicateBindings.length) objO = newPredicateBindings[objO.getVar().getVarNum()];
 		}
 		
 		// if element is variable mapped to constant		
-		if(objS.isVar() && objS.getVar() < psi.getBindings().length && psi.getBinding(objS.getVar()).isConstant()) {
-			if(!psi.getBinding(objS.getVar()).getConstant().isURI())
+		if(objS.isVar() && objS.getVar().getVarNum() < psi.getBindings().length && psi.getBinding(objS.getVar().getVarNum()).isConstant()) {
+			if(!psi.getBinding(objS.getVar().getVarNum()).getConstant().isURI())
 				throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
-			subject = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(objS.getVar()).getConstant().getLexicalValue()));
+			subject = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(objS.getVar().getVarNum()).getConstant().getLexicalValue()));
 		}
-		if(objP.isVar() && objP.getVar() < psi.getBindings().length && psi.getBinding(objP.getVar()).isConstant()) {
-			if(!psi.getBinding(objP.getVar()).getConstant().isURI())
+		if(objP.isVar() && objP.getVar().getVarNum() < psi.getBindings().length && psi.getBinding(objP.getVar().getVarNum()).isConstant()) {
+			if(!psi.getBinding(objP.getVar().getVarNum()).getConstant().isURI())
 				throw new RuntimeException("ERROR: the predicate of a triple cannot be a literal");
-			predicate = ResourceFactory.createProperty(model.expandPrefix(psi.getBinding(objP.getVar()).getConstant().getLexicalValue()));
+			predicate = ResourceFactory.createProperty(model.expandPrefix(psi.getBinding(objP.getVar().getVarNum()).getConstant().getLexicalValue()));
 		}
-		if(objO.isVar() && objO.getVar() < psi.getBindings().length && psi.getBinding(objO.getVar()).isConstant()) {
-			if(psi.getBinding(objO.getVar()).getConstant().isURI())
-				object = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(objO.getVar()).getConstant().getLexicalValue()));
+		if(objO.isVar() && objO.getVar().getVarNum() < psi.getBindings().length && psi.getBinding(objO.getVar().getVarNum()).isConstant()) {
+			if(psi.getBinding(objO.getVar().getVarNum()).getConstant().isURI())
+				object = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(objO.getVar().getVarNum()).getConstant().getLexicalValue()));
 			else
-				object = ResourceFactory.createPlainLiteral(psi.getBinding(objO.getVar()).getConstant().getLexicalValue());
+				object = ResourceFactory.createPlainLiteral(psi.getBinding(objO.getVar().getVarNum()).getConstant().getLexicalValue());
 		}
 		// if element is variable mapped to variable	
-		if(objS.isVar() && objS.getVar() < psi.getBindings().length && psi.getBinding(objS.getVar()).isVar()) {
-			if(bindingsMap.containsKey("v"+psi.getBinding(objS.getVar()).getVar())) {
-				RDFNode boundValue = bindingsMap.get("v"+psi.getBinding(objS.getVar()).getVar());
+		if(objS.isVar() && objS.getVar().getVarNum() < psi.getBindings().length && psi.getBinding(objS.getVar().getVarNum()).isVar()) {
+			if(bindingsMap.containsKey("v"+psi.getBinding(objS.getVar().getVarNum()).getVar().getVarNum())) {
+				RDFNode boundValue = bindingsMap.get("v"+psi.getBinding(objS.getVar().getVarNum()).getVar());
 				if(boundValue == null) {
 					RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getSubject().getVar()).getVar());
 					if(element != null && !element.isURIResource())
 						throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
 					if(element == null || element.asResource().getURI().equals(LAMBDAURI))
-						subject = model.createResource(new AnonId(LAMBDAURI+psi.getBinding(objS.getVar())));
+						subject = model.createResource(new AnonId(LAMBDAURI+psi.getBinding(objS.getVar().getVarNum())));
 					else
 						subject = element.asResource();					
 				} else {
@@ -98,8 +99,8 @@ public class RDFUtil {
 				}
 			}
 		}
-		if(objP.isVar() && objP.getVar() < psi.getBindings().length && psi.getBinding(objP.getVar()).isVar() ) {
-			RDFNode boundValue = bindingsMap.get("v"+psi.getBinding(objP.getVar()).getVar());
+		if(objP.isVar() && objP.getVar().getVarNum() < psi.getBindings().length && psi.getBinding(objP.getVar().getVarNum()).isVar() ) {
+			RDFNode boundValue = bindingsMap.get("v"+psi.getBinding(objP.getVar().getVarNum()).getVar());
 			if(boundValue == null) {
 				RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getPredicate().getVar()).getVar());
 				if(element != null && !element.isURIResource())
@@ -114,12 +115,12 @@ public class RDFUtil {
 				predicate = ResourceFactory.createProperty(boundValue.asResource().getURI());
 			}
 		}
-		if(objO.isVar() && objO.getVar() < psi.getBindings().length && psi.getBinding(objO.getVar()).isVar()) {
-			RDFNode boundValue = bindingsMap.get("v"+psi.getBinding(objO.getVar()).getVar());
+		if(objO.isVar() && objO.getVar().getVarNum() < psi.getBindings().length && psi.getBinding(objO.getVar().getVarNum()).isVar()) {
+			RDFNode boundValue = bindingsMap.get("v"+psi.getBinding(objO.getVar().getVarNum()).getVar());
 			if(boundValue == null) {
 				RDFNode element = null;//bindingsMap.get("v"+psi.getBinding(ct.getObject().getVar()).getVar());
 				if(element == null || element.isURIResource() && element.asResource().getURI().equals(LAMBDAURI))
-					object = model.createResource(new AnonId(LAMBDAURI+psi.getBinding(objO.getVar())));
+					object = model.createResource(new AnonId(LAMBDAURI+psi.getBinding(objO.getVar().getVarNum())));
 				else 
 					object = element;
 			} else {
@@ -215,21 +216,21 @@ public class RDFUtil {
 						object = ResourceFactory.createPlainLiteral(ct.getObject().getConstant().getLexicalValue());
 				}
 				// if element is variable mapped to constant	
-				if(ct.getSubject().isVar() && ct.getSubject().getVar() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar()).isConstant()) {
-					if(!psi.getBinding(ct.getSubject().getVar()).getConstant().isURI())
+				if(ct.getSubject().isVar() && ct.getSubject().getVar().getVarNum() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar().getVarNum()).isConstant()) {
+					if(!psi.getBinding(ct.getSubject().getVar().getVarNum()).getConstant().isURI())
 						throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
-					subject = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getSubject().getVar()).getConstant().getLexicalValue()));
+					subject = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getSubject().getVar().getVarNum()).getConstant().getLexicalValue()));
 				}
-				if(ct.getPredicate().isVar() && ct.getPredicate().getVar() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar()).isConstant()) {
-					if(!psi.getBinding(ct.getPredicate().getVar()).getConstant().isURI())
+				if(ct.getPredicate().isVar() && ct.getPredicate().getVar().getVarNum() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar().getVarNum()).isConstant()) {
+					if(!psi.getBinding(ct.getPredicate().getVar().getVarNum()).getConstant().isURI())
 						throw new RuntimeException("ERROR: the predicate of a triple cannot be a literal");
-					predicate = ResourceFactory.createProperty(model.expandPrefix(psi.getBinding(ct.getPredicate().getVar()).getConstant().getLexicalValue()));
+					predicate = ResourceFactory.createProperty(model.expandPrefix(psi.getBinding(ct.getPredicate().getVar().getVarNum()).getConstant().getLexicalValue()));
 				}
-				if(ct.getObject().isVar() && ct.getObject().getVar() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar()).isConstant()) {
-					if(psi.getBinding(ct.getObject().getVar()).getConstant().isURI())
-						object = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue()));
+				if(ct.getObject().isVar() && ct.getObject().getVar().getVarNum() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar().getVarNum()).isConstant()) {
+					if(psi.getBinding(ct.getObject().getVar().getVarNum()).getConstant().isURI())
+						object = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getObject().getVar().getVarNum()).getConstant().getLexicalValue()));
 					else
-						object = ResourceFactory.createPlainLiteral(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue());
+						object = ResourceFactory.createPlainLiteral(psi.getBinding(ct.getObject().getVar().getVarNum()).getConstant().getLexicalValue());
 				}
 				
 				Statement s = ResourceFactory.createStatement(subject, predicate, object);
@@ -280,21 +281,21 @@ public class RDFUtil {
 						object = ResourceFactory.createPlainLiteral(ct.getObject().getConstant().getLexicalValue());
 				}
 				
-				if(ct.getSubject().isVar() && ct.getSubject().getVar() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar()).isConstant()) {
-					if(!psi.getBinding(ct.getSubject().getVar()).getConstant().isURI())
+				if(ct.getSubject().isVar() && ct.getSubject().getVar().getVarNum() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar().getVarNum()).isConstant()) {
+					if(!psi.getBinding(ct.getSubject().getVar().getVarNum()).getConstant().isURI())
 						throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
-					subject = ResourceFactory.createResource(RDFUtil.expandPrefix(psi.getBinding(ct.getSubject().getVar()).getConstant().getLexicalValue()));
+					subject = ResourceFactory.createResource(RDFUtil.expandPrefix(psi.getBinding(ct.getSubject().getVar().getVarNum()).getConstant().getLexicalValue()));
 				}
-				if(ct.getPredicate().isVar() && ct.getPredicate().getVar() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar()).isConstant()) {
-					if(!psi.getBinding(ct.getPredicate().getVar()).getConstant().isURI())
+				if(ct.getPredicate().isVar() && ct.getPredicate().getVar().getVarNum() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar().getVarNum()).isConstant()) {
+					if(!psi.getBinding(ct.getPredicate().getVar().getVarNum()).getConstant().isURI())
 						throw new RuntimeException("ERROR: the predicate of a triple cannot be a literal");
-					predicate = ResourceFactory.createProperty(RDFUtil.expandPrefix(psi.getBinding(ct.getPredicate().getVar()).getConstant().getLexicalValue()));
+					predicate = ResourceFactory.createProperty(RDFUtil.expandPrefix(psi.getBinding(ct.getPredicate().getVar().getVarNum()).getConstant().getLexicalValue()));
 				}
-				if(ct.getObject().isVar() && ct.getObject().getVar() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar()).isConstant()) {
-					if(psi.getBinding(ct.getObject().getVar()).getConstant().isURI())
-						object = ResourceFactory.createResource(RDFUtil.expandPrefix(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue()));
+				if(ct.getObject().isVar() && ct.getObject().getVar().getVarNum() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar().getVarNum()).isConstant()) {
+					if(psi.getBinding(ct.getObject().getVar().getVarNum()).getConstant().isURI())
+						object = ResourceFactory.createResource(RDFUtil.expandPrefix(psi.getBinding(ct.getObject().getVar().getVarNum()).getConstant().getLexicalValue()));
 					else
-						object = ResourceFactory.createPlainLiteral(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue());
+						object = ResourceFactory.createPlainLiteral(psi.getBinding(ct.getObject().getVar().getVarNum()).getConstant().getLexicalValue());
 				}
 				
 				int variables = 0;
@@ -418,12 +419,23 @@ public class RDFUtil {
 	}
 	
 	public static Model generateGPPGSandboxModel(Set<PredicateInstantiation> predicates, Map<String,String> prefixes) {
+		return generateGPPGSandboxModel(0, predicates, prefixes);
+	}
+	/**
+	 * 
+	 * @param variant 0 for the original GPPG algorithm, 1 for the literal-augmented one
+	 * @param predicates
+	 * @param prefixes
+	 * @return
+	 */
+	public static Model generateGPPGSandboxModel(int variant, Set<PredicateInstantiation> predicates, Map<String,String> prefixes) {
 		Model model = ModelFactory.createDefaultModel();
 		for(String s: prefixes.keySet()) {
 			model.setNsPrefix(s,prefixes.get(s));
 		}
 		
 		Property lambda = ResourceFactory.createProperty(LAMBDAURI);
+		Property lambdaLit = ResourceFactory.createProperty(LAMBDAURILit);
 		//Resource lambda = ResourceFactory.createResource(LAMBDAURI);
 		
 		for(PredicateInstantiation psi: predicates) {
@@ -440,25 +452,35 @@ public class RDFUtil {
 						object = ResourceFactory.createPlainLiteral(ct.getObject().getConstant().getLexicalValue());
 				}
 				
-				if(ct.getSubject().isVar() && ct.getSubject().getVar() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar()).isConstant()) {
-					if(!psi.getBinding(ct.getSubject().getVar()).getConstant().isURI())
+				if(ct.getSubject().isVar() && ct.getSubject().getVar().getVarNum() < psi.getBindings().length && psi.getBinding(ct.getSubject().getVar().getVarNum()).isConstant()) {
+					if(!psi.getBinding(ct.getSubject().getVar().getVarNum()).getConstant().isURI())
 						throw new RuntimeException("ERROR: the subject of a triple cannot be a literal");
-					subject = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getSubject().getVar()).getConstant().getLexicalValue()));
+					subject = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getSubject().getVar().getVarNum()).getConstant().getLexicalValue()));
 				}
-				if(ct.getPredicate().isVar() && ct.getPredicate().getVar() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar()).isConstant()) {
-					if(!psi.getBinding(ct.getPredicate().getVar()).getConstant().isURI())
+				if(ct.getPredicate().isVar() && ct.getPredicate().getVar().getVarNum() < psi.getBindings().length && psi.getBinding(ct.getPredicate().getVar().getVarNum()).isConstant()) {
+					if(!psi.getBinding(ct.getPredicate().getVar().getVarNum()).getConstant().isURI())
 						throw new RuntimeException("ERROR: the predicate of a triple cannot be a literal");
-					predicate = ResourceFactory.createProperty(model.expandPrefix(psi.getBinding(ct.getPredicate().getVar()).getConstant().getLexicalValue()));
+					predicate = ResourceFactory.createProperty(model.expandPrefix(psi.getBinding(ct.getPredicate().getVar().getVarNum()).getConstant().getLexicalValue()));
 				}
-				if(ct.getObject().isVar() && ct.getObject().getVar() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar()).isConstant()) {
-					if(psi.getBinding(ct.getObject().getVar()).getConstant().isURI())
-						object = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue()));
+				if(ct.getObject().isVar() && ct.getObject().getVar().getVarNum() < psi.getBindings().length && psi.getBinding(ct.getObject().getVar().getVarNum()).isConstant()) {
+					if(psi.getBinding(ct.getObject().getVar().getVarNum()).getConstant().isURI())
+						object = ResourceFactory.createResource(model.expandPrefix(psi.getBinding(ct.getObject().getVar().getVarNum()).getConstant().getLexicalValue()));
 					else
-						object = ResourceFactory.createPlainLiteral(psi.getBinding(ct.getObject().getVar()).getConstant().getLexicalValue());
+						object = ResourceFactory.createPlainLiteral(psi.getBinding(ct.getObject().getVar().getVarNum()).getConstant().getLexicalValue());
 				}
 				
 				Statement s = ResourceFactory.createStatement(subject, predicate, object);
 				model.add(s);
+				if(variant == 1) {
+					if(object.equals(lambda)) {
+						// if it lambda we know that the object is a variable
+						if(psi.getBindings()[ct.getObject().getVar().getVarNum()].getVar().areLiteralsAllowed()) {
+							// if literals are allowed in the object, add the lambda-literal placeholder
+							model.add(ResourceFactory.createStatement(subject, predicate, lambdaLit));
+						}
+					}
+				}
+				
 			}
 		}
 		
@@ -686,18 +708,26 @@ public class RDFUtil {
 				//if(onlyConstraintRedundant) {
 					if(pi1.getAdditionalConstraints().size() < pi2.getAdditionalConstraints().size()) 
 						return pi1;
-					else 
+					else if(pi1.getAdditionalConstraints().size() > pi2.getAdditionalConstraints().size()) 
 						return pi2;
+					// remove one of the two, it doesn't matter which one as long as it is always the same one
+					if(pi1.toString().compareTo(pi2.toString()) < 0) 
+						return pi1;
+					else if(pi1.toString().compareTo(pi2.toString()) > 0) 
+						return pi2;
+					throw new RuntimeException("ERROR, two different predicates which appear to be identical");
+					
 				/*} else {
 					return null;
 				}*/
 			}
+		} else {			
+			if(onlyConstraintRedundant) return null;
+			if(isSubsumedBy(pi1,pi2, strict)) 
+				return pi1;
+			if(isSubsumedBy(pi2,pi1, strict)) 
+				return pi2;
 		}
-		if(onlyConstraintRedundant) return null;
-		if(isSubsumedBy(pi1,pi2, strict)) 
-			return pi1;
-		if(isSubsumedBy(pi2,pi1, strict)) 
-			return pi2;
 		return null;
 	}
 	public static boolean isSubsumedBy(PredicateInstantiation pi1, PredicateInstantiation pi2, boolean strict) {
@@ -705,9 +735,9 @@ public class RDFUtil {
 		if(! pi1.getPredicate().equals(pi2.getPredicate())) return false;
 		for(int i = 0; i < pi1.getBindings().length; i++) {
 			
-			if(pi1.getPredicate().getName().equals("GeometryInGeometry") && pi1.getBindings()[i].isConstant() && pi1.getBindings()[i].getConstant().isURI() && pi1.getBindings()[i].getConstant().getLexicalValueExpanded().equals("<http://example.com/COconcentration>")) {
+			/*if(pi1.getPredicate().getName().equals("GeometryInGeometry") && pi1.getBindings()[i].isConstant() && pi1.getBindings()[i].getConstant().isURI() && pi1.getBindings()[i].getConstant().getLexicalValueExpanded().equals("<http://example.com/COconcentration>")) {
 				System.out.println("");
-			}
+			}*/
 			
 			if(! varIsSubsumedBy(pi1.getBindings()[i], pi2.getBindings()[i], strict)) return false;
 		}
@@ -723,7 +753,15 @@ public class RDFUtil {
 			// different variables might result in different semantic interpretations
 			if(b1.isVar() && b2.isVar() && !b1.equals(b2)) return false;
 		} else {
-			if(b1.isVar() && b2.isVar()) return true;
+			if(b1.isVar() && b2.isVar()) {
+				// a variable that can only be a uri, or one that can also be a literal, 
+				// is subsumed by one that can be uri or literal
+				if(b2.getVar().areLiteralsAllowed()) return true;
+				// a var that can only be uri is subsumed by one that can only be uri
+				if(!b1.getVar().areLiteralsAllowed() && !b2.getVar().areLiteralsAllowed()) return true;
+				// a var which can be uri and literal is NOT subsumed by one that can only be uri
+				return false;
+			}
 		}
 		return false;
 	}

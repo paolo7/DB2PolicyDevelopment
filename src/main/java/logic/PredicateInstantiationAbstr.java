@@ -56,9 +56,14 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 	
 	@Override
 	public String toGPPGSPARQL() {
+		return toGPPGSPARQL(0);
+	}
+	
+	@Override
+	public String toGPPGSPARQL(int variant) {
 		String snippet = "";
 		if(this.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
-			snippet += ct.toGPPGSPARQL(this.getBindings())+" \n";
+			snippet += ct.toGPPGSPARQL(variant, getNoLitVariables(), this.getBindings())+" \n";
 		}
 		return snippet;
 	}
@@ -92,7 +97,7 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 		for(int i = 0; i < this.getPredicate().getVarnum(); i++) {
 			if(first) first = false;
 			else s += ", ";
-			s += this.getBindings()[i];
+			s += this.getBindings()[i].prettyPrint();
 		}
 		s += ")";
 		if(!getAdditionalConstraints().isEmpty()) {

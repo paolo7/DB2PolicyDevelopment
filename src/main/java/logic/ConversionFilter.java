@@ -57,7 +57,7 @@ public class ConversionFilter {
 						else snippet += b.getConstant().getLexicalValueExpanded();
 					}
 					else {
-						snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,b.getVar());
+						snippet += RDFUtil.getBlankNodeOrNewVarString(baseNew,b.getVar().getVarNum());
 					}
 				}
 			}

@@ -71,7 +71,7 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 			for(TextTemplate tt : cf.templates) {
 				if(tt.isText()) ttList.add(new TextTemplateImpl(tt.getText()));
 				else {
-					Binding b = readjustTo0(reBind(new BindingImpl(tt.getVar()),bindingsMap),bindingsMap, newSignatureBindings);
+					Binding b = readjustTo0(reBind(new BindingImpl(new VariableImpl(tt.getVar())),bindingsMap),bindingsMap, newSignatureBindings);
 					if(b.isConstant()) {
 						if(b.getConstant().isLiteral()) {
 							
@@ -79,7 +79,7 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 						}
 						if(b.getConstant().isURI()) ttList.add(new TextTemplateImpl("<"+b.getConstant().getLexicalValue()+">"));
 					}
-					else ttList.add(new TextTemplateImpl(b.getVar()));
+					else ttList.add(new TextTemplateImpl(b.getVar().getVarNum()));
 				}
 			}
 			newFilters.add(new ConversionFilter(ttList));
@@ -95,11 +95,11 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 			if(newSignatureBindings[i].isVar() && newSignatureBindings[i].getVar() == b.getVar() && bindingsMap.containsKey("v"+i))
 				found = i;
 		}
-		if(found != -1) return new BindingImpl(found);
+		if(found != -1) return new BindingImpl(new VariableImpl(found));
 		else {
 			if(b.isConstant()) return b;
 			else {
-				return new BindingImpl(b.getVar()+newSignatureBindings.length);
+				return new BindingImpl(new VariableImpl(b.getVar().getVarNum()+newSignatureBindings.length));
 			}
 			//throw new RuntimeException("ERROR: trying to instantiate a predicate, but there is a variable in the label that is not a variable of the predicate signature.");
 		}
@@ -108,7 +108,7 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 	private Binding reBind(Binding b, Map<String, RDFNode> bindingsMap) {
 		if(b.isConstant()) return b;
 		else {
-			Binding originalBinding = bindings[b.getVar()];
+			Binding originalBinding = bindings[b.getVar().getVarNum()];
 			if(originalBinding.isConstant()) return originalBinding;
 			else if(bindingsMap.containsKey("v"+originalBinding.getVar())) {				
 				RDFNode node = bindingsMap.get("v"+originalBinding.getVar());
