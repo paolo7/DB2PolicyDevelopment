@@ -43,13 +43,22 @@ public abstract class PredicateInstantiationAbstr implements PredicateInstantiat
 			if(b.isVar()) return true;
 		}
 		return false;
-	}
+	} 
 	
 	@Override
 	public Set<Integer> getNoLitVariables(){
 		Set<Integer> noLitVars = new HashSet<Integer>();
 		if(this.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
 			noLitVars.addAll(ct.getNoLitVariables(this.getBindings()));
+		}
+		return noLitVars;
+	}
+	
+	@Override
+	public Set<Integer> getVariables(){
+		Set<Integer> noLitVars = new HashSet<Integer>();
+		if(this.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: this.getPredicate().getRDFtranslation()) {
+			noLitVars.addAll(ct.getVariables(this.getBindings()));
 		}
 		return noLitVars;
 	}

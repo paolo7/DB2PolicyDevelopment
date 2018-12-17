@@ -756,9 +756,9 @@ public class RDFUtil {
 			if(b1.isVar() && b2.isVar()) {
 				// a variable that can only be a uri, or one that can also be a literal, 
 				// is subsumed by one that can be uri or literal
-				if(b2.getVar().areLiteralsAllowed()) return true;
+				if(!b2.getVar().isSimpleVar() && b2.getVar().areLiteralsAllowed()) return true;
 				// a var that can only be uri is subsumed by one that can only be uri
-				if(!b1.getVar().areLiteralsAllowed() && !b2.getVar().areLiteralsAllowed()) return true;
+				if(!b1.getVar().isSimpleVar() && !b1.getVar().areLiteralsAllowed() && !b2.getVar().isSimpleVar() && !b2.getVar().areLiteralsAllowed()) return true;
 				// a var which can be uri and literal is NOT subsumed by one that can only be uri
 				return false;
 			}

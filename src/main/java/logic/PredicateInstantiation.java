@@ -25,5 +25,6 @@ public interface PredicateInstantiation {
 	public Set<ConversionTriple> getAdditionalConstraints(Binding[] bindings);
 	public Set<ConversionTriple> getAdditionalConstraints();
 	public Set<Integer> getNoLitVariables();
+	public Set<Integer> getVariables();
 	public boolean compatible(PredicateInstantiation other, Map<String, RDFNode> bindingsMap);
 }

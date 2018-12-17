@@ -79,7 +79,6 @@ public class RuleImpl extends RuleAbstr{
 			if(RDFUtil.ignoreConstraints) constraints = new HashSet<ConversionTriple>();
 			newpredicates.add(pt.applyRule(bindingsMap, predicates, label, antecedent, constraints));
 		}
-		
 		return newpredicates;
 	}
 

@@ -23,5 +23,6 @@ public interface ConversionTriple {
 	 * @return
 	 */
 	public Set<Integer> getNoLitVariables(Binding[] bindings);
+	public Set<Integer> getVariables(Binding[] bindings);
 	public ConversionTriple applyBinding(Binding[] bindings);
 }

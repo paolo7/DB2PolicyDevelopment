@@ -126,8 +126,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    	for(Iterator<String> i = binding.varNames(); i.hasNext();) {
 		    		String var =  i.next();
 		    		RDFNode value = binding.get(var);
-	    			if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI))
-		    				value = null;
+	    			if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {	    				
+	    				//value = null;
+	    			}
 		    		bindingsMap.put(var, value);
 		    		}
 		    	Set<PredicateInstantiation> inferrablePredicates = null;
@@ -222,8 +223,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    				if(varsNoLit.contains(new Integer(var.replaceFirst("v", ""))))
 		    					validBinding = false;
 		    			}
-		    			else if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI))
-		    				value = null;
+		    			else if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {
+		    				//value = null;
+		    			}
 		    			bindingsMap.put(var, value);
 		    		}
 		    		// just create an entry if it's not there, it contains no maps in the set
@@ -333,8 +335,8 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    	// the results of a GPPG evaluation, because of the Duplicate Empty Set assumption, might contain bindings without all the required variables
 		    	// these bindings can be ignored as they are semantic duplicates of other bindings that contain all the variables
 		    	boolean completeResultSet = true;
-		    	for(String var : query.getResultVars()) 
-		    		if (!binding.contains(var)) 
+		    	for(Integer var : r.getAllVariables()) 
+		    		if (!binding.contains("?v"+var)) 
 		    			completeResultSet = false;
 		    	if(completeResultSet) {		
 		    		ruleApplicationConsidered++;

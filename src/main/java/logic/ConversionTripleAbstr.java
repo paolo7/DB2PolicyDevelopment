@@ -23,6 +23,23 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 		return noLitVars;
 	}
 	@Override
+	public Set<Integer> getVariables(Binding[] bindings){
+		Set<Integer> vars = new HashSet<Integer>();
+		if(this.getSubject().isVar()) {
+			Binding b = bindings[this.getSubject().getVar().getVarNum()];
+			if(b.isVar()) vars.add(new Integer(b.getVar().getVarNum()));
+		}
+		if(this.getPredicate().isVar()) {
+			Binding b = bindings[this.getPredicate().getVar().getVarNum()];
+			if(b.isVar()) vars.add(new Integer(b.getVar().getVarNum()));
+		}
+		if(this.getObject().isVar()) {
+			Binding b = bindings[this.getObject().getVar().getVarNum()];
+			if(b.isVar()) vars.add(new Integer(b.getVar().getVarNum()));
+		}
+		return vars;
+	}
+	@Override
 	public Set<Integer> getNoLitVariables(){
 		Set<Integer> noLitVars = new HashSet<Integer>();
 		if(this.getSubject().isVar()) {
@@ -41,14 +58,14 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 	@Override
 	public String toGPPGSPARQL(int variant, Set<Integer> noLitVars, Binding[] bindings) {
 		String snippet = " {";
-		snippet += "       {"+toGPPGSPARQL(bindings,false,false,false) + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,true,false,false) + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,false,true,false) + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,false,false,true) + (variant == 1 ? getFilterMustBeURI(bindings) : "") + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,true,true,false) + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,true,false,true) + (variant == 1 ? getFilterMustBeURI(bindings) : "") + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,false,true,true) + (variant == 1 ? getFilterMustBeURI(bindings) : "") + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,true,true,true) + (variant == 1 ? getFilterMustBeURI(bindings) : "") + "}";
+		snippet += "       {"+toGPPGSPARQL(bindings,false,false,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,true,false,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,false,true,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,false,false,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,true,true,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,true,false,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,false,true,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,true,true,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}";
 		if(variant == 1) {
 			//only add extra literal lambdas if there is a variable in the object position which can be a literal
 			if(this.getObject().isVar() && bindings[this.getObject().getVar().getVarNum()].isVar()) {
@@ -61,6 +78,24 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 			}
 		}
 		return snippet+"}\n";
+	}
+
+	private String getFilterMustBeURI2(Binding[] bindings) {
+		
+		if(this.getObject().isVar()) {
+			Binding b = bindings[this.getObject().getVar().getVarNum()];
+			if(b.isVar()) return " BIND (<"+RDFUtil.LAMBDAURI+"> AS ?Rv"+b.getVar().getVarNum()+") "+
+					" FILTER isIRI( IF( bound(?v"+b.getVar().getVarNum()+"), ?v"+b.getVar().getVarNum()+", <"+RDFUtil.LAMBDAURI+">) ) ";
+		}
+		return "";
+	}
+	private String getFilterMustBeURI3(Binding[] bindings) {
+		
+		if(this.getObject().isVar()) {
+			Binding b = bindings[this.getObject().getVar().getVarNum()];
+			if(b.isVar()) return " FILTER (!bound (?Rv"+b.getVar().getVarNum()+"))";
+		}
+		return "";
 	}
 	
 	private String getFilterMustBeURI(Binding[] bindings) {

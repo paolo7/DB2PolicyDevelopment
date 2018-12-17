@@ -45,13 +45,31 @@ public abstract class RuleAbstr implements Rule{
 	}
 	
 	@Override
+	public Set<Integer> getAllVariables(){
+		Set<Integer> noLitVars = new HashSet<Integer>();
+		for(PredicateInstantiation ep : this.getAntecedent()) {
+			noLitVars.addAll(ep.getVariables());
+		}
+		return noLitVars;
+	}
+	
+	@Override
 	public String getGPPGAntecedentSPARQL() {
 		return getGPPGAntecedentSPARQL(0);
 	}
 	
 	@Override
 	public String getGPPGAntecedentSPARQL(int variant) {
-		String SPARQL = "SELECT DISTINCT * WHERE {\n";
+		Set<Integer> vars = this.getAllVariables();
+		String SPARQL = "SELECT DISTINCT *";
+		/*boolean first = true;
+		for(Integer i : vars) {
+			//if(!first)SPARQL += ", ";
+			SPARQL += "?v"+i;
+			first = false;
+		}
+		if(vars.size() == 0 ) SPARQL += " * ";*/
+		SPARQL = SPARQL + " WHERE {\n";
 		for(PredicateInstantiation ep : this.getAntecedent()) {
 			SPARQL += ep.toGPPGSPARQL(variant);
 		}
