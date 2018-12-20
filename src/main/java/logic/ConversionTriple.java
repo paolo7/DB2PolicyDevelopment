@@ -4,6 +4,7 @@ import java.util.Set;
 
 public interface ConversionTriple {
 
+	public Binding get(int i);
 	public Binding getSubject();
 	public Binding getPredicate();
 	public Binding getObject();

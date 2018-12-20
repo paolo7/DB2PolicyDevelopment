@@ -10,6 +10,13 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 
 	
 	@Override
+	public Binding get(int i) {
+		if (i == 0) return getSubject();
+		else if (i == 1) return getPredicate();
+		else if (i == 2) return getObject();
+		else throw new RuntimeException("ERROR: "+i+" is not a valid index of a triple.");
+	}
+	@Override
 	public Set<Integer> getNoLitVariables(Binding[] bindings){
 		Set<Integer> noLitVars = new HashSet<Integer>();
 		if(this.getSubject().isVar()) {

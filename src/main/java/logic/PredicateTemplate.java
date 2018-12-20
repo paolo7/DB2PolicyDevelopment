@@ -13,5 +13,7 @@ public interface PredicateTemplate {
 	public Binding[] getBindings();
 	
 	public PredicateInstantiation applyRule(Map<String, RDFNode> bindingsMap, Set<Predicate> predicates, List<TextTemplate> label, Set<PredicateInstantiation> antecedent, Set<ConversionTriple> constraints);
-	 
+	
+	public PredicateInstantiation applyRule(Map<String, RDFNode> bindingsMap, Set<Integer> deltas, Set<Predicate> predicates, List<TextTemplate> label, Set<PredicateInstantiation> antecedent, Set<ConversionTriple> constraints);
+	
 }

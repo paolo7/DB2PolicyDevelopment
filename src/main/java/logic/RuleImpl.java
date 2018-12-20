@@ -82,5 +82,14 @@ public class RuleImpl extends RuleAbstr{
 		return newpredicates;
 	}
 
+	@Override
+	public Set<PredicateInstantiation> applyRule(Map<String, RDFNode> bindingsMap, Set<Integer> deltas, Set<Predicate> predicates, Set<PredicateInstantiation> existingPredicates) {
+		Set<PredicateInstantiation> newpredicates = new HashSet<PredicateInstantiation>();
+		for(PredicateTemplate pt: consequent) {
+			Set<ConversionTriple> constraints = computeConstraints(bindingsMap, predicates, pt.getBindings());
+			newpredicates.add(pt.applyRule(bindingsMap, deltas, predicates, label, antecedent, constraints));
+		}
+		return newpredicates;
+	}
 	
 }

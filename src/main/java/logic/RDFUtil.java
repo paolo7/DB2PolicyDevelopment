@@ -10,6 +10,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.jena.graph.BlankNodeId;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.AnonId;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
@@ -765,5 +766,73 @@ public class RDFUtil {
 		}
 		return false;
 	}
+	
+	public static ConversionTriple applyMapping(ConversionTriple ct, QuerySolution mapping) {
+		return new ConversionTripleImpl(applyMappingOnBinding(ct.getSubject(), mapping), 
+				applyMappingOnBinding(ct.getPredicate(), mapping), 
+				applyMappingOnBinding(ct.getObject(), mapping));
+	}
+	
+	private static Binding applyMappingOnBinding(Binding b, QuerySolution mapping) {
+		if(b.isConstant()) return b;
+		else {
+			if(mapping.contains("?v"+b.getVar().getVarNum())) {
+				RDFNode newVal = mapping.get("?v"+b.getVar().getVarNum());
+				logic.Resource res;
+				if(newVal.isLiteral()) {
+					res = new ResourceLiteral(newVal.asLiteral().getLexicalForm(), newVal.asLiteral().getDatatypeURI());
+				} else if (newVal.isURIResource()) {
+					res = new ResourceURI(newVal.asResource().getURI());
+				} else throw new RuntimeException("ERROR, cannot handle here bindings to anything but literals and uris.");
+				return new BindingImpl(res);
+			}
+		}
+		return b;
+	}
+	
+	public static Set<ConversionTriple> getModellingSchemaTriples(Set<PredicateInstantiation> schema, ConversionTriple mtq) {
+		Set<ConversionTriple> matched = new HashSet<ConversionTriple>();
+		for(PredicateInstantiation pi: schema) {
+			for(ConversionTriple ct: pi.getPredicate().getRDFtranslation()) {
+				ConversionTriple schemaTriple = ct.applyBinding(pi.getBindings());
+				boolean isModelled = true;
+				for(int i = 0; i< 3; i++) {
+					Binding schemaElement = schemaTriple.get(i);
+					Binding tripleElement = mtq.get(i);
+					isModelled = isModelled && isModelledBy(tripleElement, schemaElement);
+				}
+				if(isModelled) {
+					matched.add(schemaTriple);
+				}
+			}
+		}
+		return matched;
+	}
+
+	/**
+	 * Return whether b1, element of a triple, is modelled by b2, element of a triple pattern
+	 * @param b1
+	 * @param b2
+	 * @param strict
+	 * @return
+	 */
+	public static boolean isModelledBy(Binding b1, Binding b2) {
+	if(b1.isVar()) throw new RuntimeException("ERROR, a variable is not a valid element of a triple.");
+	// if they are the same, the first one subsumes the other
+	if(b1.equals(b2)) return true;
+	// a constant is subsumed by a variable
+	if(b1.isConstant() && b2.isVar()) {
+		if(b1.getConstant().isURI()) return true;
+		else {
+			if(b2.getVar().isSimpleVar() || !b2.getVar().areLiteralsAllowed()) {
+				// no literals allowed, so this variable cannot model the literal
+				return false;
+				// otherwise it can model literals, so return true
+			} return true;
+		}
+	}
+	// if they are different constants then b2 cannot model b1
+	return false;
+}
 	
 }

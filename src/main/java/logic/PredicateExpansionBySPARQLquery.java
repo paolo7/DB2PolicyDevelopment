@@ -101,10 +101,23 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		return expand(approach, existingPredicates,false, sr);
 	}
 	
+	/**
+	 * Approach
+	 * 0 for the orginal GPPG
+	 * 1 for original chase
+	 * 2 for GPPG2, GPPG variant with double lambdas
+	 * 3 for original GPPG with smart filtering
+	 * @param approach
+	 * @param existingPredicates
+	 * @param consistencyCheck
+	 * @param sr
+	 * @return
+	 */
 	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
 		if(approach == 0) return expandGPPG(existingPredicates, consistencyCheck, sr);
 		else if (approach == 1) return expandCritical(existingPredicates, consistencyCheck, sr);
 		else if (approach == 2) return expandGPPG2(existingPredicates, consistencyCheck, sr);
+		else if (approach == 3) return expandGPPGwithFilters(existingPredicates, consistencyCheck, sr);
 		throw new RuntimeException("ERROR, approach ID must be either 1 or 0");
 	}
 	
@@ -206,8 +219,8 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    	// the results of a GPPG evaluation, because of the Duplicate Empty Set assumption, might contain bindings without all the required variables
 		    	// these bindings can be ignored as they are semantic duplicates of other bindings that contain all the variables
 		    	boolean completeResultSet = true;
-		    	for(String var : query.getResultVars()) 
-		    		if (!binding.contains(var)) 
+		    	for(Integer var : r.getAllVariables()) 
+		    		if (!binding.contains("?v"+var)) 
 		    			completeResultSet = false;
 		    	if(completeResultSet) {		
 		    		ruleApplicationConsidered++;
@@ -290,7 +303,210 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		return newPredicates;
 	}
 
+	private Set<ConversionTriple> getAllRewritings(ConversionTriple ct, PredicateInstantiation pi) {
+		Set<ConversionTriple> rewritings = new HashSet<ConversionTriple>();
+		Binding subject = ct.getSubject();
+		Binding predicate = ct.getPredicate();
+		Binding object = ct.getObject();
+		if(subject.isVar()) subject = pi.getBindings()[subject.getVar().getVarNum()];
+		if(predicate.isVar()) predicate = pi.getBindings()[predicate.getVar().getVarNum()];
+		if(object.isVar()) object = pi.getBindings()[object.getVar().getVarNum()];
+		Binding lambda = new BindingImpl(new ResourceURI(RDFUtil.LAMBDAURI));
+		rewritings.add(new ConversionTripleImpl(subject, predicate, object));
+		rewritings.add(new ConversionTripleImpl(lambda, predicate, object));
+		rewritings.add(new ConversionTripleImpl(subject, lambda, object));
+		rewritings.add(new ConversionTripleImpl(subject, predicate, lambda));
+		rewritings.add(new ConversionTripleImpl(lambda, lambda, object));
+		rewritings.add(new ConversionTripleImpl(lambda, predicate, lambda));
+		rewritings.add(new ConversionTripleImpl(subject, lambda, lambda));
+		rewritings.add(new ConversionTripleImpl(lambda, lambda, lambda));
+		return rewritings;
+	}
 	
+	public Set<Integer> filterBinding(QuerySolution mapping, Rule r, Set<PredicateInstantiation> schema){
+		Set<Integer> newDeltas = new HashSet<Integer>();
+		Map<Variable, Boolean> conditionMet = new HashMap<Variable, Boolean>();
+
+		// Check 1: remove mapping if it does not contain bindings for all variables
+		for(Integer v : r.getAllVariables()) 
+    		if (!mapping.contains("?v"+v)) 
+    			return null;
+		
+		// Check 2: if v goes to literal, check that it does not occur in subject or predicate position in the consequent
+		// otherwise it would generate an invalid triple pattern
+		for(Integer v : r.getAllVariables()) {
+			RDFNode mv = mapping.get("?v"+v);
+			if(mv.isLiteral()) {
+				for(PredicateTemplate pt : r.getConsequent()) {
+					for(ConversionTriple ct : PredicateUtil.get(pt,knownPredicates).getRDFtranslation()){
+						ConversionTriple ct_consequent = ct.applyBinding(pt.getBindings());
+						if(ct_consequent.getSubject().isVar() && ct_consequent.getSubject().getVar().getVarNum() == v) {
+							return null;
+						}
+						if(ct_consequent.getPredicate().isVar() && ct_consequent.getPredicate().getVar().getVarNum() == v) {
+							return null;
+						}
+					}
+				}
+			}
+		}
+		
+		// All variables occurring in the subject and predicate position of the consequent are automatically in delta
+		for(PredicateTemplate pt : r.getConsequent()) {
+			for(ConversionTriple ct : PredicateUtil.get(pt,knownPredicates).getRDFtranslation()){
+				ConversionTriple ct_consequent = ct.applyBinding(pt.getBindings());
+				if(ct_consequent.getSubject().isVar()) newDeltas.add(ct_consequent.getSubject().getVar().getVarNum());
+				if(ct_consequent.getPredicate().isVar()) newDeltas.add(ct_consequent.getPredicate().getVar().getVarNum());
+			}
+		}
+		
+		
+		// Check 3: verify condition
+		// take all the triples tq in A with v in position i
+		for(PredicateInstantiation pi: r.getAntecedent()) {
+			for(ConversionTriple ct : pi.getPredicate().getRDFtranslation()) {
+				for(int i = 0; i < 3; i++) {
+					Binding b = ct.applyBinding(pi.getBindings()).get(i);
+					if(b.isVar()) {
+						boolean oneRewritingFound = false;
+						for(ConversionTriple tq: getAllRewritings(ct,pi)) {
+								Variable v = b.getVar();
+								if(v.getVarNum() != b.getVar().getVarNum()) throw new RuntimeException("ERROR: the rewriting of a query triple should not contain a new variable.");
+								ConversionTriple mtq = RDFUtil.applyMapping(tq, mapping);
+								Set<ConversionTriple> matchedSchemaTriples = RDFUtil.getModellingSchemaTriples(schema, mtq);
+								if(!conditionMet.containsKey(v)) conditionMet.put(v, Boolean.TRUE);
+								for(ConversionTriple ts: matchedSchemaTriples) {
+									oneRewritingFound = true;
+									if(ts.get(i).isVar() && 
+											( !ts.get(i).getVar().isSimpleVar() && ts.get(i).getVar().areLiteralsAllowed())) {
+										conditionMet.put(v, Boolean.FALSE);
+									}
+								}
+						}
+						if(!oneRewritingFound) throw new RuntimeException("ERROR, there should be at least one matching schema triples, or the mapping could not have been generated.");
+						RDFNode value = mapping.get("?v"+b.getVar().getVarNum());
+						if(value.isLiteral()) {
+							// the variable is mapped to a literal
+							
+							if(!conditionMet.get(b.getVar()) && i == 2) {
+								// CASE 1: condition not met, and variable occurs in the object position
+								// 	nothing to do, this variable can be matched to the literal
+							} else {
+								// CASE 2: condition met, or variable occurring in subject or predicate position
+								// 	ignore this mapping, as it can't be matched to literals
+								return null;
+							}
+							
+						} else if(value.isURIResource() && value.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {
+							// the variable is mapped to lambda
+							
+							if(!conditionMet.get(b.getVar()) && i == 2) {
+								// CASE 1: condition not met, and variable occurs in the object position
+								// 	nothing to do, this variable can be matched to literals
+							} else {
+								// CASE 2: condition met, or variable occurring in subject or predicate position
+								// 	add the variable to the delta, as it can't be matched to literals
+								newDeltas.add(new Integer(b.getVar().getVarNum()));
+							}
+						}
+					}
+				}
+			}
+		}
+		return newDeltas;
+	}
+	
+	public Set<PredicateInstantiation> expandGPPGwithFilters(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
+		statinconsistencycheck = 0;
+		statinconsistencycheckfound = 0;
+		statinconsistencycheckreused = 0;
+		overallConsistencyChecks = 0;
+		rulesConsidered = 0;
+		ruleApplicationConsidered = 0;
+		
+		if(debugPrint) System.out.println("*************** Expansion Iteration");
+		if(debugPrint) System.out.println("***************   Num. of known predicates "+knownPredicates.size()+"");
+		if(debugPrint) System.out.println("***************   Num. of rules "+rules.size()+"\n");
+		if(debugPrint) System.out.println("***************   Num. of available predicates "+existingPredicates.size()+"");
+		
+		Set<PredicateInstantiation> newPredicates = new HashSet<PredicateInstantiation>();
+		Model basicModel = null;
+		if(consistencyCheck) {
+			basicModel = RDFUtil.generateBasicModel(existingPredicates,RDFprefixes);
+			basicModel.add(additionalVocabularies);
+		}
+		
+		// compute sandbox model for the Graph-Pattern evaluation over a Pattern-Constrained Graph (GPPG) 
+		Model sandboxModel = RDFUtil.generateGPPGSandboxModel(existingPredicates,RDFprefixes);
+		for(Rule r: rules) {
+			long time1 = new Date().getTime();
+		    if(sr != null) sandboxModel = RDFUtil.generateGPPGSandboxModel(existingPredicates,RDFprefixes);
+			rulesConsidered++;
+			// Perform GPPG
+			// Compute query expansion
+			String SPARQLquery = RDFUtil.getSPARQLprefixes(sandboxModel)+r.getGPPGAntecedentSPARQL();
+			Set<Integer> varsNoLit = r.getNoLitVariables();
+			// Evaluate query over the sandbox graph
+			Query query = QueryFactory.create(SPARQLquery) ;
+			QueryExecution qe = QueryExecutionFactory.create(query, sandboxModel);
+		    ResultSet rs = qe.execSelect();
+		    while (rs.hasNext())
+			{
+		    	QuerySolution binding = rs.nextSolution();
+		    	
+		    	Set<Integer> newDeltas = filterBinding(binding, r, existingPredicates);
+		    	
+		    	if(newDeltas != null) {
+		    		
+		    		Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
+		    		for(Iterator<String> i = binding.varNames(); i.hasNext();) {
+		    			String var =  i.next();
+		    			RDFNode value = binding.get(var);
+		    			if(value.isLiteral() || (value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURILit) )) {
+		    				// do not add mappings to literals
+		    			} else {
+		    				bindingsMap.put(var, value);
+		    			}
+		    		}	
+		    		Set<PredicateInstantiation> inferrablePredicates = r.applyRule(bindingsMap, newDeltas, knownPredicates, existingPredicates);
+		    		newPredicates.addAll(inferrablePredicates);
+		    	}
+			}
+		    long time2 = new Date().getTime();
+		    if(sr != null) {
+		    	sr.avgTimeRuleApplication.add((double)time2-time1);
+		    }
+		}
+		newPredicates.removeAll(existingPredicates);
+		
+		int removed = RDFUtil.filterRedundantPredicates(existingPredicates,newPredicates, false, false);
+		if(debugPrint) 
+			System.out.println("Filtered out "+removed+" redundant predicate instantiations.");
+		
+		for(PredicateInstantiation pi : newPredicates) {
+			Predicate p = pi.getPredicate();
+			if(PredicateUtil.containsOne(p.getName(), p.getVarnum(), knownPredicates)) {
+				knownPredicates.add(p);
+			}
+
+		}
+		
+		if(debugPrint) System.out.println("\n*************** **** Considered "+rulesConsidered+" rules, for a total of "+ruleApplicationConsidered+" combinations.");
+		if(debugPrint) System.out.println("*************** **** Consistency checks made "+overallConsistencyChecks);
+		if(debugPrint) System.out.println("*************** **** "+statinconsistencycheck+" OWL reasoning checks, of which "+statinconsistencycheckfound+" found an inconsistency. Previous results were reused "+statinconsistencycheckreused+" times.");
+		
+		
+		if(newPredicates.size() == 0) return newPredicates;
+		Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
+		newKnownPredicates.addAll(existingPredicates);
+		newKnownPredicates.addAll(newPredicates);
+		newPredicates.addAll(expandGPPGwithFilters(newKnownPredicates,consistencyCheck,sr));
+		
+		
+		return newPredicates;
+	}
+
+		
 
 	public Set<PredicateInstantiation> expandGPPG2(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
 		statinconsistencycheck = 0;

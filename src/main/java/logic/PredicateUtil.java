@@ -28,6 +28,25 @@ public class PredicateUtil {
 			throw new RuntimeException("ERROR: the set of predicates does not contain an entry with predicate name "+predicateName+" and "+varNum+" variables");
 	}
 	
+	
+	public static Predicate get(PredicateTemplate pt, Set<Predicate> predicates) {
+		String name = pt.getName().iterator().next().getText();
+		int varNum = pt.getBindings().length;
+		Predicate predicate = null;
+		for(Predicate p : predicates) {
+			if(p.getName().toLowerCase().equals(name.toLowerCase()) && p.getVarnum() == varNum) {
+				if(predicate == null)
+					predicate = p;
+				else
+					throw new RuntimeException("ERROR: the set of predicates contain more than one entry with predicate name "+name+" and "+varNum+" variables");
+			}
+		}
+		if(predicate != null)
+			return predicate;
+		else
+			throw new RuntimeException("ERROR: the set of predicates does not contain an entry with predicate name "+name+" and "+varNum+" variables");
+	}
+	
 	/**
 	 * 
 	 * @param predicateName

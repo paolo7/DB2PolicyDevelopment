@@ -33,6 +33,11 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 	
 	@Override
 	public PredicateInstantiation applyRule(Map<String, RDFNode> bindingsMap, Set<Predicate> predicates, List<TextTemplate> label, Set<PredicateInstantiation> antecedent, Set<ConversionTriple> constraints) {
+		return applyRule(bindingsMap, null, predicates, label, antecedent, constraints);
+	}
+	
+	@Override
+	public PredicateInstantiation applyRule(Map<String, RDFNode> bindingsMap, Set<Integer> deltas, Set<Predicate> predicates, List<TextTemplate> label, Set<PredicateInstantiation> antecedent, Set<ConversionTriple> constraints) {
 		String predicateName = "";
 		for(TextTemplate tt : name) {
 			if(tt.isText()) predicateName += tt.getText();
@@ -82,6 +87,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 			predicate = new PredicateImpl(predicateName, bindings.length, translationToRDF, translationToRDFFilters, textLabel);
 			predicates.add(predicate);
 		}
+		
 		Binding[] newBindings = new Binding[bindings.length]; 
 		for(int i = 0; i < newBindings.length; i++) {
 			if(bindings[i].isVar()) {
@@ -91,12 +97,26 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 					if(newBinding.isLiteral()) {
 						newBindings[i] = new BindingImpl(new ResourceLiteral(newBinding.asLiteral().getLexicalForm(), newBinding.asLiteral().getDatatypeURI()));
 					} else {
-						if(newBinding.asResource().getURI().equals(RDFUtil.LAMBDAURILit)) {
-							// this variable matches any uri and literals, if a literal can be placed in this position, then this variable in the schema can be matched to any uri and literals
-							newBindings[i] = new BindingImpl(new VariableImpl(  bindings[i].getVar().getVarNum(), PredicateUtil.variableCanBeLiteralInPosition(predicate, i)  ));
-						} else if(newBinding.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {
-							newBindings[i] = new BindingImpl(new VariableImpl(  bindings[i].getVar().getVarNum(), false ));
-						} else newBindings[i] = new BindingImpl(new ResourceURI(newBinding.asResource().getURI()));
+						if(deltas == null) {							
+							if(newBinding.asResource().getURI().equals(RDFUtil.LAMBDAURILit)) {
+								// this variable matches any uri and literals, if a literal can be placed in this position, then this variable in the schema can be matched to any uri and literals
+								newBindings[i] = new BindingImpl(new VariableImpl(  bindings[i].getVar().getVarNum(), PredicateUtil.variableCanBeLiteralInPosition(predicate, i)  ));
+							} else if(newBinding.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {
+								newBindings[i] = new BindingImpl(new VariableImpl(  bindings[i].getVar().getVarNum(), false ));
+							} else newBindings[i] = new BindingImpl(new ResourceURI(newBinding.asResource().getURI()));
+						} else {
+							// new version using the deltas computed during filtering
+							if(newBinding.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {
+								if(deltas.contains(bindings[i].getVar().getVarNum())) {
+									// variable can only be matched to uris
+									newBindings[i] = new BindingImpl(new VariableImpl(  bindings[i].getVar().getVarNum(), false ));
+								} else {
+									//variable can also be matched to literals
+									newBindings[i] = new BindingImpl(new VariableImpl(  bindings[i].getVar().getVarNum(), true ));
+								}
+							} else newBindings[i] = new BindingImpl(new ResourceURI(newBinding.asResource().getURI()));
+							
+						}
 					}
 				} else throw new RuntimeException("ERROR, there should not be a mapping to a null or anon value.");//newBindings[i] = bindings[i];
 			} else {

@@ -36,7 +36,7 @@ public class FileParserTest {
 		boolean evaluateDatabaseInstance = false;*/
 		
 		
-		String rulefile = System.getProperty("user.dir") + "/resources/rulesLiteral.txt";
+		String rulefile = System.getProperty("user.dir") + "/resources/rulesLiteral1.txt";
 		String[] vocabularyFiles = new String[] {};
 		/*vocabularyFiles = new String[] {
 				System.getProperty("user.dir") + "/resources/vocabularies/SSN.ttl",
@@ -56,7 +56,7 @@ public class FileParserTest {
 		
 		// this implementation uses GraphDB as an external triplestore that is GeoSparql enabled.
 		// but any other triplestore that follows the rdf4j framework should be compatible
-		ExternalDB eDB = new ExternalDB_GraphDB("http://10.22.15.92:7200/", "test", "temp");
+		ExternalDB eDB = new ExternalDB_GraphDB("http://localhost:7200/", "test", "temp");
 		if(evaluateDatabaseInstance) {
 			eDB.loadRDF(new File(System.getProperty("user.dir")+"/resources/localRDF.ttl"), RDFFormat.TURTLE);
 			System.out.println("Loaded dataset with "+eDB.countTriples()+" triples.");
@@ -139,7 +139,7 @@ public class FileParserTest {
 		System.out.println("*************** APPLYING EXPANSION\n");
 		PredicateExpansion expansion = new PredicateExpansionBySPARQLquery(predicates, rules, additionalVocabularies);
 		expansion.setPrefixes(prefixes);
-		Set<PredicateInstantiation> newPredicates = expansion.expand(2,existingPredicates);
+		Set<PredicateInstantiation> newPredicates = expansion.expand(3,existingPredicates);
 		predicates = expansion.getPredicates();
 		
 		System.out.println("*************** INFERRED PREDICATES\n" + 
