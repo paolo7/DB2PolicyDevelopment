@@ -118,9 +118,10 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		else if (approach == 1) return expandCritical(existingPredicates, consistencyCheck, sr);
 		else if (approach == 2) return expandGPPG2(existingPredicates, consistencyCheck, sr);
 		else if (approach == 3) return expandGPPGwithFilters(existingPredicates, consistencyCheck, sr);
+		else if (approach == 4) return expandCriticalWithFilters(existingPredicates, consistencyCheck, sr);
 		throw new RuntimeException("ERROR, approach ID must be either 1 or 0");
 	}
-	
+
 	public Set<PredicateInstantiation> expandCritical(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
 		Set<PredicateInstantiation> newPredicates = new HashSet<PredicateInstantiation>();
 		for(Rule r: rules) {
@@ -147,6 +148,64 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    	Set<PredicateInstantiation> inferrablePredicates = null;
 		    	inferrablePredicates = r.applyRule(bindingsMap, knownPredicates, existingPredicates);
 		    	newPredicates.addAll(inferrablePredicates);
+			}
+		    long time2 = new Date().getTime();
+		    if(sr != null) {
+		    	sr.avgTimeRuleApplication.add((double)time2-time1);
+		    }
+		}
+		newPredicates.removeAll(existingPredicates);
+		
+		int removed = RDFUtil.filterRedundantPredicates(existingPredicates,newPredicates, false, false);
+		if(debugPrint) 
+			System.out.println("Filtered out "+removed+" redundant predicate instantiations.");
+		
+		for(PredicateInstantiation pi : newPredicates) {
+			Predicate p = pi.getPredicate();
+			if(PredicateUtil.containsOne(p.getName(), p.getVarnum(), knownPredicates)) {
+				knownPredicates.add(p);
+			}
+
+		}
+		if(newPredicates.size() == 0) return newPredicates;
+		
+		Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
+		newKnownPredicates.addAll(existingPredicates);
+		newKnownPredicates.addAll(newPredicates);
+		newPredicates.addAll(expandGPPG(newKnownPredicates,consistencyCheck,sr));
+		
+		return newPredicates;
+	}	
+	
+	public Set<PredicateInstantiation> expandCriticalWithFilters(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
+		Set<PredicateInstantiation> newPredicates = new HashSet<PredicateInstantiation>();
+		for(Rule r: rules) {
+			long time1 = new Date().getTime();
+			Model sandboxModel = RDFUtil.generateCriticalInstanceModel(existingPredicates,RDFprefixes,r);
+			sandboxModel.getNsPrefixMap().put("e", "http://example.com/");
+			sandboxModel.getNsPrefixMap().put("ex", "http://example.com/");
+			String SPARQLquery = RDFUtil.getSPARQLprefixes(sandboxModel)+"\n PREFIX e:   <http://example.com/> \n PREFIX ex:   <http://example.com/> \n"+r.getAntecedentSPARQL();
+			Query query = QueryFactory.create(SPARQLquery) ;
+			QueryExecution qe = QueryExecutionFactory.create(query, sandboxModel);
+		    ResultSet rs = qe.execSelect();
+		    while (rs.hasNext())
+			{
+		    	QuerySolution binding = rs.nextSolution();
+		    	Set<Integer> newDeltas = filterBinding(false, binding, r, existingPredicates);
+		    	
+		    	if(newDeltas != null) {
+		    		Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
+		    		for(Iterator<String> i = binding.varNames(); i.hasNext();) {
+		    			String var =  i.next();
+		    			RDFNode value = binding.get(var);
+		    			//if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {	    				
+		    				//value = null;
+		    			//}
+		    			bindingsMap.put(var, value);
+		    		}
+		    		Set<PredicateInstantiation> inferrablePredicates = r.applyRule(bindingsMap, newDeltas, knownPredicates, existingPredicates);
+		    		newPredicates.addAll(inferrablePredicates);
+		    	}
 			}
 		    long time2 = new Date().getTime();
 		    if(sr != null) {
@@ -323,7 +382,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		return rewritings;
 	}
 	
-	public Set<Integer> filterBinding(QuerySolution mapping, Rule r, Set<PredicateInstantiation> schema){
+	public Set<Integer> filterBinding(boolean considerRewritings, QuerySolution mapping, Rule r, Set<PredicateInstantiation> schema){
 		Set<Integer> newDeltas = new HashSet<Integer>();
 		Map<Variable, Boolean> conditionMet = new HashMap<Variable, Boolean>();
 
@@ -369,7 +428,14 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 					Binding b = ct.applyBinding(pi.getBindings()).get(i);
 					if(b.isVar()) {
 						boolean oneRewritingFound = false;
-						for(ConversionTriple tq: getAllRewritings(ct,pi)) {
+						Set<ConversionTriple> queryTriples;
+						if(considerRewritings) {
+							queryTriples = getAllRewritings(ct,pi);
+						} else {
+							queryTriples = new HashSet<ConversionTriple>();
+							queryTriples.add(ct.applyBinding(pi.getBindings()));
+						}
+						for(ConversionTriple tq: queryTriples) {
 								Variable v = b.getVar();
 								if(v.getVarNum() != b.getVar().getVarNum()) throw new RuntimeException("ERROR: the rewriting of a query triple should not contain a new variable.");
 								ConversionTriple mtq = RDFUtil.applyMapping(tq, mapping);
@@ -454,7 +520,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 			{
 		    	QuerySolution binding = rs.nextSolution();
 		    	
-		    	Set<Integer> newDeltas = filterBinding(binding, r, existingPredicates);
+		    	Set<Integer> newDeltas = filterBinding(true, binding, r, existingPredicates);
 		    	
 		    	if(newDeltas != null) {
 		    		
@@ -462,11 +528,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    		for(Iterator<String> i = binding.varNames(); i.hasNext();) {
 		    			String var =  i.next();
 		    			RDFNode value = binding.get(var);
-		    			if(value.isLiteral() || (value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURILit) )) {
-		    				// do not add mappings to literals
-		    			} else {
-		    				bindingsMap.put(var, value);
-		    			}
+		    			bindingsMap.put(var, value);
 		    		}	
 		    		Set<PredicateInstantiation> inferrablePredicates = r.applyRule(bindingsMap, newDeltas, knownPredicates, existingPredicates);
 		    		newPredicates.addAll(inferrablePredicates);
