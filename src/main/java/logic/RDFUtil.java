@@ -831,6 +831,7 @@ public class RDFUtil {
 			} return true;
 		}
 	}
+	if(b1.getConstant().getLexicalValueExpanded().equals(b2.getConstant().getLexicalValueExpanded())) return true;
 	// if they are different constants then b2 cannot model b1
 	return false;
 }

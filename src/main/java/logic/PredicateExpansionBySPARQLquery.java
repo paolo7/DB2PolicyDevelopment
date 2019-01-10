@@ -107,6 +107,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	 * 1 for original chase
 	 * 2 for GPPG2, GPPG variant with double lambdas
 	 * 3 for original GPPG with smart filtering
+	 * 4 for critical instance with smart filtering
 	 * @param approach
 	 * @param existingPredicates
 	 * @param consistencyCheck
