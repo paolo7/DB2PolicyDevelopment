@@ -205,6 +205,8 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    			bindingsMap.put(var, value);
 		    		}
 		    		Set<PredicateInstantiation> inferrablePredicates = r.applyRule(bindingsMap, newDeltas, knownPredicates, existingPredicates);
+		    		// the next line increases performance in case large numbers of redundand bindings are found
+		    		RDFUtil.filterRedundantPredicates(inferrablePredicates,inferrablePredicates, false, false);
 		    		newPredicates.addAll(inferrablePredicates);
 		    	}
 			}

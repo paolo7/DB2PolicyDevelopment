@@ -674,6 +674,47 @@ public class RDFUtil {
 				if(!pi1.equals(pi2))
 					toRemove.add(getRedundant(pi1,pi2, strict, onlyConstraintRedundant));
 			}
+		}
+		for(PredicateInstantiation pi2rm: toRemove) {
+			//System.out.println("REMOVING "+pi2rm);
+			set1.remove(pi2rm);
+			set2.remove(pi2rm);
+		}
+		for(PredicateInstantiation pi1: set1) {
+			for (PredicateInstantiation pi2: set2) {
+				toRemove.add(getRedundant(pi1,pi2, strict, onlyConstraintRedundant));
+			}
+		}
+		for(PredicateInstantiation pi2rm: toRemove) {
+			//System.out.println("REMOVING "+pi2rm);
+			set1.remove(pi2rm);
+			set2.remove(pi2rm);
+		}
+		/*for(PredicateInstantiation pi1: set2) {
+			for (PredicateInstantiation pi2: set2) {
+				if(!pi1.equals(pi2))
+					toRemove.add(getRedundant(pi1,pi2, strict, onlyConstraintRedundant));
+			}
+		}*/
+		toRemove.remove(null);
+		for(PredicateInstantiation pi2rm: toRemove) {
+			//System.out.println("REMOVING "+pi2rm);
+			set1.remove(pi2rm);
+			set2.remove(pi2rm);
+		}
+		return before - (set1.size() + set2.size());
+	}
+	
+	
+	public static int filterRedundantPredicatesOld(Set<PredicateInstantiation> set1, Set<PredicateInstantiation> set2, boolean strict, boolean onlyConstraintRedundant) {
+		
+		Set<PredicateInstantiation> toRemove = new HashSet<PredicateInstantiation>();
+		int before = set1.size() + set2.size();
+		for(PredicateInstantiation pi1: set1) {
+			for (PredicateInstantiation pi2: set1) {
+				if(!pi1.equals(pi2))
+					toRemove.add(getRedundant(pi1,pi2, strict, onlyConstraintRedundant));
+			}
 			for (PredicateInstantiation pi2: set2) {
 				toRemove.add(getRedundant(pi1,pi2, strict, onlyConstraintRedundant));
 			}
@@ -698,7 +739,7 @@ public class RDFUtil {
 	
 	private static PredicateInstantiation getRedundant(PredicateInstantiation pi1, PredicateInstantiation pi2, boolean strict, boolean onlyConstraintRedundant) {
 		if(isSubsumedBy(pi1,pi2, strict) && isSubsumedBy(pi2,pi1, strict)) {
-			// if the only difference is the additional constraints, return the one that has a subset of constraints compareed to the other
+			// if the only difference is the additional constraints, return the one that has a subset of constraints compared to the other
 			if(pi1.getAdditionalConstraints().containsAll(pi2.getAdditionalConstraints()))
 				return pi1;
 			if(pi2.getAdditionalConstraints().containsAll(pi1.getAdditionalConstraints()))
