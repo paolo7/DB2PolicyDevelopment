@@ -206,7 +206,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    		}
 		    		Set<PredicateInstantiation> inferrablePredicates = r.applyRule(bindingsMap, newDeltas, knownPredicates, existingPredicates);
 		    		// the next line increases performance in case large numbers of redundand bindings are found
-		    		RDFUtil.filterRedundantPredicates(inferrablePredicates,inferrablePredicates, false, false);
+		    		RDFUtil.filterRedundantPredicates(new HashSet<PredicateInstantiation>(),inferrablePredicates, false, false);
 		    		newPredicates.addAll(inferrablePredicates);
 		    	}
 			}
@@ -233,7 +233,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		Set<PredicateInstantiation> newKnownPredicates = new HashSet<PredicateInstantiation>();
 		newKnownPredicates.addAll(existingPredicates);
 		newKnownPredicates.addAll(newPredicates);
-		newPredicates.addAll(expandGPPG(newKnownPredicates,consistencyCheck,sr));
+		newPredicates.addAll(expandCriticalWithFilters(newKnownPredicates,consistencyCheck,sr));
 		
 		return newPredicates;
 	}
@@ -429,7 +429,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 			for(ConversionTriple ct : pi.getPredicate().getRDFtranslation()) {
 				for(int i = 0; i < 3; i++) {
 					Binding b = ct.applyBinding(pi.getBindings()).get(i);
-					if(b.isVar()) {
+					if(b.isVar() || ( b.isConstant() && b.getConstant().isLiteral())) {
 						boolean oneRewritingFound = false;
 						Set<ConversionTriple> queryTriples;
 						if(considerRewritings) {
@@ -438,44 +438,70 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 							queryTriples = new HashSet<ConversionTriple>();
 							queryTriples.add(ct.applyBinding(pi.getBindings()));
 						}
-						for(ConversionTriple tq: queryTriples) {
-								Variable v = b.getVar();
-								if(v.getVarNum() != b.getVar().getVarNum()) throw new RuntimeException("ERROR: the rewriting of a query triple should not contain a new variable.");
-								ConversionTriple mtq = RDFUtil.applyMapping(tq, mapping);
+						if(b.isConstant() && b.getConstant().isLiteral()) {
+							boolean condition_met = true;
+							try {									
+								ConversionTriple mtq = RDFUtil.applyMapping(ct.applyBinding(pi.getBindings()), mapping);
 								Set<ConversionTriple> matchedSchemaTriples = RDFUtil.getModellingSchemaTriples(schema, mtq);
-								if(!conditionMet.containsKey(v)) conditionMet.put(v, Boolean.TRUE);
 								for(ConversionTriple ts: matchedSchemaTriples) {
 									oneRewritingFound = true;
+									if(ts.get(i).isConstant() && ts.get(i).getConstant().isLiteral() && ts.get(i).getConstant().equals(b.getConstant()))
+										condition_met = false;
 									if(ts.get(i).isVar() && 
 											( !ts.get(i).getVar().isSimpleVar() && ts.get(i).getVar().areLiteralsAllowed())) {
-										conditionMet.put(v, Boolean.FALSE);
+										condition_met = false;
 									}
 								}
-						}
-						if(!oneRewritingFound) throw new RuntimeException("ERROR, there should be at least one matching schema triples, or the mapping could not have been generated.");
-						RDFNode value = mapping.get("?v"+b.getVar().getVarNum());
-						if(value.isLiteral()) {
-							// the variable is mapped to a literal
-							
-							if(!conditionMet.get(b.getVar()) && i == 2) {
-								// CASE 1: condition not met, and variable occurs in the object position
-								// 	nothing to do, this variable can be matched to the literal
-							} else {
-								// CASE 2: condition met, or variable occurring in subject or predicate position
-								// 	ignore this mapping, as it can't be matched to literals
-								return null;
+							} catch (MappingInvalidException ex) {
+								// if the mapping is not valid, ignore it
 							}
-							
-						} else if(value.isURIResource() && value.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {
-							// the variable is mapped to lambda
-							
-							if(!conditionMet.get(b.getVar()) && i == 2) {
-								// CASE 1: condition not met, and variable occurs in the object position
-								// 	nothing to do, this variable can be matched to literals
-							} else {
-								// CASE 2: condition met, or variable occurring in subject or predicate position
-								// 	add the variable to the delta, as it can't be matched to literals
-								newDeltas.add(new Integer(b.getVar().getVarNum()));
+							// if the condition is met, then it is not be possible to match this literal to a variable that allows literals
+							if(condition_met) 
+								return null;
+						} else {
+							for(ConversionTriple tq: queryTriples) {
+								Variable v = b.getVar();
+								if(v.getVarNum() != b.getVar().getVarNum()) throw new RuntimeException("ERROR: the rewriting of a query triple should not contain a new variable.");
+								try{									
+									ConversionTriple mtq = RDFUtil.applyMapping(tq, mapping);
+									Set<ConversionTriple> matchedSchemaTriples = RDFUtil.getModellingSchemaTriples(schema, mtq);
+									if(!conditionMet.containsKey(v)) conditionMet.put(v, Boolean.TRUE);
+									for(ConversionTriple ts: matchedSchemaTriples) {
+										oneRewritingFound = true;
+										if(ts.get(i).isVar() && 
+												( !ts.get(i).getVar().isSimpleVar() && ts.get(i).getVar().areLiteralsAllowed())) {
+											conditionMet.put(v, Boolean.FALSE);
+										}
+									}
+								} catch (MappingInvalidException ex) {
+									// if the mapping is not valid, ignore it
+								}
+							}
+							if(!oneRewritingFound) throw new RuntimeException("ERROR, there should be at least one matching schema triples, or the mapping could not have been generated.");
+							RDFNode value = mapping.get("?v"+b.getVar().getVarNum());
+							if(value.isLiteral()) {
+								// the variable is mapped to a literal
+								
+								if(!conditionMet.get(b.getVar()) && i == 2) {
+									// CASE 1: condition not met, and variable occurs in the object position
+									// 	nothing to do, this variable can be matched to the literal
+								} else {
+									// CASE 2: condition met, or variable occurring in subject or predicate position
+									// 	ignore this mapping, as it can't be matched to literals
+									return null;
+								}
+								
+							} else if(value.isURIResource() && value.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {
+								// the variable is mapped to lambda
+								
+								if(!conditionMet.get(b.getVar()) && i == 2) {
+									// CASE 1: condition not met, and variable occurs in the object position
+									// 	nothing to do, this variable can be matched to literals
+								} else {
+									// CASE 2: condition met, or variable occurring in subject or predicate position
+									// 	add the variable to the delta, as it can't be matched to literals
+									newDeltas.add(new Integer(b.getVar().getVarNum()));
+								}
 							}
 						}
 					}

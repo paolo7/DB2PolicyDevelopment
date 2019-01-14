@@ -261,9 +261,11 @@ public class RDFUtil {
 		Property lambda = ResourceFactory.createProperty(LAMBDAURI);
 		Model model = ModelFactory.createDefaultModel();
 		// GATHER ALL CONSTANTS
-		Set<String> constants = gatherAllConstants(r);
+		Set<logic.Resource> constants = gatherAllConstants(r);
+		//Set<String> literals = gatherAllLiterals(r);
 		for(PredicateInstantiation pi: predicates) {
 			constants.addAll(gatherAllConstants(pi));
+			//literals.addAll(gatherAllLiterals(pi));
 		}
 		constants.add(null);
 		// INSTANTIATE THE CRITICAL INSTANCE
@@ -307,17 +309,17 @@ public class RDFUtil {
 					Statement base = ResourceFactory.createStatement(subject, predicate, object);
 					model.add(base);
 				} else if(variables == 1) {
-					for(String c: constants) {
+					for(logic.Resource c: constants) {
 						Triple<Resource,Property,RDFNode> newTriple = substituteFirstLambdaWithConstant(model,subject, predicate, object, c);
 						Statement s = ResourceFactory.createStatement(newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight());
 						model.add(s);
 					}
 				} else if(variables == 2) {
-					for(String c: constants) {
+					for(logic.Resource c: constants) {
 						Triple<Resource,Property,RDFNode> newTriple = substituteFirstLambdaWithConstant(model,subject, predicate, object, c);
 						Statement s = ResourceFactory.createStatement(newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight());
 						model.add(s);
-						for(String c2: constants) {
+						for(logic.Resource c2: constants) {
 							Triple<Resource,Property,RDFNode> newTriple2 = substituteFirstLambdaWithConstant(model,newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight(), c2);
 							Statement s2 = ResourceFactory.createStatement(newTriple2.getLeft(), newTriple2.getMiddle(), newTriple2.getRight());
 							model.add(s2);
@@ -327,17 +329,17 @@ public class RDFUtil {
 				
 				
 				if(variables == 1) {
-					for(String c: constants) {
+					for(logic.Resource c: constants) {
 						Triple<Resource,Property,RDFNode> newTriple = substituteLastLambdaWithConstant(model,subject, predicate, object, c);
 						Statement s = ResourceFactory.createStatement(newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight());
 						model.add(s);
 					}
 				} else if(variables == 2) {
-					for(String c: constants) {
+					for(logic.Resource c: constants) {
 						Triple<Resource,Property,RDFNode> newTriple = substituteLastLambdaWithConstant(model,subject, predicate, object, c);
 						Statement s = ResourceFactory.createStatement(newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight());
 						model.add(s);
-						for(String c2: constants) {
+						for(logic.Resource c2: constants) {
 							Triple<Resource,Property,RDFNode> newTriple2 = substituteLastLambdaWithConstant(model,newTriple.getLeft(), newTriple.getMiddle(), newTriple.getRight(), c2);
 							Statement s2 = ResourceFactory.createStatement(newTriple2.getLeft(), newTriple2.getMiddle(), newTriple2.getRight());
 							model.add(s2);
@@ -349,58 +351,82 @@ public class RDFUtil {
 		}
 		return model;
 	}
-	private static Triple<Resource,Property,RDFNode> substituteLastLambdaWithConstant(Model model, Resource subject, Property predicate, RDFNode object, String constant) {
+	private static Triple<Resource,Property,RDFNode> substituteLastLambdaWithConstant(Model model, Resource subject, Property predicate, RDFNode object, logic.Resource constant) {
 		if(constant == null) return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,object);
+		
+		if(constant.isLiteral()) {
+			if(object.isURIResource() && object.asResource().getURI().equals(LAMBDAURI)) {
+				return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,
+						ResourceFactory.createPlainLiteral(constant.getLexicalValue()));
+			}
+			else return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,object);
+		}
 		
 		if(object.isURIResource() && object.asResource().getURI().equals(LAMBDAURI)) {
 			return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,
-					ResourceFactory.createResource(RDFUtil.expandPrefix(constant))
+					ResourceFactory.createResource(RDFUtil.expandPrefix(constant.getLexicalValue()))
 					);
 		}
 		if(predicate.isURIResource() && predicate.asResource().getURI().equals(LAMBDAURI)) {
 			return new ImmutableTriple<Resource,Property,RDFNode>(subject,
-					ResourceFactory.createProperty(RDFUtil.expandPrefix(constant)),
+					ResourceFactory.createProperty(RDFUtil.expandPrefix(constant.getLexicalValue())),
 					object);
 		}
 		if(subject.isURIResource() && subject.asResource().getURI().equals(LAMBDAURI)) {
 			return new ImmutableTriple<Resource,Property,RDFNode>(
-					ResourceFactory.createResource(RDFUtil.expandPrefix(constant))
+					ResourceFactory.createResource(RDFUtil.expandPrefix(constant.getLexicalValue()))
 					,predicate,object);
 		}
 		return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,object);
 	}
-	private static Triple<Resource,Property,RDFNode> substituteFirstLambdaWithConstant(Model model, Resource subject, Property predicate, RDFNode object, String constant) {
+	private static Triple<Resource,Property,RDFNode> substituteFirstLambdaWithConstant(Model model, Resource subject, Property predicate, RDFNode object, logic.Resource constant) {
 		if(constant == null) return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,object);
+		
+		if(constant.isLiteral()) {
+			if(object.isURIResource() && object.asResource().getURI().equals(LAMBDAURI)) {
+				return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,
+						ResourceFactory.createPlainLiteral(constant.getLexicalValue()));
+			}
+			else return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,object);
+		}
+		
 		if(subject.isURIResource() && subject.asResource().getURI().equals(LAMBDAURI)) {
 			return new ImmutableTriple<Resource,Property,RDFNode>(
-					ResourceFactory.createResource(RDFUtil.expandPrefix(constant))
+					ResourceFactory.createResource(RDFUtil.expandPrefix(constant.getLexicalValue()))
 					,predicate,object);
 		}
 		if(predicate.isURIResource() && predicate.asResource().getURI().equals(LAMBDAURI)) {
 			return new ImmutableTriple<Resource,Property,RDFNode>(subject,
-					ResourceFactory.createProperty(RDFUtil.expandPrefix(constant)),
+					ResourceFactory.createProperty(RDFUtil.expandPrefix(constant.getLexicalValue())),
 					object);
 		}
 		if(object.isURIResource() && object.asResource().getURI().equals(LAMBDAURI)) {
 			return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,
-					ResourceFactory.createResource(RDFUtil.expandPrefix(constant))
+					ResourceFactory.createResource(RDFUtil.expandPrefix(constant.getLexicalValue()))
 					);
 		}
 		return new ImmutableTriple<Resource,Property,RDFNode>(subject,predicate,object);
 	}
 
-	private static Set<String> gatherAllConstants(Rule r){
-		Set<String> constants = new HashSet<String>();
+	private static Set<logic.Resource> gatherAllConstants(Rule r){
+		Set<logic.Resource> constants = new HashSet<logic.Resource>();
 		for(PredicateInstantiation pi: r.getAntecedent()) {
 			constants.addAll(gatherAllConstants(pi));
 		}
 		return constants;
 	}
+	/*private static Set<String> gatherAllLiterals(Rule r){
+		Set<String> constants = new HashSet<String>();
+		for(PredicateInstantiation pi: r.getAntecedent()) {
+			constants.addAll(gatherAllLiterals(pi));
+		}
+		return constants;
+	}*/
 	
 	public static boolean excludePredicatesFromCriticalInstanceConstants = false;
 	
-	private static Set<String> gatherAllConstants(PredicateInstantiation pi){
-		Set<String> constants = new HashSet<String>();
+	private static Set<logic.Resource> gatherAllConstants(PredicateInstantiation pi){
+		Set<logic.Resource> constants = new HashSet<logic.Resource>();
 		// gather constants from the bindings
 		for(Binding b: pi.getBindings()) {
 			constants.add(getConstantFromBinding(b));
@@ -413,11 +439,27 @@ public class RDFUtil {
 		}
 		return constants;
 	}
+	/*private static Set<String> gatherAllLiterals(PredicateInstantiation pi){
+		Set<String> constants = new HashSet<String>();
+		// gather constants from the bindings
+		for(Binding b: pi.getBindings()) {
+			constants.add(getLiteralFromBinding(b));
+		}
+		// gather constants from the triples of the predicate
+		for(ConversionTriple ct : pi.getPredicate().getRDFtranslation()) {
+			constants.add(getLiteralFromBinding(ct.getObject()));
+		}
+		return constants;
+	}*/
 	
-	private static String getConstantFromBinding(Binding b) {
-		if(b.isConstant()) return b.getConstant().getLexicalValue();
+	private static logic.Resource getConstantFromBinding(Binding b) {
+		if(b.isConstant()) return b.getConstant();
 		return null;
 	}
+	/*private static String getLiteralFromBinding(Binding b) {
+		if(b.isConstant() && b.getConstant().isLiteral()) return b.getConstant().getLexicalValue();
+		return null;
+	}*/
 	
 	public static Model generateGPPGSandboxModel(Set<PredicateInstantiation> predicates, Map<String,String> prefixes) {
 		return generateGPPGSandboxModel(0, predicates, prefixes);

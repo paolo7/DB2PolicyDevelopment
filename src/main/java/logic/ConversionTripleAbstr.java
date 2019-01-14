@@ -147,7 +147,13 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 			if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValue();
 			else {
 				Binding b = bindings[this.getObject().getVar().getVarNum()];
-				if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
+				if(b.isConstant()) {
+					if(b.getConstant().isLiteral()){
+						snippet += "\""+b.getConstant().getLexicalValue()+"\"";
+					} else {
+						snippet += b.getConstant().getLexicalValue();
+					}
+				}
 				else snippet += "?v"+b.getVar().getVarNum();
 			}
 		}

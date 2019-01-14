@@ -8,7 +8,7 @@ public class ConversionTripleImpl extends ConversionTripleAbstr{
 	
 	public ConversionTripleImpl(Binding subject, Binding predicate, Binding object) {
 		if((subject.isConstant() && subject.getConstant().isLiteral() ) || (predicate.isConstant() && predicate.getConstant().isLiteral() ))
-			throw new RuntimeException("Error: trying to create a triple with a literal in the subject or predicate position");
+			throw new MappingInvalidException("Error: trying to create a triple with a literal in the subject or predicate position");
 		this.subject = subject;
 		this.predicate = predicate;
 		this.object = object;
