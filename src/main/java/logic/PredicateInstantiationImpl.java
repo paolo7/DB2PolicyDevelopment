@@ -12,6 +12,8 @@ import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.RDFNode;
 
 public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
+	
+	public static boolean enable_additional_constraints = true;
 
 	private Predicate predicate;
 	private Binding[] bindings;
@@ -38,7 +40,7 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 		
 	public PredicateInstantiationImpl(Predicate predicate, Binding[] bindings, Set<ConversionTriple> additionalConstraints) {
 		this(predicate, bindings);
-		this.additionalConstraints = additionalConstraints;	
+		if(enable_additional_constraints) this.additionalConstraints = additionalConstraints;	
 	}
 	
 	@Override
