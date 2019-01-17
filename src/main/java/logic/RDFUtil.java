@@ -704,7 +704,7 @@ public class RDFUtil {
 	public static boolean disableRedundancyCheck = false;
 	
 	public static int filterRedundantPredicates(Set<PredicateInstantiation> set, boolean strict, boolean onlyConstraintRedundant) {
-		return filterRedundantPredicates(set, new HashSet<PredicateInstantiation>(), strict, onlyConstraintRedundant);
+		return filterRedundantPredicates(new HashSet<PredicateInstantiation>(), set, strict, onlyConstraintRedundant);
 	}
 	
 	public static int filterRedundantPredicates(Set<PredicateInstantiation> set1, Set<PredicateInstantiation> set2, boolean strict, boolean onlyConstraintRedundant) {
