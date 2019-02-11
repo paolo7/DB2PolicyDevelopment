@@ -552,6 +552,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    	Set<Integer> newDeltas = filterBinding(true, binding, r, existingPredicates);
 		    	
 		    	if(newDeltas != null) {
+		    		sr.applicableRules.add(r);
 		    		
 		    		Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
 		    		for(Iterator<String> i = binding.varNames(); i.hasNext();) {

@@ -72,8 +72,10 @@ public class PredicateUtil {
 	
 	public static boolean variableCanBeLiteralInPosition(Predicate p, int position) {
 		if(position < 0 || position >= p.getVarnum()) throw new RuntimeException("ERROR: wrong index for bindings");
-		for(ConversionTriple ct : p.getRDFtranslation()) {
-			if(ct.getNoLitVariables().contains(new Integer(position))) return false;
+		if(p.getRDFtranslation() != null) {
+			for(ConversionTriple ct : p.getRDFtranslation()) {
+				if(ct.getNoLitVariables().contains(new Integer(position))) return false;
+			}
 		}
 		return true;
 	}

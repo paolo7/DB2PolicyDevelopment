@@ -65,14 +65,15 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 	@Override
 	public String toGPPGSPARQL(int variant, Set<Integer> noLitVars, Binding[] bindings) {
 		String snippet = " {";
-		snippet += "       {"+toGPPGSPARQL(bindings,false,false,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,true,false,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,false,true,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,false,false,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}";
+		//snippet += " UNION {"+toGPPGSPARQL(bindings,true,true,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}"; 
+		// this case can be removed as it would only match the trivial case of the schema of all triplestores
+		snippet += " 	   {"+toGPPGSPARQL(bindings,false,true,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}";
 		snippet += " UNION {"+toGPPGSPARQL(bindings,true,true,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,false,true,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
 		snippet += " UNION {"+toGPPGSPARQL(bindings,true,false,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,false,true,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}";
-		snippet += " UNION {"+toGPPGSPARQL(bindings,true,true,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,true,false,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,false,false,true) + (variant == 1 ? getFilterMustBeURI2(bindings) : "") + "}";
+		snippet += " UNION {"+toGPPGSPARQL(bindings,false,false,false) + (variant == 1 ? getFilterMustBeURI3(bindings) : "") + "}";
 		if(variant == 1) {
 			//only add extra literal lambdas if there is a variable in the object position which can be a literal
 			if(this.getObject().isVar() && bindings[this.getObject().getVar().getVarNum()].isVar()) {
@@ -80,7 +81,8 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 					snippet += " UNION {"+toGPPGSPARQL(1,bindings,false,false,true) + "}";
 					snippet += " UNION {"+toGPPGSPARQL(1,bindings,true,false,true) + "}";
 					snippet += " UNION {"+toGPPGSPARQL(1,bindings,false,true,true) + "}";
-					snippet += " UNION {"+toGPPGSPARQL(1,bindings,true,true,true) + "}";
+					// this case can be removed as it would only match the trivial case of the schema of all triplestores
+					//snippet += " UNION {"+toGPPGSPARQL(1,bindings,true,true,true) + "}";
 				}
 			}
 		}

@@ -1,11 +1,15 @@
 package logic;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class StatRecorder {
 
 	public List<Double> avgTimeRuleApplication;
+	public Set<Rule> applicableRules = new HashSet<Rule>();
+	
 	public StatRecorder() {
 		avgTimeRuleApplication = new LinkedList<Double>();
 	}
