@@ -10,9 +10,10 @@ public class ResourceURI extends ResourceAbstr {
 	
 	@Override
 	public String getLexicalValue() {
-		if(RDFUtil.prefixes.shortForm(URI) != null)
+		/*if(RDFUtil.prefixes.shortForm(URI) != null)
 			return RDFUtil.prefixes.shortForm(URI);
-		else return URI;
+		else return URI;*/
+		return RDFUtil.expandPrefix(URI);
 	}
 	
 	public String getURI() {

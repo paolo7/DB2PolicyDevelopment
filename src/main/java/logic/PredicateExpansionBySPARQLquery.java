@@ -511,7 +511,12 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		return newDeltas;
 	}
 	
-	public Set<PredicateInstantiation> expandGPPGwithFilters(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
+/*	public Set<PredicateInstantiation> expandGPPGwithFilters(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
+		return expandGPPGwithFilters(false, existingPredicates, consistencyCheck, sr);
+	}
+*/
+	public Set<PredicateInstantiation> expandGPPGwithFilters( Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
+		
 		statinconsistencycheck = 0;
 		statinconsistencycheckfound = 0;
 		statinconsistencycheckreused = 0;
@@ -552,7 +557,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    	Set<Integer> newDeltas = filterBinding(true, binding, r, existingPredicates);
 		    	
 		    	if(newDeltas != null) {
-		    		sr.applicableRules.add(r);
+		    		if(sr != null) {
+		    			sr.applicableRules.add(r);
+		    		}
 		    		
 		    		Map<String,RDFNode> bindingsMap = new HashMap<String,RDFNode>();
 		    		for(Iterator<String> i = binding.varNames(); i.hasNext();) {
@@ -569,11 +576,12 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    	sr.avgTimeRuleApplication.add((double)time2-time1);
 		    }
 		}
-		newPredicates.removeAll(existingPredicates);
 		
+		newPredicates.removeAll(existingPredicates);
 		int removed = RDFUtil.filterRedundantPredicates(existingPredicates,newPredicates, false, false);
 		if(debugPrint) 
 			System.out.println("Filtered out "+removed+" redundant predicate instantiations.");
+		
 		
 		for(PredicateInstantiation pi : newPredicates) {
 			Predicate p = pi.getPredicate();

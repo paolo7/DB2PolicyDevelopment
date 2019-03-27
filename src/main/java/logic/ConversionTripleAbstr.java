@@ -133,7 +133,7 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 		snippet += " ";
 		if (lambdaP) snippet += "<"+RDFUtil.LAMBDAURI+">";
 		else {
-			if(this.getPredicate().isConstant()) snippet += this.getPredicate().getConstant().getLexicalValue();
+			if(this.getPredicate().isConstant()) snippet += this.getPredicate().getConstant().getLexicalValueExpanded();
 			else {
 				Binding b = bindings[this.getPredicate().getVar().getVarNum()];
 				if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
