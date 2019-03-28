@@ -514,7 +514,12 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 /*	public Set<PredicateInstantiation> expandGPPGwithFilters(Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
 		return expandGPPGwithFilters(false, existingPredicates, consistencyCheck, sr);
 	}
+	
+	
 */
+	
+
+	
 	public Set<PredicateInstantiation> expandGPPGwithFilters( Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr) {
 		
 		statinconsistencycheck = 0;
@@ -568,6 +573,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    			bindingsMap.put(var, value);
 		    		}	
 		    		Set<PredicateInstantiation> inferrablePredicates = r.applyRule(bindingsMap, newDeltas, knownPredicates, existingPredicates);
+		    		
 		    		newPredicates.addAll(inferrablePredicates);
 		    	}
 			}
@@ -575,6 +581,10 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    if(sr != null) {
 		    	sr.avgTimeRuleApplication.add((double)time2-time1);
 		    }
+		}
+		if(sr != null) {
+			sr.inferrable_triples.addAll(newPredicates);
+			RDFUtil.filterRedundantPredicates(newPredicates, false, false);
 		}
 		
 		newPredicates.removeAll(existingPredicates);

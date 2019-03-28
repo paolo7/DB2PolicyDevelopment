@@ -134,8 +134,9 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 				newBindings[i] = shiftOrder.get(newBindings[i]);
 			}
 		}
-		return new PredicateInstantiationImpl(predicate, newBindings, constraints); 
+		return new PredicateInstantiationImpl(predicate, newBindings, constraints ); 
 	}
+	
 
 
 

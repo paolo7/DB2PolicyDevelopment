@@ -9,6 +9,7 @@ public class StatRecorder {
 
 	public List<Double> avgTimeRuleApplication;
 	public Set<Rule> applicableRules = new HashSet<Rule>();
+	public Set<PredicateInstantiation> inferrable_triples = new HashSet<PredicateInstantiation>();
 	
 	public StatRecorder() {
 		avgTimeRuleApplication = new LinkedList<Double>();
