@@ -123,10 +123,10 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 		String snippet = " ";
 		if (lambdaS) snippet += "<"+RDFUtil.LAMBDAURI+">";
 		else {
-			if(this.getSubject().isConstant()) snippet += this.getSubject().getConstant().getLexicalValue();
+			if(this.getSubject().isConstant()) snippet += this.getSubject().getConstant().getLexicalValueExpanded();
 			else {
 				Binding b = bindings[this.getSubject().getVar().getVarNum()];
-				if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
+				if(b.isConstant()) snippet += b.getConstant().getLexicalValueExpanded();
 				else snippet += "?v"+b.getVar().getVarNum();
 			}
 		}
@@ -136,7 +136,7 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 			if(this.getPredicate().isConstant()) snippet += this.getPredicate().getConstant().getLexicalValueExpanded();
 			else {
 				Binding b = bindings[this.getPredicate().getVar().getVarNum()];
-				if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
+				if(b.isConstant()) snippet += b.getConstant().getLexicalValueExpanded();
 				else snippet += "?v"+b.getVar().getVarNum();
 			}
 		}
@@ -146,14 +146,14 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 			else if(variant == 1) snippet += "<"+RDFUtil.LAMBDAURILit+">";
 		}
 		else {
-			if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValue();
+			if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValueExpanded();
 			else {
 				Binding b = bindings[this.getObject().getVar().getVarNum()];
 				if(b.isConstant()) {
 					if(b.getConstant().isLiteral()){
 						snippet += "\""+b.getConstant().getLexicalValue()+"\"";
 					} else {
-						snippet += b.getConstant().getLexicalValue();
+						snippet += b.getConstant().getLexicalValueExpanded();
 					}
 				}
 				else snippet += "?v"+b.getVar().getVarNum();
