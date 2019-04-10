@@ -95,6 +95,7 @@ public abstract class PredicateAbstr implements Predicate{
 		result = prime * result + ((this.getRDFtranslationFilters() == null) ? 0 : this.getRDFtranslationFilters().hashCode());
 		result = prime * result + this.getVarnum();
 		return result;
+		//return 31 + this.toString().hashCode();
 	}
 
 	@Override
@@ -105,6 +106,7 @@ public abstract class PredicateAbstr implements Predicate{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		//if(this.toString().equals(obj.toString())) return true;
 		PredicateImpl other = (PredicateImpl) obj;
 		if (getName() == null) {
 			if (other.getName() != null)

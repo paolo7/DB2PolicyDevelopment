@@ -16,4 +16,7 @@ public interface PredicateTemplate {
 	
 	public PredicateInstantiation applyRule(Map<String, RDFNode> bindingsMap, Set<Integer> deltas, Set<Predicate> predicates, List<TextTemplate> label, Set<PredicateInstantiation> antecedent, Set<ConversionTriple> constraints);
 	
+	public Predicate getPredicateIfExists();
+	
+	public PredicateInstantiation asPredicateInstantiation();
 }

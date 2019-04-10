@@ -14,10 +14,17 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 
 	private List<TextTemplate> name;
 	private Binding[] bindings;
+	private Predicate originalPredicate;
 	
 	public PredicateTemplateImpl(List<TextTemplate> name, Binding[] bindings) {
 		this.name = name;
 		this.bindings = bindings;
+	}
+	
+	public PredicateTemplateImpl(List<TextTemplate> name, Predicate originalPredicate, Binding[] bindings) {
+		this.name = name;
+		this.bindings = bindings;
+		this.originalPredicate = originalPredicate;
 	}
 
 	@Override
@@ -135,6 +142,17 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 			}
 		}
 		return new PredicateInstantiationImpl(predicate, newBindings, constraints ); 
+	}
+
+	@Override
+	public Predicate getPredicateIfExists() {
+
+		return originalPredicate;
+	}
+
+	@Override
+	public PredicateInstantiation asPredicateInstantiation() {
+		return new PredicateInstantiationImpl(originalPredicate, bindings);
 	}
 	
 
