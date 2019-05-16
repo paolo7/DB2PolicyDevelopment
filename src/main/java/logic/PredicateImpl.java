@@ -30,6 +30,12 @@ public class PredicateImpl extends PredicateAbstr {
 		this.translationToRDF = translationToRDF;
 		this.textLabel = textLabel;
 		this.translationToRDFFilters = translationToRDFFilters;
+		
+		
+		if(this.toString().contains("?v6 http://www.w3.org/ns/sosa/hasSimpleResult ?v5")) {
+			System.out.println("test");
+			
+		}
 	}
 	
 	@Override

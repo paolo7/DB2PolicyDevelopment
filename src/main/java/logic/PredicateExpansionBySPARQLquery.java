@@ -299,7 +299,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    					validBinding = false;
 		    			}
 		    			else if(value.isResource() && (!value.isAnon()) && value.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {
-		    				//value = null;
+		    				value = null;
 		    			}
 		    			bindingsMap.put(var, value);
 		    		}

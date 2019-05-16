@@ -94,7 +94,7 @@ public class PredicateInstantiationImpl extends PredicateInstantiationAbstr {
 		if(b.isConstant()) return b;
 		int found = -1;
 		for(int i = 0; i < newSignatureBindings.length; i++) {
-			if(newSignatureBindings[i].isVar() && newSignatureBindings[i].getVar() == b.getVar() && bindingsMap.containsKey("v"+i))
+			if(newSignatureBindings[i].isVar() && newSignatureBindings[i].getVar().getVarNum() == b.getVar().getVarNum() && bindingsMap.containsKey("v"+i))
 				found = i;
 		}
 		if(found != -1) return new BindingImpl(new VariableImpl(found));

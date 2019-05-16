@@ -125,7 +125,8 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 							
 						}
 					}
-				} else throw new RuntimeException("ERROR, there should not be a mapping to a null or anon value.");//newBindings[i] = bindings[i];
+				} else 
+					newBindings[i] = bindings[i];//throw new RuntimeException("ERROR, there should not be a mapping to a null or anon value.");//newBindings[i] = bindings[i];
 			} else {
 				newBindings[i] = bindings[i];
 			}
@@ -135,7 +136,9 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 		for(int i = 0; i < newBindings.length; i++) {
 			if(newBindings[i].isVar()) {
 				if(!shiftOrder.containsKey(newBindings[i])) {
-					shiftOrder.put(newBindings[i], new BindingImpl(new VariableImpl(order,newBindings[i].getVar().areLiteralsAllowed())));
+					shiftOrder.put(newBindings[i], new BindingImpl(
+							newBindings[i].getVar().isSimpleVar() ? new VariableImpl(order):
+							new VariableImpl(order,newBindings[i].getVar().areLiteralsAllowed())  ));
 					order++;
 				}
 				newBindings[i] = shiftOrder.get(newBindings[i]);

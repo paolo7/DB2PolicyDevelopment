@@ -18,7 +18,7 @@ public class PredicateUtil {
 			if(p.getName().toLowerCase().equals(predicateName.toLowerCase()) && p.getVarnum() == varNum) {
 				if(predicate == null)
 					predicate = p;
-				else
+				else if(!p.equals(predicate))
 					throw new RuntimeException("ERROR: the set of predicates contain more than one entry with predicate name "+predicateName+" and "+varNum+" variables");
 			}
 		}
@@ -60,7 +60,7 @@ public class PredicateUtil {
 			if(p.getName().toLowerCase().equals(predicateName.toLowerCase()) && p.getVarnum() == varNum) {
 				if(predicate == null)
 					predicate = p;
-				else
+				else if(!p.equals(predicate))
 					return false;
 			}
 		}

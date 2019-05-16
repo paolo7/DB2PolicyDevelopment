@@ -179,12 +179,12 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 	@Override
 	public String toSPARQL(Binding[] bindings, String freshVarPrefix) {
 		String snippet = "";
-		if(this.getSubject().isConstant()) snippet += this.getSubject().getConstant().getLexicalValue();
+		if(this.getSubject().isConstant()) snippet += this.getSubject().getConstant().getLexicalValueExpanded();
 		else if (this.getSubject().getVar().getVarNum() >= bindings.length) {
 			snippet += "?v"+this.getSubject().getVar()+freshVarPrefix;
 		} else {
 			Binding b = bindings[this.getSubject().getVar().getVarNum()];
-			if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
+			if(b.isConstant()) snippet += b.getConstant().getLexicalValueExpanded();
 			else snippet += "?v"+b.getVar();
 		}
 		snippet += " ";
@@ -193,19 +193,19 @@ public abstract class ConversionTripleAbstr implements ConversionTriple{
 			snippet += "?v"+this.getPredicate().getVar()+freshVarPrefix;
 		} else {
 			Binding b = bindings[this.getPredicate().getVar().getVarNum()];
-			if(b.isConstant()) snippet += b.getConstant().getLexicalValue();
+			if(b.isConstant()) snippet += b.getConstant().getLexicalValueExpanded();
 			else snippet += "?v"+b.getVar();
 		}
 		snippet += " ";
-		if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValue();
+		if(this.getObject().isConstant()) snippet += this.getObject().getConstant().getLexicalValueExpanded();
 		else if (this.getObject().getVar().getVarNum() >= bindings.length) {
 			snippet += "?v"+this.getObject().getVar()+freshVarPrefix;
 		} else {
 			Binding b = bindings[this.getObject().getVar().getVarNum()];
 			if(b.isConstant()) {
 				if(b.getConstant().isLiteral() && RDFUtil.isNumericDatatypeIRI(((ResourceLiteral) b.getConstant()).getLiteralTypeIRI()))
-					snippet += b.getConstant().getLexicalValue();
-				else if(b.getConstant().isLiteral()) snippet += "\""+b.getConstant().getLexicalValue()+"\"";
+					snippet += b.getConstant().getLexicalValueExpanded();
+				else if(b.getConstant().isLiteral()) snippet += "\""+b.getConstant().getLexicalValueExpanded()+"\"";
 				else snippet += b.getConstant().getLexicalValueExpanded();
 			}
 			else snippet += "?v"+b.getVar();

@@ -251,7 +251,7 @@ END RULE
 START RULE inside(?x,?y) <-- insideWKT(?x,?y, ?xWTK, ?yWTK)
 END RULE
 
-START RULE hasWKTLocation(?x,?b,?y) <-- propertyOfObservation(?z,example:Location) AND featureOfObservation(?z,?x) AND measurementOfObservation(?z,?y) 
+START RULE hasWKTLocation(?x,?z,?y) <-- propertyOfObservation(?z,example:Location) AND featureOfObservation(?z,?x) AND measurementOfObservation(?z,?y) 
 END RULE
 
 START RULE hasLocation(?x,?y) <-- hasWKTLocation(?x,?y,?z)
