@@ -29,7 +29,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A useful class for creating a local (embedded) GraphDB database (no networking needed).
@@ -203,7 +205,9 @@ public class EmbeddedGraphDB implements Closeable {
         baseDir.deleteOnExit();
 
         // Create an instance of EmbeddedGraphDB and a single repository in it.
+        closeAllOpenConnections();
         final EmbeddedGraphDB embeddedGraphDB = new EmbeddedGraphDB(baseDir.getAbsolutePath());
+        openedConnections.add(embeddedGraphDB);
         embeddedGraphDB.createRepository("tmp-repo", null, Collections.singletonMap("ruleset", ruleset));
 
         // Get the newly created repository and open a connection to it.
@@ -217,10 +221,27 @@ public class EmbeddedGraphDB implements Closeable {
                 super.close();
                 try {
                     embeddedGraphDB.close();
+                    openedConnections.remove(embeddedGraphDB);
                 } catch (IOException e) {
                     throw new RepositoryException(e);
                 }
             }
         };
     }
+    
+    public static Set<EmbeddedGraphDB> openedConnections = new HashSet<EmbeddedGraphDB>();
+    
+   public static void closeAllOpenConnections() {
+	   Set<EmbeddedGraphDB> closedConnections = new HashSet<EmbeddedGraphDB>();
+	   for(EmbeddedGraphDB eb : openedConnections) {
+		   try {
+			eb.close();
+			closedConnections.add(eb);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	   }
+	   openedConnections.removeAll(closedConnections);
+   }
 }

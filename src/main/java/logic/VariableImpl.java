@@ -9,6 +9,10 @@ public class VariableImpl extends VariableAbstr{
 	// flag to determine whether the literal allowed flag was set or not
 	private boolean isSimpleVar;
 	
+	/**
+	 * 
+	 * @param varNum an int < 1000000
+	 */
 	public VariableImpl(int varNum) {
 		if(varNum < 0) throw new RuntimeException("ERROR, variable numbers cannot be negative");
 		this.varNum = varNum;
@@ -16,6 +20,10 @@ public class VariableImpl extends VariableAbstr{
 		isSimpleVar = true;
 	}
 	
+	/**
+	 * 
+	 * @param varNum an int < 1000000
+	 */
 	public VariableImpl(int varNum, boolean areLiteralsAllowed) {
 		if(varNum < 0) throw new RuntimeException("ERROR, variable numbers cannot be negative");
 		this.varNum = varNum;
@@ -38,6 +46,12 @@ public class VariableImpl extends VariableAbstr{
 	public boolean isSimpleVar() {
 		// TODO Auto-generated method stub
 		return isSimpleVar;
+	}
+	
+	private static int newVar = 1000000;
+	public static int getNewVarNum() {
+		if(newVar == Integer.MAX_VALUE) newVar = 1000000;
+		return newVar++;
 	}
 	
 	
