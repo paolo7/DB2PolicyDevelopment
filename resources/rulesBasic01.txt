@@ -9,7 +9,7 @@ END PREDICATE
 
 START PREDICATE 
 SIGNATURE     geofenced(?x)
-LABEL         ?x is geofenced
+LABEL         ?x is a geofenced tunnel
 RDF           ?x rdf:type example:Geofenced .
 END PREDICATE
 
@@ -326,7 +326,7 @@ START AVAILABLE ASSERTED triple(example:Tunnel,rdfs:label,"tunnel")
 START AVAILABLE ASSERTED triple(example:Place,rdfs:label,"location")
 START AVAILABLE ASSERTED triple(example:MainTunnel,rdfs:label,"main escape tunnel")
 START AVAILABLE ASSERTED triple(example:Fire,rdfs:label,"fire")
-START AVAILABLE ASSERTED triple(example:Geofenced,rdfs:label,"geofenced area")
+START AVAILABLE ASSERTED triple(example:Geofenced,rdfs:label,"geofenced tunnel")
 
 ** Domain specific ontological information
 

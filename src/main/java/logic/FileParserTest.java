@@ -28,6 +28,10 @@ public class FileParserTest {
 	}	*/
 
 
+	//static String rulefile = System.getProperty("user.dir") + "/resources/rulesLiteral1.txt";
+	
+	static String rulefile = System.getProperty("user.dir") + "/resources/rulesBasic01.txt";
+	static String prefixesfile = System.getProperty("user.dir") + "/resources/prefixes.txt";
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -36,7 +40,6 @@ public class FileParserTest {
 		boolean evaluateDatabaseInstance = false;*/
 		
 		
-		String rulefile = System.getProperty("user.dir") + "/resources/rulesLiteral1.txt";
 		String[] vocabularyFiles = new String[] {};
 		/*vocabularyFiles = new String[] {
 				System.getProperty("user.dir") + "/resources/vocabularies/SSN.ttl",
@@ -65,7 +68,7 @@ public class FileParserTest {
 			eDB.loadRDF(new File(filepath), RDFFormat.TURTLE);
 		}
 		
-		Map<String,String> prefixes = FileParser.parsePrefixes(System.getProperty("user.dir") + "/resources/prefixes.txt");
+		Map<String,String> prefixes = FileParser.parsePrefixes(prefixesfile);
 
 		
 		
@@ -157,8 +160,8 @@ public class FileParserTest {
 	
 		// output results as JSON
 		existingPredicates.addAll(newPredicates);
-		JSONoutput.outputAsJSON("JSONoutput.json", existingPredicates);
-		JSONoutput.outputAsJSON("JSONoutput2.json", printPredicates);
+		JSONoutput.outputAsJSON("JSONoutputExisting.json", existingPredicates);
+		JSONoutput.outputAsJSON("JSONoutputPrint.json", printPredicates);
 		//System.out.println("\n*************** CHECKING INFERRED PREDICATES ON TRIPLESTORE (known predicates: "+predicates.size()+")\n");
 		
 		

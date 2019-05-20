@@ -415,7 +415,7 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		
 		// All variables occurring in the subject and predicate position of the consequent are automatically in delta
 		for(PredicateTemplate pt : r.getConsequent()) {
-			for(ConversionTriple ct : PredicateUtil.get(pt,knownPredicates).getRDFtranslation()){
+			if(PredicateUtil.isPredicateTemplate(pt)) for(ConversionTriple ct : PredicateUtil.get(pt,knownPredicates).getRDFtranslation()){
 				ConversionTriple ct_consequent = ct.applyBinding(pt.getBindings());
 				if(ct_consequent.getSubject().isVar()) newDeltas.add(ct_consequent.getSubject().getVar().getVarNum());
 				if(ct_consequent.getPredicate().isVar()) newDeltas.add(ct_consequent.getPredicate().getVar().getVarNum());
@@ -572,7 +572,40 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    			RDFNode value = binding.get(var);
 		    			bindingsMap.put(var, value);
 		    		}	
+		    		
+		    		
+		    		/*boolean validBinding = true;
+		    		if(validBinding) {
+		    			if(consistencyCheck) {		    				
+		    				if(inconsistentRuleApplications.get(r).contains(bindingsMap)) {
+		    					if(debugPrintOWLconsistencyChecks) System.out.print("@");						
+		    					validBinding = false;
+		    					statinconsistencycheckreused++;
+		    				}
+		    			}
+		    			else {
+		    				inferrablePredicates = r.applyRule(bindingsMap, knownPredicates, existingPredicates);
+
+		    				if (consistencyCheck && !checkOWLconsistency(r,bindingsMap, basicModel, inferrablePredicates)) {
+		    					validBinding = false;
+		    					inconsistentRuleApplications.get(r).add(bindingsMap);
+		    					if(debugPrintOWLconsistencyChecks) System.out.print("#");
+		    					statinconsistencycheckfound++;
+		    					statinconsistencycheck++;
+		    				}
+		    			}
+		    		}
+		    		if(validBinding) {	
+		    			newPredicates.addAll(inferrablePredicates);
+		    		}*/
+		    		
+		    		
+		    		
+		    		
+		    		
 		    		Set<PredicateInstantiation> inferrablePredicates = r.applyRule(bindingsMap, newDeltas, knownPredicates, existingPredicates);
+		    		
+		    		
 		    		
 		    		newPredicates.addAll(inferrablePredicates);
 		    	}

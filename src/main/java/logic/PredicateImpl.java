@@ -29,13 +29,18 @@ public class PredicateImpl extends PredicateAbstr {
 		this.varnum = varnum;
 		this.translationToRDF = translationToRDF;
 		this.textLabel = textLabel;
+		for(TextTemplate tt : textLabel) {
+			if(tt.isText() && tt.getText().contains("GPPG#LAMBDA")) {
+				System.out.print("probably error");
+			}
+		}
 		this.translationToRDFFilters = translationToRDFFilters;
 		
 		
-		if(this.toString().contains("?v6 http://www.w3.org/ns/sosa/hasSimpleResult ?v5")) {
-			System.out.println("test");
+		//if(this.toString().contains("?v6 http://www.w3.org/ns/sosa/hasSimpleResult ?v5")) {
+		//	System.out.println("test");
 			
-		}
+		//}
 	}
 	
 	@Override

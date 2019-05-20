@@ -7,8 +7,8 @@ public class ConversionTripleImpl extends ConversionTripleAbstr{
 	private Binding object;
 	
 	public ConversionTripleImpl(Binding subject, Binding predicate, Binding object) {
-		if(subject.isConstant() && subject.getConstant().getLexicalValue().contains("http://w3id.org/prohow/GPPG#LAMBDA"))
-			System.out.println("errorr...");
+		/*if(subject.isConstant() && subject.getConstant().getLexicalValue().contains("http://w3id.org/prohow/GPPG#LAMBDA"))
+			System.out.println("errorr...");*/
 		if((subject.isConstant() && subject.getConstant().isLiteral() ) || (predicate.isConstant() && predicate.getConstant().isLiteral() ))
 			throw new MappingInvalidException("Error: trying to create a triple with a literal in the subject or predicate position");
 		this.subject = subject;

@@ -876,7 +876,7 @@ public class RDFUtil {
 	public static Set<ConversionTriple> getModellingSchemaTriples(Set<PredicateInstantiation> schema, ConversionTriple mtq) {
 		Set<ConversionTriple> matched = new HashSet<ConversionTriple>();
 		for(PredicateInstantiation pi: schema) {
-			for(ConversionTriple ct: pi.getPredicate().getRDFtranslation()) {
+			if(pi.getPredicate().getRDFtranslation() != null) for(ConversionTriple ct: pi.getPredicate().getRDFtranslation()) {
 				ConversionTriple schemaTriple = ct.applyBinding(pi.getBindings());
 				boolean isModelled = true;
 				for(int i = 0; i< 3; i++) {

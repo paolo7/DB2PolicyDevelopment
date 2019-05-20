@@ -1,6 +1,7 @@
 package logic;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class PredicateUtil {
@@ -38,13 +39,21 @@ public class PredicateUtil {
 				if(predicate == null)
 					predicate = p;
 				else
-					throw new RuntimeException("ERROR: the set of predicates contain more than one entry with predicate name "+name+" and "+varNum+" variables");
+					if(! p.equals(predicate)) throw new RuntimeException("ERROR: the set of predicates contains more than one entry with predicate name "+name+" and "+varNum+" variables");
 			}
 		}
 		if(predicate != null)
 			return predicate;
 		else
 			throw new RuntimeException("ERROR: the set of predicates does not contain an entry with predicate name "+name+" and "+varNum+" variables");
+	}
+	
+	public static boolean isPredicateTemplate(PredicateTemplate pt) {
+		for (Iterator<TextTemplate> iter = pt.getName().iterator(); iter.hasNext(); ) {
+			TextTemplate tt = iter.next();
+			if(tt.isVar()) return false;
+		}
+		return true;
 	}
 	
 	/**

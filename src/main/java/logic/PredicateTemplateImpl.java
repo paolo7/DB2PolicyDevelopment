@@ -75,7 +75,7 @@ public class PredicateTemplateImpl extends PredicateTemplateAbstr{
 				if(tt.isText()) textLabel.add(tt);
 				else {
 					RDFNode newBinding = bindingsMap.get("v"+tt.getVar());
-					if(newBinding != null && !newBinding.isAnon()) {
+					if(newBinding != null && !newBinding.isAnon() && ! newBinding.asResource().getURI().equals(RDFUtil.LAMBDAURI)) {
 						if(newBinding.isLiteral()) textLabel.add(new TextTemplateImpl(newBinding.asLiteral().getLexicalForm()));
 						else if(newBinding.isURIResource()) textLabel.add(new TextTemplateImpl(RDFUtil.resolveLabelOfURI(newBinding.asResource().getURI())));
 						else throw new RuntimeException("ERROR: cannot create predicate instantiation because node is neither null, nor blank, nor literal, nor URI");
