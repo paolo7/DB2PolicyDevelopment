@@ -1,7 +1,11 @@
 package logic;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -43,6 +47,39 @@ public class RDFUtil {
 	public static long freshVariablePrefix = 0;
 	
 	public static boolean ignoreConstraints = false;
+	
+	
+	
+	public static Map<String, RDFNode> uniquifyLambdaBindings(Map<String, RDFNode> original){
+		Map<String, RDFNode> filteredMap = new HashMap<String, RDFNode>();
+		for (Map.Entry<String, RDFNode> entry : original.entrySet()) {
+			if(!entry.getValue().asResource().getURI().equals(LAMBDAURI)) {
+				filteredMap.put(entry.getKey(), entry.getValue());
+			} else {
+				filteredMap.put(entry.getKey(), ResourceFactory.createResource(LAMBDAURI+entry.getKey()));
+			}
+		}
+		return filteredMap;
+	}
+	
+	public static Map<String, RDFNode> removeLambdaBindings(Map<String, RDFNode> original){
+		Map<String, RDFNode> filteredMap = new HashMap<String, RDFNode>();
+		for (Map.Entry<String, RDFNode> entry : original.entrySet()) {
+			if(!entry.getValue().asResource().getURI().equals(LAMBDAURI)) {
+				filteredMap.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return filteredMap;
+	}
+	
+	public static Binding[] removeLambdaBindings(Binding[] original) {
+		List<Binding> retainedBindings = Arrays.asList(original);
+		Binding lambda = new BindingImpl(new ResourceURI(LAMBDAURI));
+		while(retainedBindings.contains(lambda)) {
+			retainedBindings.remove(lambda);
+		}
+		return (Binding[]) retainedBindings.toArray();
+	}
 	
 	private static void generateRuleInstantiationModelHelper(Model model, PredicateInstantiation psi, ConversionTriple ct, Map<String,RDFNode> bindingsMap, Integer i, Binding[] newPredicateBindings) {
 		Resource subject = null;

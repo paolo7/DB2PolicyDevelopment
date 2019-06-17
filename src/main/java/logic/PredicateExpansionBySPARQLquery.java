@@ -62,6 +62,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	
 	public boolean checkOWLconsistency(Rule r, Map<String,RDFNode> bindingsMap, Model baseModel, Set<PredicateInstantiation> inferrablePredicates) {
 		overallConsistencyChecks++;
+		
+		bindingsMap = RDFUtil.uniquifyLambdaBindings(bindingsMap);
+		
 		Reasoner reasoner = ReasonerRegistry.getOWLMiniReasoner();
 		
 		//try {
@@ -86,8 +89,9 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		InfModel infmodel = ModelFactory.createInfModel(reasoner, modelExpanded);
 		ValidityReport validity = infmodel.validate();
 		if (validity.isValid()) {
-			if(debugPrintOWLconsistencyChecks) System.out.print(".");
+			if(debugPrintOWLconsistencyChecks || true) System.out.print(".");
 		} else {
+			if(debugPrintOWLconsistencyChecks || true) System.out.print("-");
 		}
 		return validity.isValid();
 	}
@@ -95,6 +99,11 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 	@Override
 	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates) {
 		return expand(approach, existingPredicates,false, null);
+	}
+	
+	@Override
+	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck) {
+		return expand(approach, existingPredicates,consistencyCheck, null);
 	}
 	
 	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, StatRecorder sr) {
@@ -574,40 +583,35 @@ public class PredicateExpansionBySPARQLquery implements PredicateExpansion{
 		    		}	
 		    		
 		    		
-		    		/*boolean validBinding = true;
-		    		if(validBinding) {
-		    			if(consistencyCheck) {		    				
-		    				if(inconsistentRuleApplications.get(r).contains(bindingsMap)) {
-		    					if(debugPrintOWLconsistencyChecks) System.out.print("@");						
-		    					validBinding = false;
-		    					statinconsistencycheckreused++;
-		    				}
-		    			}
-		    			else {
-		    				inferrablePredicates = r.applyRule(bindingsMap, knownPredicates, existingPredicates);
+					//Binding[] noLambdaBindings = RDFUtil.removeLambdaBindings(pt.getBindings());
+		    		Set<PredicateInstantiation> inferrablePredicates = r.applyRule(bindingsMap, newDeltas, knownPredicates, existingPredicates);
 
-		    				if (consistencyCheck && !checkOWLconsistency(r,bindingsMap, basicModel, inferrablePredicates)) {
-		    					validBinding = false;
-		    					inconsistentRuleApplications.get(r).add(bindingsMap);
-		    					if(debugPrintOWLconsistencyChecks) System.out.print("#");
-		    					statinconsistencycheckfound++;
-		    					statinconsistencycheck++;
-		    				}
-		    			}
-		    		}
+		    		boolean validBinding = true;
+	    			if(consistencyCheck) {		    				
+	    				if(inconsistentRuleApplications.containsKey(r) && inconsistentRuleApplications.get(r).contains(bindingsMap)) {
+	    					if(debugPrintOWLconsistencyChecks) System.out.print("@");						
+	    					validBinding = false;
+	    					statinconsistencycheckreused++;
+	    				} else if (consistencyCheck && !checkOWLconsistency(r,bindingsMap, basicModel, inferrablePredicates)) {
+	    					validBinding = false;
+	    					if(!inconsistentRuleApplications.containsKey(r)) {
+	    						inconsistentRuleApplications.put(r, new HashSet<Map<String,RDFNode>>());
+	    					}
+	    					inconsistentRuleApplications.get(r).add(bindingsMap);
+	    					if(debugPrintOWLconsistencyChecks) System.out.print("#");
+	    					statinconsistencycheckfound++;
+	    					statinconsistencycheck++;
+	    				}
+	    			}
 		    		if(validBinding) {	
 		    			newPredicates.addAll(inferrablePredicates);
-		    		}*/
+		    		}
 		    		
 		    		
 		    		
 		    		
 		    		
-		    		Set<PredicateInstantiation> inferrablePredicates = r.applyRule(bindingsMap, newDeltas, knownPredicates, existingPredicates);
 		    		
-		    		
-		    		
-		    		newPredicates.addAll(inferrablePredicates);
 		    	}
 			}
 		    long time2 = new Date().getTime();

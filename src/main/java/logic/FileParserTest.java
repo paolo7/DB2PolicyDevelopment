@@ -32,6 +32,7 @@ public class FileParserTest {
 	
 	static String rulefile = System.getProperty("user.dir") + "/resources/rulesBasic01.txt";
 	static String prefixesfile = System.getProperty("user.dir") + "/resources/prefixes.txt";
+	static boolean consistencyCheck = true;
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -142,7 +143,7 @@ public class FileParserTest {
 		System.out.println("*************** APPLYING EXPANSION\n");
 		PredicateExpansion expansion = new PredicateExpansionBySPARQLquery(predicates, rules, additionalVocabularies);
 		expansion.setPrefixes(prefixes);
-		Set<PredicateInstantiation> newPredicates = expansion.expand(3,existingPredicates);
+		Set<PredicateInstantiation> newPredicates = expansion.expand(3,existingPredicates,consistencyCheck);
 		predicates = expansion.getPredicates();
 		
 		System.out.println("*************** INFERRED PREDICATES\n" + 

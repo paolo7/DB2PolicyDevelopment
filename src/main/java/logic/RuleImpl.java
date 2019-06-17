@@ -52,6 +52,7 @@ public class RuleImpl extends RuleAbstr{
 	private Set<ConversionTriple> computeConstraints(Map<String, RDFNode> bindingsMap, Set<Predicate> predicates, Binding[] newBindings){
 		Set<ConversionTriple> constraints = new HashSet<ConversionTriple>();
 		for(PredicateInstantiation pi: getAntecedent()) {
+			// remove bindings to lambda?
 			Set<ConversionTriple> newConstraints = pi.applyBinding(bindingsMap, newBindings).getLeft();
 			if(newConstraints != null) constraints.addAll(newConstraints);
 		}
@@ -85,7 +86,9 @@ public class RuleImpl extends RuleAbstr{
 	@Override
 	public Set<PredicateInstantiation> applyRule(Map<String, RDFNode> bindingsMap, Set<Integer> deltas, Set<Predicate> predicates, Set<PredicateInstantiation> existingPredicates) {
 		Set<PredicateInstantiation> newpredicates = new HashSet<PredicateInstantiation>();
+		bindingsMap = RDFUtil.removeLambdaBindings(bindingsMap);
 		for(PredicateTemplate pt: consequent) {
+			//Binding[] noLambdaBindings = RDFUtil.removeLambdaBindings(pt.getBindings());
 			Set<ConversionTriple> constraints = computeConstraints(bindingsMap, predicates, pt.getBindings());
 			newpredicates.add(pt.applyRule(bindingsMap, deltas, predicates, label, antecedent, constraints));
 		}

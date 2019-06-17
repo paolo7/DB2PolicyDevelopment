@@ -15,7 +15,11 @@ public interface PredicateExpansion {
 	 */
 	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates);
 	
+	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck);
+	
 	public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, StatRecorder sr);
+	
+	//public Set<PredicateInstantiation> expand(int approach, Set<PredicateInstantiation> existingPredicates, boolean consistencyCheck, StatRecorder sr);
 	
 	public Set<Rule> getRules();
 	
